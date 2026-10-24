@@ -7,7 +7,7 @@ The prototype targets Solana Devnet and is designed for a focused hackathon demo
 
 ## Current status
 
-This repository contains the validated architecture and the first Anchor program interface. The web client and registry adapter are the next implementation slices.
+The repository now includes the initial web demo: agent discovery, wallet connection, direct Devnet identity verification, and a guarded itinerary-hash commitment flow. The Anchor program still needs to be deployed before the final transaction can succeed.
 
 ## Verified registry integration
 

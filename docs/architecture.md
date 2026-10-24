@@ -32,3 +32,7 @@ The Metaplex Agent Registry supplies the agent identity and registration metadat
 3. Wallet-connected web page for discovery, verification, and commit.
 4. Devnet demo with a registered planning agent and explorer links.
 5. Add feedback only after confirming the exact supported registry instruction and account flow.
+
+## Local configuration
+
+Copy `web/.env.example` to `web/.env.local`. Set `NEXT_PUBLIC_TOURISM_PROGRAM_ID` to the address printed by an Anchor Devnet deployment. Until that variable is set, the UI intentionally refuses to claim that a commitment was written.
