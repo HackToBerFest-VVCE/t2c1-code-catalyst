@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 type Agent = {
   mintAddress?: string;
@@ -14,6 +15,7 @@ export default function Home() {
   const [destination, setDestination] = useState("Mysuru");
   const [agents, setAgents] = useState<Agent[]>([]);
   const [status, setStatus] = useState("Choose a destination, then discover active registered agents.");
+  const [verifiedAsset, setVerifiedAsset] = useState<string | null>(null);
 
   async function discover() {
     setStatus("Checking the indexed Solana agent directory…");
@@ -29,6 +31,20 @@ export default function Home() {
     }
   }
 
+  async function verifyAgent(asset?: string) {
+    if (!asset) return;
+    setStatus("Verifying the agent identity directly on Solana Devnet…");
+    const response = await fetch(`/api/agents/verify?asset=${encodeURIComponent(asset)}`);
+    const payload = await response.json();
+    if (!response.ok || !payload.registered) {
+      setVerifiedAsset(null);
+      setStatus("This asset does not have a readable registered agent identity on Devnet.");
+      return;
+    }
+    setVerifiedAsset(asset);
+    setStatus(`Agent identity verified on Devnet. PDA: ${payload.identityPda}`);
+  }
+
   return (
     <main>
       <div className="eyebrow">Solana tourism infrastructure</div>
@@ -42,7 +58,7 @@ export default function Home() {
         <div className="toolbar">
           <input value={destination} onChange={(event) => setDestination(event.target.value)} placeholder="Destination or agent name" />
           <button onClick={discover}>Discover registered agents</button>
-          <button className="secondary" onClick={() => setStatus("Wallet connection will be enabled in the next slice.")}>Connect wallet</button>
+          <WalletMultiButton className="wallet-button" />
         </div>
         <div className="status" role="status">{status}</div>
         <div className="agents">
@@ -51,7 +67,9 @@ export default function Home() {
               <span className="badge">REGISTERED DIRECTORY RESULT</span>
               <h3>{agent.name ?? "Unnamed agent"}</h3>
               <p>{agent.description ?? "No description was provided in the registration metadata."}</p>
-              <button className="secondary" onClick={() => setStatus("On-chain identity verification will run before this agent can be committed.")}>Review identity</button>
+              <button className="secondary" onClick={() => verifyAgent(agent.mintAddress)}>
+                {verifiedAsset === agent.mintAddress ? "Identity verified" : "Verify identity"}
+              </button>
             </article>
           ))}
         </div>
@@ -59,6 +77,7 @@ export default function Home() {
           Discovery is indexed and may lag recent registrations. A directory result is not a tourism license or quality guarantee.
           Itinerary content remains off-chain until its hash is committed on Devnet.
         </p>
+        {verifiedAsset && <button onClick={() => setStatus("Next slice: sign the itinerary commitment transaction from your connected wallet.")}>Prepare itinerary commitment</button>}
       </section>
     </main>
   );
