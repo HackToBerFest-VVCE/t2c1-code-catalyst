@@ -33,7 +33,9 @@ export default function Home() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error);
       setAgents(payload.data?.agents ?? []);
-      setStatus(`Found ${(payload.data?.agents ?? []).length} candidate agent(s). Identity is checked before commitment.`);
+      setStatus(payload.fallbackSearch
+        ? `No agent matched “${payload.originalQuery}”; showing active travel agents instead.`
+        : `Found ${(payload.data?.agents ?? []).length} candidate agent(s). Identity is checked before commitment.`);
     } catch (error) {
       setAgents([]);
       setStatus(error instanceof Error ? error.message : "Discovery failed.");
