@@ -34,7 +34,7 @@ export default function Home() {
       if (!response.ok) throw new Error(payload.error);
       setAgents(payload.data?.agents ?? []);
       setStatus(payload.fallbackSearch
-        ? `No agent matched “${payload.originalQuery}”; showing active travel agents instead.`
+        ? `No agent matched “${payload.originalQuery}”; showing indexed travel agents instead.`
         : `Found ${(payload.data?.agents ?? []).length} candidate agent(s). Identity is checked before commitment.`);
     } catch (error) {
       setAgents([]);
