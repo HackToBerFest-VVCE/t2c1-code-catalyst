@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 // Replace with the deployed program address before Devnet deployment.
-declare_id!("11111111111111111111111111111111");
+declare_id!("A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN");
 
 #[program]
 pub mod tourism_registry {

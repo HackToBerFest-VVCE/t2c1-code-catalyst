@@ -1,5 +1,5 @@
 export const tourismIdl = {
-  address: "11111111111111111111111111111111",
+  address: "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN",
   metadata: { name: "tourism_registry", version: "0.1.0", spec: "0.1.0" },
   version: "0.1.0",
   name: "tourism_registry",

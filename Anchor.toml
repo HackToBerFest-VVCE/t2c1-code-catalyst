@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-tourism_registry = "11111111111111111111111111111111"
+tourism_registry = "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
 
 [provider]
 cluster = "Devnet"
