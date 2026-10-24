@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
+import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { tourismIdl } from "../lib/tourism-idl";
 
 type Agent = {
   mintAddress?: string;
@@ -16,6 +20,9 @@ export default function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [status, setStatus] = useState("Choose a destination, then discover active registered agents.");
   const [verifiedAsset, setVerifiedAsset] = useState<string | null>(null);
+  const [commitmentSignature, setCommitmentSignature] = useState<string | null>(null);
+  const { connection } = useConnection();
+  const wallet = useWallet();
 
   async function discover() {
     setStatus("Checking the indexed Solana agent directory…");
@@ -43,6 +50,43 @@ export default function Home() {
     }
     setVerifiedAsset(asset);
     setStatus(`Agent identity verified on Devnet. PDA: ${payload.identityPda}`);
+  }
+
+  async function commitItinerary() {
+    if (!verifiedAsset || !wallet.publicKey || !wallet.sendTransaction) {
+      setStatus("Connect a wallet and verify an agent before committing the itinerary.");
+      return;
+    }
+    const configuredProgram = process.env.NEXT_PUBLIC_TOURISM_PROGRAM_ID;
+    if (!configuredProgram) {
+      setStatus("The Anchor program is not deployed yet. Set NEXT_PUBLIC_TOURISM_PROGRAM_ID after Devnet deployment.");
+      return;
+    }
+
+    try {
+      const provider = new AnchorProvider(connection, wallet as never, { commitment: "confirmed" });
+      const program = new Program({ ...tourismIdl, address: configuredProgram } as Idl, provider);
+      const commitment = Keypair.generate();
+      const itinerary = {
+        destination,
+        dates: { start: "demo", end: "demo" },
+        days: [{ date: "demo", stops: [{ name: "Traveler-selected stop" }] }],
+      };
+      const bytes = new TextEncoder().encode(JSON.stringify(itinerary));
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      const hash = Array.from(new Uint8Array(digest));
+      const instruction = await program.methods
+        .commitItinerary(new PublicKey(verifiedAsset), hash, destination)
+        .accounts({ commitment: commitment.publicKey, traveler: wallet.publicKey, systemProgram: SystemProgram.programId })
+        .instruction();
+      const transaction = new Transaction().add(instruction);
+      const signature = await wallet.sendTransaction(transaction, connection, { signers: [commitment] });
+      await connection.confirmTransaction(signature, "confirmed");
+      setCommitmentSignature(signature);
+      setStatus("Itinerary commitment confirmed on Solana Devnet.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "The itinerary commitment failed.");
+    }
   }
 
   return (
@@ -77,7 +121,8 @@ export default function Home() {
           Discovery is indexed and may lag recent registrations. A directory result is not a tourism license or quality guarantee.
           Itinerary content remains off-chain until its hash is committed on Devnet.
         </p>
-        {verifiedAsset && <button onClick={() => setStatus("Next slice: sign the itinerary commitment transaction from your connected wallet.")}>Prepare itinerary commitment</button>}
+        {verifiedAsset && <button onClick={commitItinerary}>Commit itinerary hash on Devnet</button>}
+        {commitmentSignature && <p className="fineprint">Transaction: {commitmentSignature}</p>}
       </section>
     </main>
   );
