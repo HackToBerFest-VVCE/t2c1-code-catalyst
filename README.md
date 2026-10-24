@@ -31,3 +31,7 @@ Registry identity does not prove itinerary accuracy, local expertise, or service
 See [docs/architecture.md](docs/architecture.md) for the validated design and staged plan.
 
 For deployment prerequisites and the Devnet sequence, see [docs/devnet-deployment.md](docs/devnet-deployment.md).
+
+## Troubleshooting agent discovery
+
+The search box accepts a destination for itinerary context, but the registry first searches agent names. If no agent matches the destination, the web app automatically falls back to active travel agents. Restart the web app or redeploy the latest `main` commit after pulling changes.
