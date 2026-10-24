@@ -1,6 +1,6 @@
 # Devnet deployment
 
-The current workspace does not include Rust, Anchor, or the Solana CLI. Run these steps on a machine with the Solana toolchain installed.
+The project is configured for the deployed Devnet program `A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN`. Run these steps only when redeploying or upgrading it.
 
 ```powershell
 solana config set --url devnet
