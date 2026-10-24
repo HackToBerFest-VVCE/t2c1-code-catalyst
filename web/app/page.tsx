@@ -17,6 +17,8 @@ type Agent = {
 
 export default function Home() {
   const [destination, setDestination] = useState("Mysuru");
+  const [travelDate, setTravelDate] = useState("2026-11-14");
+  const [stops, setStops] = useState("Mysuru Palace, Devaraja Market, Chamundi Hill");
   const [agents, setAgents] = useState<Agent[]>([]);
   const [status, setStatus] = useState("Choose a destination, then discover active registered agents.");
   const [verifiedAsset, setVerifiedAsset] = useState<string | null>(null);
@@ -69,8 +71,8 @@ export default function Home() {
       const commitment = Keypair.generate();
       const itinerary = {
         destination,
-        dates: { start: "demo", end: "demo" },
-        days: [{ date: "demo", stops: [{ name: "Traveler-selected stop" }] }],
+        dates: { start: travelDate, end: travelDate },
+        days: [{ date: travelDate, stops: stops.split(",").map((name) => ({ name: name.trim() })).filter((stop) => stop.name) }],
       };
       const bytes = new TextEncoder().encode(JSON.stringify(itinerary));
       const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -101,9 +103,12 @@ export default function Home() {
       <section className="panel">
         <div className="toolbar">
           <input value={destination} onChange={(event) => setDestination(event.target.value)} placeholder="Destination or agent name" />
+          <input type="date" value={travelDate} onChange={(event) => setTravelDate(event.target.value)} aria-label="Trip date" />
           <button onClick={discover}>Discover registered agents</button>
           <WalletMultiButton className="wallet-button" />
         </div>
+        <label className="field-label" htmlFor="stops">Stops to include in the itinerary</label>
+        <input id="stops" value={stops} onChange={(event) => setStops(event.target.value)} placeholder="Separate stops with commas" />
         <div className="status" role="status">{status}</div>
         <div className="agents">
           {agents.map((agent) => (

@@ -9,6 +9,7 @@ h1 { max-width: 760px; font-size: clamp(42px, 7vw, 78px); line-height: .98; marg
 .toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
 input, button { border-radius: 10px; border: 1px solid #2c4264; padding: 12px 14px; font: inherit; }
 input { flex: 1; min-width: 220px; color: #e8f0ff; background: #08111f; }
+.field-label { display: block; margin: 18px 0 8px; color: #a8b6cb; font-size: 13px; }
 button { cursor: pointer; color: #061019; background: #73e0c1; border-color: #73e0c1; font-weight: 700; }
 .wallet-button { min-height: 46px; border-radius: 10px !important; font-size: 14px !important; }
 button.secondary { color: #c6d5eb; background: transparent; border-color: #365174; }
