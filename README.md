@@ -29,3 +29,5 @@ Registry identity does not prove itinerary accuracy, local expertise, or service
 - Metaplex `mpl-agent-registry` SDK and DAS/API discovery
 
 See [docs/architecture.md](docs/architecture.md) for the validated design and staged plan.
+
+For deployment prerequisites and the Devnet sequence, see [docs/devnet-deployment.md](docs/devnet-deployment.md).
