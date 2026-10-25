@@ -18,32 +18,27 @@ export interface GlobeDestination {
 export const GLOBE_DESTINATIONS: GlobeDestination[] = [
   { name: "Mysuru", country: "India", flag: "🇮🇳", lat: 12.2958, lon: 76.6394, tagline: "Illuminated royal palaces and sandalwood culture.", priceUSD: 45 },
   { name: "Jaipur", country: "India", flag: "🇮🇳", lat: 26.9124, lon: 75.7873, tagline: "Pink City citadels, Sheesh Mahal and royal forts.", priceUSD: 55 },
-  { name: "Paris", country: "France", flag: "🇫🇷", lat: 48.8566, lon: 2.3522, tagline: "Eiffel heights, Louvre masterpieces and Seine bistros.", priceUSD: 165 },
-  { name: "Tokyo", country: "Japan", flag: "🇯🇵", lat: 35.6762, lon: 139.6503, tagline: "Cyberpunk Shibuya crossings and ancient Asakusa shrines.", priceUSD: 145 },
-  { name: "Dubai", country: "UAE", flag: "🇦🇪", lat: 25.2048, lon: 55.2708, tagline: "Burj Khalifa summits, desert safaris and luxury marinas.", priceUSD: 185 },
   { name: "Goa", country: "India", flag: "🇮🇳", lat: 15.2993, lon: 74.1240, tagline: "Sun-drenched Konkan coasts, UNESCO churches and beach shacks.", priceUSD: 40 },
+  { name: "Delhi", country: "India", flag: "🇮🇳", lat: 28.6139, lon: 77.2090, tagline: "Mughal monuments, India Gate promenades and historic bazaars.", priceUSD: 45 },
+  { name: "Agra", country: "India", flag: "🇮🇳", lat: 27.1767, lon: 78.0081, tagline: "Taj Mahal marble wonder and monumental Mughal Agra Fort.", priceUSD: 40 },
+  { name: "Mumbai", country: "India", flag: "🇮🇳", lat: 19.0760, lon: 72.8777, tagline: "Gateway of India, Marine Drive and vibrant metropolis.", priceUSD: 50 },
   { name: "Kerala", country: "India", flag: "🇮🇳", lat: 9.9312, lon: 76.2673, tagline: "Emerald backwaters, private houseboats and spice hills.", priceUSD: 50 },
   { name: "Varanasi", country: "India", flag: "🇮🇳", lat: 25.3176, lon: 82.9739, tagline: "Sacred Ganges morning aarti and centuries-old ghats.", priceUSD: 35 },
-  { name: "Switzerland", country: "Switzerland", flag: "🇨🇭", lat: 46.8182, lon: 8.2275, tagline: "Alpine peaks, Matterhorn vistas and glacier trains.", priceUSD: 240 },
-  { name: "Delhi", country: "India", flag: "🇮🇳", lat: 28.6139, lon: 77.2090, tagline: "Mughal monuments, India Gate promenades and historic bazaars.", priceUSD: 45 },
-  { name: "Rome", country: "Italy", flag: "🇮🇹", lat: 41.9028, lon: 12.4964, tagline: "Colosseum arenas, Vatican treasures and artisanal trattorias.", priceUSD: 150 },
-  { name: "Bali", country: "Indonesia", flag: "🇮🇩", lat: -8.4095, lon: 115.1889, tagline: "Emerald rice terraces, cliffside temples and surf beaches.", priceUSD: 60 },
-  { name: "Greece", country: "Greece", flag: "🇬🇷", lat: 37.9838, lon: 23.7275, tagline: "White-washed cliffside villages, Aegean sunsets and ruins.", priceUSD: 160 },
-  { name: "Maldives", country: "Maldives", flag: "🇲🇻", lat: 3.2028, lon: 73.2207, tagline: "Overwater coral bungalows and crystal atolls.", priceUSD: 280 },
   { name: "Hampi", country: "India", flag: "🇮🇳", lat: 15.3350, lon: 76.4600, tagline: "Vijayanagara boulder kingdoms and chariot shrines.", priceUSD: 35 },
-  { name: "Ladakh", country: "India", flag: "🇮🇳", lat: 34.1526, lon: 77.5771, tagline: "Himalayan moonscapes and high-altitude lakes.", priceUSD: 70 },
-  { name: "Coorg", country: "India", flag: "🇮🇳", lat: 12.3375, lon: 75.8069, tagline: "Misty coffee estates, abbey waterfalls and spice trails.", priceUSD: 45 },
-  { name: "Udaipur", country: "India", flag: "🇮🇳", lat: 24.5854, lon: 73.7125, tagline: "Lake Pichola palaces and Rajput courtyards.", priceUSD: 65 },
-  { name: "London", country: "United Kingdom", flag: "🇬🇧", lat: 51.5074, lon: -0.1278, tagline: "Big Ben, Westminster Abbey and West End theater.", priceUSD: 175 },
-  { name: "New York", country: "USA", flag: "🇺🇸", lat: 40.7128, lon: -74.0060, tagline: "Manhattan skyline, Central Park and Broadway avenues.", priceUSD: 195 },
-  { name: "Singapore", country: "Singapore", flag: "🇸🇬", lat: 1.3521, lon: 103.8198, tagline: "Gardens by the Bay, Marina Bay Sands and hawker centers.", priceUSD: 155 },
-  { name: "Sydney", country: "Australia", flag: "🇦🇺", lat: -33.8688, lon: 151.2093, tagline: "Sydney Opera House, Harbour Bridge and Bondi Beach.", priceUSD: 170 },
-  { name: "Barcelona", country: "Spain", flag: "🇪🇸", lat: 41.3851, lon: 2.1734, tagline: "Sagrada Familia, Gothic Quarter and Mediterranean beaches.", priceUSD: 140 },
-  { name: "Cairo", country: "Egypt", flag: "🇪🇬", lat: 30.0444, lon: 31.2357, tagline: "Great Pyramids of Giza, Nile cruises and Khan el-Khalili.", priceUSD: 65 },
-  { name: "Bangkok", country: "Thailand", flag: "🇹🇭", lat: 13.7563, lon: 100.5018, tagline: "Grand Palace, Wat Arun and bustling street night markets.", priceUSD: 55 },
-  { name: "Amsterdam", country: "Netherlands", flag: "🇳🇱", lat: 52.3676, lon: 4.9041, tagline: "Historic canal rings, Rijksmuseum and vibrant cycling paths.", priceUSD: 160 },
-  { name: "Agra", country: "India", flag: "🇮🇳", lat: 27.1767, lon: 78.0081, tagline: "Taj Mahal marble monument and Mughal Agra Fort.", priceUSD: 40 },
+  { name: "Ladakh", country: "India", flag: "🇮🇳", lat: 34.1526, lon: 77.5771, tagline: "Himalayan moonscapes, Pangong lake and high passes.", priceUSD: 70 },
+  { name: "Udaipur", country: "India", flag: "🇮🇳", lat: 24.5854, lon: 73.7125, tagline: "City of Lakes, Pichola palaces and Rajput courtyards.", priceUSD: 60 },
+  { name: "Amritsar", country: "India", flag: "🇮🇳", lat: 31.6340, lon: 74.8723, tagline: "Sacred Golden Temple (Harmandir Sahib) and Wagah border.", priceUSD: 35 },
+  { name: "Rishikesh", country: "India", flag: "🇮🇳", lat: 30.0869, lon: 78.2676, tagline: "Yoga capital of the world, Ganges aarti and Himalayan foothills.", priceUSD: 35 },
+  { name: "Coorg", country: "India", flag: "🇮🇳", lat: 12.3375, lon: 75.8069, tagline: "Misty coffee plantations, abbey waterfalls and spice trails.", priceUSD: 45 },
   { name: "Bengaluru", country: "India", flag: "🇮🇳", lat: 12.9716, lon: 77.5946, tagline: "Garden City botanical trails and artisan craft breweries.", priceUSD: 45 },
+  { name: "Jaisalmer", country: "India", flag: "🇮🇳", lat: 26.9157, lon: 70.9083, tagline: "Thar desert golden sand dunes and living medieval fort.", priceUSD: 45 },
+  { name: "Srinagar", country: "India", flag: "🇮🇳", lat: 34.0837, lon: 74.7973, tagline: "Dal Lake Shikara houseboats, Mughal gardens and snow peaks.", priceUSD: 60 },
+  { name: "Darjeeling", country: "India", flag: "🇮🇳", lat: 27.0410, lon: 88.2663, tagline: "Tiger Hill Kanchenjunga sunrise and heritage Toy Train.", priceUSD: 45 },
+  { name: "Andaman", country: "India", flag: "🇮🇳", lat: 11.9761, lon: 92.9876, tagline: "Radhanagar turquoise beaches and coral reef diving.", priceUSD: 75 },
+  { name: "Shillong", country: "India", flag: "🇮🇳", lat: 25.5788, lon: 91.8933, tagline: "Scotland of the East, living root bridges and roaring waterfalls.", priceUSD: 40 },
+  { name: "Kolkata", country: "India", flag: "🇮🇳", lat: 22.5726, lon: 88.3639, tagline: "Cultural capital, Victoria Memorial and Howrah Bridge.", priceUSD: 40 },
+  { name: "Chennai", country: "India", flag: "🇮🇳", lat: 13.0827, lon: 80.2707, tagline: "Coromandel coast, Marina beach and Dravidian temples.", priceUSD: 40 },
+  { name: "Hyderabad", country: "India", flag: "🇮🇳", lat: 17.3850, lon: 78.4867, tagline: "Charminar citadels, pearl markets and Hyderabadi biryani.", priceUSD: 45 },
 ];
 
 export const WORLD_COORDINATES: Record<string, { lat: number; lon: number; country: string; flag: string; tagline: string }> = {
@@ -315,18 +310,23 @@ export default function EarthGlobe({
       pinObjects.push({ mesh: pinHead, dest });
     });
 
-    // Flight Arcs between major global hubs
+    // Flight Arcs connecting Indian cultural & transit corridors
     const flightArcs: THREE.Line[] = [];
     const arcPairs = [
-      ["Mysuru", "Dubai"],
-      ["Dubai", "Paris"],
-      ["Paris", "Tokyo"],
-      ["Tokyo", "Bali"],
+      ["Delhi", "Srinagar"],
       ["Delhi", "Ladakh"],
-      ["Mysuru", "Maldives"],
-      ["Paris", "Rome"],
-      ["Rome", "Greece"],
-      ["Dubai", "Switzerland"],
+      ["Delhi", "Jaipur"],
+      ["Delhi", "Agra"],
+      ["Delhi", "Varanasi"],
+      ["Mumbai", "Goa"],
+      ["Mumbai", "Bengaluru"],
+      ["Bengaluru", "Mysuru"],
+      ["Bengaluru", "Kerala"],
+      ["Kolkata", "Darjeeling"],
+      ["Chennai", "Andaman"],
+      ["Delhi", "Amritsar"],
+      ["Mumbai", "Udaipur"],
+      ["Delhi", "Rishikesh"],
     ];
 
     arcPairs.forEach(([cityA, cityB]) => {
@@ -353,9 +353,9 @@ export default function EarthGlobe({
       flightArcs.push(arcLine);
     });
 
-    // Set initial friendly Earth view facing India & Middle East
+    // Set initial friendly Earth view facing India directly
     earthGroup.rotation.y = -1.35;
-    earthGroup.rotation.x = 0.25;
+    earthGroup.rotation.x = 0.35;
 
     // Interaction State
     const state = {

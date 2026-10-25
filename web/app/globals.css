@@ -2095,3 +2095,589 @@ img {
     padding: 16px;
   }
 }
+
+/* ══════════════════════════════════════════════════
+   TRAVELER PERSONA & OFFICIAL VISA ADVISORY MODAL
+══════════════════════════════════════════════════ */
+.persona-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(4, 7, 12, 0.88);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.persona-modal-container {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #0C1018;
+  border: 1.5px solid rgba(248, 208, 87, 0.35);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  padding: 36px;
+}
+
+.persona-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.persona-modal-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFF;
+}
+
+.persona-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 36px auto;
+}
+
+.persona-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--yellow);
+  background: rgba(248, 208, 87, 0.1);
+  border: 1px solid rgba(248, 208, 87, 0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.persona-title {
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 900;
+  color: #FFF;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.persona-sub {
+  font-size: 14px;
+  color: var(--gray-light);
+  line-height: 1.6;
+}
+
+.persona-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.persona-option-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.persona-option-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(248, 208, 87, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.persona-option-card.selected {
+  border-color: var(--yellow);
+  background: rgba(248, 208, 87, 0.06);
+}
+
+.persona-card-flag {
+  font-size: 40px;
+  margin-bottom: 14px;
+}
+
+.persona-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.persona-card-head h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFF;
+  margin: 0;
+}
+
+.persona-tag-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.persona-tag-pill.green {
+  background: rgba(20, 241, 149, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(20, 241, 149, 0.3);
+}
+
+.persona-tag-pill.yellow {
+  background: rgba(248, 208, 87, 0.15);
+  color: var(--yellow);
+  border: 1px solid rgba(248, 208, 87, 0.3);
+}
+
+.persona-card-desc {
+  font-size: 13px;
+  color: var(--gray-light);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.persona-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.persona-benefits-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #EEE;
+  line-height: 1.4;
+}
+
+.btn-persona-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-persona-action.primary {
+  background: var(--yellow);
+  color: #0C0E12;
+}
+
+.btn-persona-action.primary:hover {
+  background: #ffdb6e;
+}
+
+.btn-persona-action.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-persona-action.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Step 2 Foreign Flow */
+.persona-header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.persona-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--yellow);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.persona-back-btn:hover {
+  text-decoration: underline;
+}
+
+.persona-gov-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-light);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.foreign-flow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 28px;
+}
+
+.country-selector-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.country-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.country-search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #FFF;
+  font-size: 13px;
+  width: 100%;
+}
+
+.country-chips-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 18px;
+}
+
+.country-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.country-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.country-pill.active {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: #0C0E12;
+}
+
+.country-pill.active .country-pill-name {
+  color: #0C0E12;
+  font-weight: 800;
+}
+
+.country-pill-name {
+  flex: 1;
+  font-size: 13px;
+  color: #FFF;
+  font-weight: 600;
+}
+
+.country-visa-banner {
+  background: rgba(248, 208, 87, 0.06);
+  border: 1px solid rgba(248, 208, 87, 0.3);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.visa-metric-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.visa-metric-lbl {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--gray);
+  font-weight: 700;
+}
+
+.visa-metric-val {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFF;
+}
+
+/* Right Column Documents */
+.documents-checklist-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.photo-spec-box {
+  background: rgba(248, 208, 87, 0.08);
+  border: 1.5px solid rgba(248, 208, 87, 0.4);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.docs-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 18px;
+}
+
+.doc-item-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.doc-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.doc-badge-pill {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--yellow);
+  background: rgba(248, 208, 87, 0.12);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.gov-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fraud-warning-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--gray-light);
+  line-height: 1.4;
+}
+
+.fraud-warning-note code {
+  color: var(--yellow);
+  font-weight: 700;
+}
+
+.btn-official-gov {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #14F195;
+  color: #061A12;
+  border-radius: 12px;
+  padding: 13px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(20, 241, 149, 0.25);
+}
+
+.btn-official-gov:hover {
+  background: #34f5a6;
+  transform: translateY(-1px);
+}
+
+.btn-proceed-traveler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--yellow);
+  color: #0C0E12;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-proceed-traveler:hover {
+  background: #ffdb6e;
+}
+
+/* Navbar Traveler Pill */
+.nav-traveler-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #FFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-traveler-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--yellow);
+}
+
+.nav-traveler-pill.indian {
+  border-color: rgba(20, 241, 149, 0.4);
+}
+
+.nav-traveler-pill.foreign {
+  border-color: rgba(248, 208, 87, 0.4);
+}
+
+.nav-traveler-label {
+  font-weight: 700;
+}
+
+.nav-traveler-switch {
+  font-size: 10px;
+  color: var(--gray-light);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.nav-traveler-visa-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0C0E12;
+  background: var(--yellow);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* Home Traveler Status Banner */
+.traveler-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(14, 18, 26, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 12px;
+  color: #FFF;
+  margin: 0 auto 16px auto;
+  max-width: 860px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.traveler-status-banner:hover {
+  border-color: var(--yellow);
+  background: rgba(20, 26, 38, 0.9);
+}
+
+.traveler-status-banner.foreign {
+  border-color: rgba(248, 208, 87, 0.35);
+}
+
+.traveler-status-banner.indian {
+  border-color: rgba(20, 241, 149, 0.35);
+}
+
+.visa-chip {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--yellow);
+  background: rgba(248, 208, 87, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.view-docs-link, .switch-status-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--yellow);
+}
+
+@media (max-width: 768px) {
+  .persona-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .foreign-flow-grid {
+    grid-template-columns: 1fr;
+  }
+  .persona-modal-container {
+    padding: 24px 18px;
+  }
+  .traveler-status-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

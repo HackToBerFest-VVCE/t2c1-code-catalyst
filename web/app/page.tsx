@@ -47,6 +47,7 @@ import {
   type CuratedCity,
   type CityAttraction,
 } from "../lib/curated-city-data";
+import TravelerPersonaModal from "../components/TravelerPersonaModal";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MainTab = "discover" | "agents" | "price" | "safety" | "records";
@@ -287,223 +288,183 @@ const DESTINATIONS: DestinationItem[] = [
     ],
   },
   {
-    id: "greece", name: "Greece", country: "Greece", flag: "🇬🇷",
-    price: "$2,950 per person", tag: "Trending",
-    tagline: "Sunlit islands, ancient ruins, and the timeless charm of the Mediterranean.",
-    tripTitle: "Isles of Myth & Sun", duration: "8 days",
-    activityLevel: "Moderate", accommodation: "4-star Caldera Suites",
-    bestSeason: "May – Oct",
-    description: "Greece is a destination where ancient history meets crystal-clear seas and vibrant island culture. Explore the Acropolis in Athens, watch world-famous sunsets in Santorini, and savor authentic Mediterranean dining.",
-    heroImg: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    id: "agra", name: "Agra", country: "India", flag: "🇮🇳",
+    price: "From ₹4,200", tag: "Heritage Pick",
+    tagline: "The Taj Mahal, monumental Agra Red Fort, and Mughal architectural grandeur.",
+    tripTitle: "Mughal Splendor & Marble Poetry", duration: "2 days",
+    activityLevel: "Easy", accommodation: "Taj-View Boutique Havelis",
+    bestSeason: "Oct – Mar",
+    description: "Agra is home to India's most celebrated monument of love, the white marble Taj Mahal. Explore the formidable walls of Agra Fort and sunset views across the Yamuna River from Mehtab Bagh.",
+    heroImg: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1585135497273-1a86b09fe70e?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "09:00 AM", name: "Acropolis & Parthenon", cost: "$35", desc: "Ancient citadel of classical Greece overlooking Athens" },
-      { time: "01:00 PM", name: "Plaka Traditional Taverna", cost: "$25", desc: "Authentic Greek lunch in historic cobblestone alleyways" },
-      { time: "05:30 PM", name: "Oia Sunset Walk, Santorini", cost: "$0", desc: "Iconic blue-domed churches and panoramic Aegean sunset" },
+      { time: "06:00 AM", name: "Taj Mahal Sunrise Tour", cost: "₹50", desc: "First morning sunlight on pristine white Makrana marble" },
+      { time: "11:00 AM", name: "Agra Red Fort Citadel", cost: "₹50", desc: "Palaces of Shah Jahan with panoramic Musamman Burj balcony" },
+      { time: "05:15 PM", name: "Mehtab Bagh Sunset Vista", cost: "₹25", desc: "Moonlight gardens with mirror reflection of Taj across Yamuna" },
     ],
   },
   {
-    id: "japan", name: "Japan", country: "Japan", flag: "🇯🇵",
-    price: "From $2,600", tag: "Trending",
-    tagline: "Ancient temples, neon cities, cherry blossoms — an unforgettable cultural journey.",
-    tripTitle: "Sakura, Shrines & Ramen", duration: "12 days",
-    activityLevel: "Easy", accommodation: "Ryokan & City Hotels",
-    bestSeason: "Mar – May, Oct – Nov",
-    description: "Japan blends ancient tradition with ultra-modern innovation. Walk through bamboo groves in Arashiyama, marvel at Fushimi Inari's thousand torii gates, and explore the electric streets of Shibuya and Akihabara.",
-    heroImg: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    id: "mumbai", name: "Mumbai", country: "India", flag: "🇮🇳",
+    price: "From ₹6,500", tag: "Trending",
+    tagline: "City of Dreams — Gateway of India, Marine Drive promenades, and coastal pulse.",
+    tripTitle: "Colonial Grandeur & Arabian Coasts", duration: "3 days",
+    activityLevel: "Moderate", accommodation: "South Mumbai Heritage Stays",
+    bestSeason: "Nov – Feb",
+    description: "Mumbai is India's financial and cultural powerhouse, featuring Victorian Gothic landmarks, bustling Marine Drive sunsets, historic Irani cafés, and the ancient rock-cut Elephanta Island caves.",
+    heroImg: "/images/destination-bangalore.jpg",
     thumbs: [
-      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "/images/destination-bangalore.jpg",
+      "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "08:00 AM", name: "Fushimi Inari Taisha Hike", cost: "¥0", desc: "Thousands of vermillion torii gates through forested mountain" },
-      { time: "01:00 PM", name: "Arashiyama Bamboo Grove", cost: "¥0", desc: "Ethereal bamboo forest walk by the Oi River" },
-      { time: "06:00 PM", name: "Dotonbori Food Street, Osaka", cost: "¥2000", desc: "Takoyaki, ramen, and street food in neon-lit Osaka" },
+      { time: "09:00 AM", name: "Gateway of India & Elephanta Ferry", cost: "₹260", desc: "Harbor boat trip to 5th-century rock-cut Shiva Trimurti caves" },
+      { time: "02:00 PM", name: "Kala Ghoda Art & Cafe Trail", cost: "₹0", desc: "Pedestrian art district with Victorian buildings and artisanal dining" },
+      { time: "06:00 PM", name: "Marine Drive Queen's Necklace Walk", cost: "₹0", desc: "Sunset sea breeze along the illuminated 3.6 km crescent promenade" },
     ],
   },
   {
-    id: "peru", name: "Peru", country: "Peru", flag: "🇵🇪",
-    price: "From $2,450", tag: "Budget Friendly",
-    tagline: "Mystical mountains, history, and the legendary ruins of Machu Picchu.",
-    tripTitle: "Inca Trail & Amazon Edge", duration: "10 days",
-    activityLevel: "Challenging", accommodation: "Eco Lodges & Mountain Camps",
+    id: "amritsar", name: "Amritsar", country: "India", flag: "🇮🇳",
+    price: "From ₹4,200", tag: "Heritage Pick",
+    tagline: "The Golden Temple, sacred Sarovar waters, and patriotic Wagah border.",
+    tripTitle: "Sacred Gold & Punjab Hospitality", duration: "3 days",
+    activityLevel: "Easy", accommodation: "Heritage Boutique Havelis",
+    bestSeason: "Oct – Mar",
+    description: "Amritsar is the spiritual heart of Sikhism. Experience the resplendent Golden Temple (Harmandir Sahib), 24-hour Guru-ka-Langar community kitchen, poignant Jallianwala Bagh, and the Wagah Border ceremony.",
+    heroImg: "https://images.unsplash.com/photo-1588096344356-9b6264d1f568?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    thumbs: [
+      "https://images.unsplash.com/photo-1588096344356-9b6264d1f568?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=90&dpr=2",
+    ],
+    stops: [
+      { time: "08:30 AM", name: "Golden Temple (Harmandir Sahib)", cost: "₹0", desc: "Gold-plated sanctum surrounded by the sacred pool of nectar" },
+      { time: "11:30 AM", name: "Mega Langar Kitchen Experience", cost: "₹0", desc: "World's largest free community kitchen serving 100,000 meals daily" },
+      { time: "04:30 PM", name: "Wagah Border Beating Retreat Ceremony", cost: "₹0", desc: "Electrifying military drill and flag lowering ceremony with Pakistan" },
+    ],
+  },
+  {
+    id: "rishikesh", name: "Rishikesh", country: "India", flag: "🇮🇳",
+    price: "From ₹4,500", tag: "Budget Friendly",
+    tagline: "Yoga capital of the world, emerald Ganges rapids, and Himalayan serenity.",
+    tripTitle: "Yoga, River Rapids & Mountain Ashrams", duration: "4 days",
+    activityLevel: "Moderate", accommodation: "Riverside Ashrams & Wellness Resorts",
+    bestSeason: "Sep – Apr",
+    description: "Nestled in the Himalayan foothills where the holy Ganges emerges into the plains, Rishikesh offers spiritual rejuvenation, evening Parmarth Niketan Ganga aarti, suspension bridges, and white-water river rafting.",
+    heroImg: "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    thumbs: [
+      "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=90&dpr=2",
+    ],
+    stops: [
+      { time: "07:00 AM", name: "Riverside Sunrise Yoga Session", cost: "₹200", desc: "Pranayama and Hatha yoga overlooking the emerald Ganges" },
+      { time: "11:00 AM", name: "Beatles Ashram (Chaurasi Kutia)", cost: "₹150", desc: "Graffiti domes where the Beatles composed the White Album in 1968" },
+      { time: "05:45 PM", name: "Triveni Ghat Evening Maha Aarti", cost: "₹0", desc: "Chanting priests, floating leaf diyas, and conch sounds at sunset" },
+    ],
+  },
+  {
+    id: "jaisalmer", name: "Jaisalmer", country: "India", flag: "🇮🇳",
+    price: "From ₹5,800", tag: "Heritage Pick",
+    tagline: "Golden sandstone citadels, Thar desert sand dunes, and camel safaris.",
+    tripTitle: "Thar Desert Gold & Living Citadel", duration: "4 days",
+    activityLevel: "Moderate", accommodation: "Fort Havelis & Desert Luxury Tents",
+    bestSeason: "Oct – Mar",
+    description: "Rising out of the Thar Desert like a mirage, Jaisalmer is India's 'Golden City'. Wander through the world's only living medieval fort where a quarter of the population still resides, followed by starry desert camps in Sam Dunes.",
+    heroImg: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    thumbs: [
+      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=90&dpr=2",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Jaisalmer Living Fort (Sonar Qila)", cost: "₹50", desc: "1156 AD golden citadel with carved Jain temples and cannon bastions" },
+      { time: "02:00 PM", name: "Patwon Ki Haveli Filigree Architecture", cost: "₹100", desc: "Intricate yellow sandstone lace windows and merchant museum" },
+      { time: "04:30 PM", name: "Sam Sand Dunes Camel Sunset", cost: "₹450", desc: "Riding across shifting desert ripples and evening Kalbelia folk dance" },
+    ],
+  },
+  {
+    id: "srinagar", name: "Srinagar", country: "India", flag: "🇮🇳",
+    price: "From ₹8,500", tag: "Trending",
+    tagline: "Dal Lake Shikara rides, floating vegetable markets, and Mughal gardens.",
+    tripTitle: "Paradise on Earth & Alpine Vistas", duration: "5 days",
+    activityLevel: "Easy", accommodation: "Carved Cedar Wood Houseboats",
     bestSeason: "Apr – Oct",
-    description: "Peru is an adventure destination combining ancient Inca civilization, Amazon rainforest biodiversity, and stunning Andean landscapes. Trek the legendary Inca Trail to Machu Picchu and explore the Sacred Valley.",
-    heroImg: "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=2000&q=92&dpr=2",
-    thumbs: [
-      "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1531065208531-4036c0dba3ca?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1509299349698-dd22323b5963?auto=format&fit=crop&w=1200&q=90&dpr=2",
-    ],
-    stops: [
-      { time: "06:00 AM", name: "Machu Picchu Sunrise Entry", cost: "$45", desc: "The Inca citadel at dawn — misty and breathtaking" },
-      { time: "12:30 PM", name: "Sacred Valley Market", cost: "$0", desc: "Traditional textiles and Andean crafts from local artisans" },
-      { time: "07:00 PM", name: "Cusco Night Food Tour", cost: "$30", desc: "Ceviche, cuy, and chicha morada in ancient Inca capital" },
-    ],
-  },
-  {
-    id: "paris", name: "Paris", country: "France", flag: "🇫🇷",
-    price: "$2,200 per person", tag: "Trending",
-    tagline: "The City of Light — iconic architecture, Louvre masterpieces, and café culture.",
-    tripTitle: "Seine, Spires & Impressionism", duration: "5 days",
-    activityLevel: "Moderate", accommodation: "Haussmann Boutique Hotels",
-    bestSeason: "Apr – Jun, Sep – Nov",
-    description: "Paris offers world-class art, culinary elegance, and landmark monuments. Cruise the Seine at dusk, admire the Eiffel Tower lights, and stroll through Montmartre's artist squares.",
-    heroImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2000&q=92&dpr=2",
-    thumbs: [
-      "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1471623432079-b009d30b6729?auto=format&fit=crop&w=1200&q=90&dpr=2",
-    ],
-    stops: [
-      { time: "09:30 AM", name: "Louvre Museum & Mona Lisa", cost: "€22", desc: "World's grandest art museum in former royal palace" },
-      { time: "02:00 PM", name: "Saint-Germain Café & Pastry Walk", cost: "€18", desc: "Legendary literary cafés and fresh buttery croissants" },
-      { time: "07:30 PM", name: "Eiffel Tower & Seine Cruise", cost: "€30", desc: "Illuminated iron spire and panoramic evening river views" },
-    ],
-  },
-  {
-    id: "bali", name: "Bali", country: "Indonesia", flag: "🇮🇩",
-    price: "From $1,350", tag: "Budget Friendly",
-    tagline: "Tropical temple retreats, emerald rice terraces, and surf shores.",
-    tripTitle: "Island of the Gods Journey", duration: "7 days",
-    activityLevel: "Easy", accommodation: "Jungle Villas & Beachfront Resorts",
-    bestSeason: "Apr – Oct",
-    description: "Bali is Indonesia's most famous tropical escape, featuring tiered rice terraces in Ubud, cliffside sea temples in Uluwatu, and vibrant coastal beach clubs.",
-    heroImg: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=2000&q=92&dpr=2",
-    thumbs: [
-      "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?auto=format&fit=crop&w=1200&q=90&dpr=2",
-    ],
-    stops: [
-      { time: "08:00 AM", name: "Tegallalang Rice Terraces", cost: "$5", desc: "Iconic sculpted green valley and jungle swings" },
-      { time: "01:00 PM", name: "Tirta Empul Holy Water Temple", cost: "$5", desc: "Ancient Balinese Hindu purification springs" },
-      { time: "05:30 PM", name: "Uluwatu Sunset Kecak Fire Dance", cost: "$15", desc: "Dramatic choral dance atop a 70m ocean cliff" },
-    ],
-  },
-  {
-    id: "switzerland", name: "Switzerland", country: "Switzerland", flag: "🇨🇭",
-    price: "From $3,400", tag: "Trending",
-    tagline: "Glacial peaks, turquoise alpine lakes, and panoramic scenic rail.",
-    tripTitle: "Alpine Summits & Crystal Lakes", duration: "7 days",
-    activityLevel: "Moderate", accommodation: "Alpine Chalets & Mountain Lodges",
-    bestSeason: "Jun – Sep, Dec – Mar",
-    description: "Switzerland boasts soaring Alpine peaks, the Jungfraujoch top of Europe, scenic railway journeys on the Glacier Express, and pristine lakeside towns like Lucerne and Interlaken.",
-    heroImg: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    description: "Srinagar is the crown jewel of Kashmir. Drift on a wooden Shikara across lotus-covered Dal Lake, sleep in handcrafted cedar houseboats, and stroll through Emperor Jahangir's terraced Shalimar and Nishat Mughal Gardens.",
+    heroImg: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "09:00 AM", name: "Jungfraujoch Sphinx Observatory", cost: "CHF 120", desc: "Top of Europe train station amidst Aletsch Glacier" },
-      { time: "02:00 PM", name: "Lake Brienz Turquoise Cruise", cost: "CHF 35", desc: "Steamer cruise framed by vertical alpine waterfalls" },
-      { time: "05:30 PM", name: "Grindelwald First Cliff Walk", cost: "CHF 0", desc: "Suspended bridge with views of the north face of the Eiger" },
+      { time: "06:00 AM", name: "Dal Lake Dawn Floating Market", cost: "₹400", desc: "Centuries-old boat-to-boat barter of fresh vegetables and Kashmiri saffron" },
+      { time: "11:00 AM", name: "Shalimar Bagh Mughal Royal Garden", cost: "₹25", desc: "Terraced water cascades built by Jahangir for Empress Nur Jahan" },
+      { time: "04:30 PM", name: "Nigeen Lake Shikara Sunset Glide", cost: "₹500", desc: "Peaceful water trail surrounded by snow-capped Zabarwan mountain ranges" },
     ],
   },
   {
-    id: "dubai", name: "Dubai", country: "UAE", flag: "🇦🇪",
-    price: "From $1,800", tag: "Trending",
-    tagline: "Futuristic skyscrapers, desert dune safaris, and luxury marina lifestyle.",
-    tripTitle: "Desert Gold & Modern Marvels", duration: "5 days",
-    activityLevel: "Easy", accommodation: "5-Star Marina & Downtown Hotels",
-    bestSeason: "Nov – Mar",
-    description: "Dubai represents ultra-modern architectural ambition, from the Burj Khalifa and Palm Jumeirah to thrilling desert quad safaris and historic gold souks along Dubai Creek.",
+    id: "andaman", name: "Andaman Islands", country: "India", flag: "🇮🇳",
+    price: "From ₹12,500", tag: "Trending",
+    tagline: "Radhanagar turquoise shores, coral barrier reefs, and scuba havens.",
+    tripTitle: "Tropical Corals & Emerald Atolls", duration: "6 days",
+    activityLevel: "Easy", accommodation: "Eco-Beach Resorts & Wooden Cottages",
+    bestSeason: "Oct – May",
+    description: "The Andaman Islands feature pristine white-sand shores, lush tropical rainforests, world-class coral diving in Havelock (Swaraj Dweep), and historic Cellular Jail in Port Blair.",
     heroImg: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
-      "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "10:00 AM", name: "Burj Khalifa At the Top (Level 124)", cost: "$45", desc: "Panoramic view over the Arabian Gulf and skyscrapers" },
-      { time: "03:30 PM", name: "Red Dune Desert Safari & BBQ", cost: "$55", desc: "4x4 dune bashing, camel trek, and desert stargazing" },
-      { time: "08:00 PM", name: "Dubai Fountain Spectacle", cost: "$0", desc: "Choreographed musical fountain at the foot of Dubai Mall" },
+      { time: "09:00 AM", name: "Radhanagar Beach (Asia's Best Beach)", cost: "₹0", desc: "Powder-soft white sands and warm turquoise Andaman Sea waters" },
+      { time: "01:30 PM", name: "Elephant Beach Coral Reef Snorkel", cost: "₹500", desc: "Vibrant living brain corals, sea turtles, and clownfish schools" },
+      { time: "06:00 PM", name: "Cellular Jail Light & Sound Memorial", cost: "₹150", desc: "Historic national freedom memorial in Port Blair" },
     ],
   },
   {
-    id: "rome", name: "Rome", country: "Italy", flag: "🇮🇹",
-    price: "From $2,100", tag: "Heritage Pick",
-    tagline: "The Colosseum, Vatican treasures, and timeless cobblestone piazzas.",
-    tripTitle: "Imperial Caesars & Renaissance Art", duration: "5 days",
-    activityLevel: "Moderate", accommodation: "Historic Piazza Boutique Hotels",
-    bestSeason: "Apr – Jun, Sep – Oct",
-    description: "Rome is an open-air museum filled with classical antiquity, including the Colosseum, Roman Forum, Pantheon, and St. Peter's Basilica, punctuated by artisanal gelato and pasta.",
-    heroImg: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    id: "darjeeling", name: "Darjeeling", country: "India", flag: "🇮🇳",
+    price: "From ₹5,500", tag: "Budget Friendly",
+    tagline: "Tiger Hill Kanchenjunga sunrises, UNESCO Toy Train, and lush tea gardens.",
+    tripTitle: "Himalayan Peaks & Queen of the Hills", duration: "4 days",
+    activityLevel: "Moderate", accommodation: "Colonial Tea Bungalows & Stays",
+    bestSeason: "Sep – Nov, Mar – May",
+    description: "Perched amidst rolling green tea gardens, Darjeeling offers breathtaking panoramic views of Mount Kanchenjunga (the world's 3rd highest peak), steam-powered UNESCO Himalayan Toy Train rides, and world-renowned Muscatel tea.",
+    heroImg: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
-      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1529154036614-a60975f5c760?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1531572753322-ad063cecc140?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "09:00 AM", name: "Colosseum & Roman Forum", cost: "€18", desc: "Gladiator arena and civic heart of ancient Rome" },
-      { time: "01:30 PM", name: "Trastevere Cacio e Pepe Lunch", cost: "€20", desc: "Historic bohemian alleyways with authentic Roman trattorias" },
-      { time: "05:00 PM", name: "Trevi Fountain & Spanish Steps", cost: "€0", desc: "Baroque marble masterpiece and evening gelato stroll" },
+      { time: "04:30 AM", name: "Tiger Hill Kanchenjunga Sunrise", cost: "₹50", desc: "First rays of sun turning Everest and Kanchenjunga from pink to blazing gold" },
+      { time: "10:00 AM", name: "UNESCO Himalayan Railway Joyride", cost: "₹1,000", desc: "Historic 1881 steam locomotive circling Batasia Loop and war memorial" },
+      { time: "02:30 PM", name: "Happy Valley Organic Tea Estate", cost: "₹100", desc: "Walking through century-old tea bushes and guided orthodox tasting" },
     ],
   },
   {
-    id: "iceland", name: "Iceland", country: "Iceland", flag: "🇮🇸",
-    price: "From $3,100", tag: "Trending",
-    tagline: "Fire and ice — Northern Lights, thermal lagoons, and roaring waterfalls.",
-    tripTitle: "Golden Circle & Aurora Borealis", duration: "6 days",
-    activityLevel: "Moderate", accommodation: "Geothermal Cabins & Eco-Lodges",
-    bestSeason: "Sep – Mar (Aurora), Jun – Aug (Hiking)",
-    description: "Iceland features volcanic craters, spouting geysers, the mineral-rich Blue Lagoon, and dramatic black sand beaches along the Atlantic coast.",
-    heroImg: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    id: "meghalaya", name: "Meghalaya", country: "India", flag: "🇮🇳",
+    price: "From ₹7,200", tag: "Trending",
+    tagline: "Abode of Clouds — Living root bridges, Nohkalikai falls, and Dawki waters.",
+    tripTitle: "Living Bridges & Emerald Rainforests", duration: "5 days",
+    activityLevel: "Challenging", accommodation: "Khasi Village Eco-Cottages",
+    bestSeason: "Oct – Apr",
+    description: "Meghalaya is nature's masterpiece in Northeast India. Trek down to the centuries-old Double Decker Living Root Bridge in Nongriat, boat on the crystal-clear glass waters of Umngot River in Dawki, and explore Mawlynnong, Asia's cleanest village.",
+    heroImg: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
-      "https://images.unsplash.com/photo-1529963183134-61a90db47eaf?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "09:30 AM", name: "Thingvellir National Park & Geysir", cost: "$0", desc: "Tectonic continental rift and erupting Strokkur geyser" },
-      { time: "02:00 PM", name: "Gullfoss Golden Waterfall", cost: "$0", desc: "Massive two-tiered glacial waterfall thundering into a canyon" },
-      { time: "06:00 PM", name: "Blue Lagoon Geothermal Soak", cost: "$85", desc: "Mineral-rich warm silica waters surrounded by lava fields" },
-    ],
-  },
-  {
-    id: "thailand", name: "Thailand", country: "Thailand", flag: "🇹🇭",
-    price: "From $1,250", tag: "Budget Friendly",
-    tagline: "Golden royal temples, floating markets, and turquoise Andaman islands.",
-    tripTitle: "Siam Temples & Tropical Islands", duration: "7 days",
-    activityLevel: "Easy", accommodation: "Riverfront & Island Beach Resorts",
-    bestSeason: "Nov – Apr",
-    description: "Thailand combines Bangkok's Grand Palace and bustling street food stalls with Phuket's limestone karsts and crystal waters.",
-    heroImg: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=2000&q=92&dpr=2",
-    thumbs: [
-      "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?auto=format&fit=crop&w=1200&q=90&dpr=2",
-    ],
-    stops: [
-      { time: "09:00 AM", name: "Grand Palace & Wat Phra Kaew", cost: "฿500", desc: "Resplendent royal compound and sacred Emerald Buddha" },
-      { time: "01:30 PM", name: "Chao Phraya Express Longtail Boat", cost: "฿50", desc: "Scenic river transit past temples and traditional canal houses" },
-      { time: "06:00 PM", name: "Yaowarat Chinatown Street Food", cost: "฿250", desc: "World-famous pad thai, mango sticky rice, and seafood" },
-    ],
-  },
-  {
-    id: "maldives", name: "Maldives", country: "Maldives", flag: "🇲🇻",
-    price: "From $3,600", tag: "Trending",
-    tagline: "Overwater bungalows, vibrant coral reefs, and pristine turquoise atolls.",
-    tripTitle: "Private Lagoon & Coral Sanctuary", duration: "5 days",
-    activityLevel: "Easy", accommodation: "Luxury Overwater Villas",
-    bestSeason: "Nov – Apr",
-    description: "The Maldives offers quintessential tropical barefoot luxury, boasting crystal clear lagoons, private ocean overwater bungalows, manta ray diving, and coral reef conservation.",
-    heroImg: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=2000&q=92&dpr=2",
-    thumbs: [
-      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=90&dpr=2",
-    ],
-    stops: [
-      { time: "09:00 AM", name: "Reef Snorkel with Sea Turtles", cost: "$40", desc: "Protected house reef teeming with parrotfish and reef sharks" },
-      { time: "01:00 PM", name: "Sandbank Private Island Lunch", cost: "$75", desc: "Secluded pristine white sand spit surrounded by three blues" },
-      { time: "05:30 PM", name: "Sunset Dolphin Watching Cruise", cost: "$60", desc: "Traditional Dhoni boat tracking spinner dolphins in open sea" },
+      { time: "07:30 AM", name: "Double Decker Living Root Bridge Trek", cost: "₹20", desc: "Bio-engineered rubber tree root bridge grown by Khasi tribe elders over 200 years" },
+      { time: "01:30 PM", name: "Nohkalikai Falls (India's Tallest Plunge)", cost: "₹20", desc: "1,115-foot thundering drop into a turquoise plunge pool" },
+      { time: "04:30 PM", name: "Dawki Umngot Transparent River Boating", cost: "₹500", desc: "Floating on crystal clear waters where wooden boats appear to float in mid-air" },
     ],
   },
 ];
@@ -516,27 +477,27 @@ function createCustomDestination(query: string): DestinationItem {
   return {
     id: `custom-${clean.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
     name: clean,
-    country: "Featured Destination",
-    flag: "🌍",
-    price: "From ₹5,800 / $180",
-    tag: "Custom AI Pick",
-    tagline: `Curated luxury travel plan, verified heritage highlights, and price protection for ${clean}.`,
+    country: "India",
+    flag: "🇮🇳",
+    price: "From ₹4,500",
+    tag: "Curated Pick",
+    tagline: `Curated Indian cultural heritage, verified transit passes, and price protection for ${clean}.`,
     tripTitle: `Discover & Experience ${clean}`,
-    duration: "4 days",
+    duration: "3 days",
     activityLevel: "Moderate",
-    accommodation: "Boutique Stays & 4-Star Hotels",
-    bestSeason: "Oct – Apr / Peak Season",
-    description: `Explore the vibrant culture, historical highlights, and premier attractions of ${clean}. Verified by Touristमत्रम् travel concierges with authentic local experiences, transparent benchmark pricing, and tamper-proof digital travel certification.`,
-    heroImg: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    accommodation: "Boutique Havelis & 4-Star Stays",
+    bestSeason: "Oct – Mar / Ideal Season",
+    description: `Explore the vibrant culture, historical monuments, and authentic sights of ${clean}, India. Verified by Touristमत्रम् travel concierges with transparent benchmark pricing and tamper-proof digital travel certification.`,
+    heroImg: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
-      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
-      { time: "09:30 AM", name: `${clean} Central Heritage Landmark`, cost: "₹150 / $15", desc: `Historic architecture and panoramic viewpoint in ${clean}` },
-      { time: "01:00 PM", name: "Traditional Artisanal Market & Dining", cost: "₹300 / $25", desc: `Famous local culinary stalls and authentic regional crafts` },
-      { time: "05:00 PM", name: "Golden Hour Viewpoint & Cultural Tour", cost: "Free", desc: `Picturesque sunset observation spot and guided heritage walk` },
+      { time: "09:30 AM", name: `${clean} Historic Fort & Citadel`, cost: "₹50", desc: `Historic architecture and panoramic viewpoint in ${clean}` },
+      { time: "01:00 PM", name: "Traditional Artisanal Spice & Silk Bazaar", cost: "₹0", desc: `Famous local culinary stalls and authentic regional crafts` },
+      { time: "05:00 PM", name: "Riverside Sunset Vista & Evening Ceremony", cost: "Free", desc: `Picturesque sunset observation spot and guided heritage walk` },
     ],
   };
 }
@@ -577,6 +538,11 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"earth" | "cards">("earth");
   const [locatingCity, setLocatingCity] = useState<string | null>(null);
 
+  // ── Traveler Persona State (Indian Citizen vs Foreign Visitor) ──
+  const [travelerType, setTravelerType] = useState<"indian" | "foreign" | null>(null);
+  const [foreignCountry, setForeignCountry] = useState<string>("United States");
+  const [isPersonaModalOpen, setIsPersonaModalOpen] = useState<boolean>(false);
+
   const handleInitiateSelection = (cityName: string, fallbackHero?: string) => {
     const clean = cityName.trim();
     if (!clean) return;
@@ -600,8 +566,37 @@ export default function Home() {
     }
   };
 
+  const handleSelectIndian = () => {
+    setTravelerType("indian");
+    setSelectedCurrency("INR");
+    localStorage.setItem("touristmatram_traveler_type", "indian");
+    setIsPersonaModalOpen(false);
+  };
+
+  const handleConfirmForeign = (country: string) => {
+    setTravelerType("foreign");
+    setForeignCountry(country);
+    setSelectedCurrency("USD");
+    localStorage.setItem("touristmatram_traveler_type", "foreign");
+    localStorage.setItem("touristmatram_foreign_country", country);
+    setIsPersonaModalOpen(false);
+  };
+
   useEffect(() => {
     setMounted(true);
+    const savedType = localStorage.getItem("touristmatram_traveler_type") as "indian" | "foreign" | null;
+    const savedCountry = localStorage.getItem("touristmatram_foreign_country");
+    if (savedType) {
+      setTravelerType(savedType);
+      if (savedType === "indian") {
+        setSelectedCurrency("INR");
+      }
+    } else {
+      setIsPersonaModalOpen(true);
+    }
+    if (savedCountry) {
+      setForeignCountry(savedCountry);
+    }
   }, []);
 
   // Load live exchange rates
@@ -1215,8 +1210,37 @@ export default function Home() {
             ) : null}
           </div>
 
-          {/* Right: Wallet */}
-          <div className="nav-right">
+          {/* Right: Traveler Status & Wallet */}
+          <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {travelerType === "indian" ? (
+              <button
+                className="nav-traveler-pill indian"
+                onClick={() => setIsPersonaModalOpen(true)}
+                title="Click to switch between Indian Citizen and Foreign Traveler"
+              >
+                <span>🇮🇳</span>
+                <span className="nav-traveler-label">Indian Citizen</span>
+                <span className="nav-traveler-switch">Change</span>
+              </button>
+            ) : travelerType === "foreign" ? (
+              <button
+                className="nav-traveler-pill foreign"
+                onClick={() => setIsPersonaModalOpen(true)}
+                title="Click to view Visa requirements or change country"
+              >
+                <span>🌐</span>
+                <span className="nav-traveler-label">Visitor ({foreignCountry})</span>
+                <span className="nav-traveler-visa-badge">Visa Guide</span>
+              </button>
+            ) : (
+              <button
+                className="nav-traveler-pill"
+                onClick={() => setIsPersonaModalOpen(true)}
+              >
+                <span>🇮🇳 / 🌐</span>
+                <span className="nav-traveler-label">Select Citizen Status</span>
+              </button>
+            )}
             <WalletMultiButton />
           </div>
         </div>
@@ -2089,11 +2113,31 @@ export default function Home() {
                       Where would you like to explore next?
                     </h1>
 
+                    {/* Traveler Category Context Banner */}
+                    {travelerType === "foreign" ? (
+                      <div className="traveler-status-banner foreign" onClick={() => setIsPersonaModalOpen(true)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <Globe size={14} color="var(--yellow)" />
+                          <span>International Visitor ({foreignCountry})</span>
+                          <span className="visa-chip">Official e-Visa Guide</span>
+                        </div>
+                        <span className="view-docs-link">Review Required Documents & White-Bg Photo Specs →</span>
+                      </div>
+                    ) : (
+                      <div className="traveler-status-banner indian" onClick={() => setIsPersonaModalOpen(true)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span>🇮🇳</span>
+                          <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
+                        </div>
+                        <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
+                      </div>
+                    )}
+
                     <div className="earth-search-row">
                       <Search size={18} color="var(--yellow)" />
                       <input
                         className="earth-search-input"
-                        placeholder="Type any city — Paris, Mysuru, Tokyo, Dubai, Rome, Bali, Switzerland..."
+                        placeholder="Type any Indian destination — Mysuru, Jaipur, Agra, Goa, Varanasi, Ladakh..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={e => {
@@ -2120,15 +2164,19 @@ export default function Home() {
                       {[
                         { name: "Mysuru", flag: "🇮🇳" },
                         { name: "Jaipur", flag: "🇮🇳" },
-                        { name: "Paris", flag: "🇫🇷" },
-                        { name: "Tokyo", flag: "🇯🇵" },
-                        { name: "Dubai", flag: "🇦🇪" },
+                        { name: "Agra", flag: "🇮🇳" },
+                        { name: "Delhi", flag: "🇮🇳" },
                         { name: "Goa", flag: "🇮🇳" },
-                        { name: "Switzerland", flag: "🇨🇭" },
-                        { name: "Bali", flag: "🇮🇩" },
-                        { name: "Rome", flag: "🇮🇹" },
+                        { name: "Mumbai", flag: "🇮🇳" },
                         { name: "Varanasi", flag: "🇮🇳" },
-                        { name: "Maldives", flag: "🇲🇻" },
+                        { name: "Kerala", flag: "🇮🇳" },
+                        { name: "Ladakh", flag: "🇮🇳" },
+                        { name: "Hampi", flag: "🇮🇳" },
+                        { name: "Udaipur", flag: "🇮🇳" },
+                        { name: "Amritsar", flag: "🇮🇳" },
+                        { name: "Rishikesh", flag: "🇮🇳" },
+                        { name: "Srinagar", flag: "🇮🇳" },
+                        { name: "Andaman", flag: "🇮🇳" },
                       ].map(chip => (
                         <button
                           key={chip.name}
@@ -2178,13 +2226,34 @@ export default function Home() {
                       <span>Next</span> Journey
                     </h1>
                     <p className="hero-sub">
-                      Explore curated destinations, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
+                      Explore India's sacred heritage, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
                     </p>
+
+                    {/* Traveler Category Context Banner in Cards View */}
+                    {travelerType === "foreign" ? (
+                      <div className="traveler-status-banner foreign" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <Globe size={14} color="var(--yellow)" />
+                          <span>International Visitor ({foreignCountry})</span>
+                          <span className="visa-chip">Official e-Visa Guide</span>
+                        </div>
+                        <span className="view-docs-link">Review Visa Documents & White-Bg Photo Specs →</span>
+                      </div>
+                    ) : (
+                      <div className="traveler-status-banner indian" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span>🇮🇳</span>
+                          <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
+                        </div>
+                        <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
+                      </div>
+                    )}
+
                     <div className="hero-actions">
                       <div className="hero-search">
                         <Search size={16} color="#7A7A7A" />
                         <input
-                          placeholder="Search any destination — Paris, Mysuru, Tokyo, Dubai..."
+                          placeholder="Search any Indian destination — Jaipur, Mysuru, Goa, Agra, Delhi, Ladakh..."
                           value={searchQuery}
                           onChange={e => setSearchQuery(e.target.value)}
                           onKeyDown={e => {
@@ -2202,7 +2271,7 @@ export default function Home() {
                           handleInitiateSelection(query);
                         }}
                       >
-                        <span>Explore the World</span>
+                        <span>Explore India</span>
                         <ArrowRight size={16} />
                       </button>
                     </div>
@@ -2704,6 +2773,16 @@ export default function Home() {
         </div>
         <div>© 2026 Touristमत्रम्. All rights reserved.</div>
       </footer>
+
+      {/* Traveler Persona & Official Visa Advisor Modal */}
+      <TravelerPersonaModal
+        isOpen={isPersonaModalOpen}
+        onClose={() => setIsPersonaModalOpen(false)}
+        onSelectIndian={handleSelectIndian}
+        onConfirmForeign={handleConfirmForeign}
+        currentType={travelerType}
+        currentCountry={foreignCountry}
+      />
     </>
   );
 }
