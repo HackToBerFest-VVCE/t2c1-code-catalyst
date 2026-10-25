@@ -255,9 +255,69 @@ export default function Home() {
   const [verifyHashInput, setVerifyHashInput] = useState("");
   const [verifyStatus, setVerifyStatus] = useState("");
 
-  // Auto-discover agents on initial load
+  // ── Persistent Local Storage Loading ──
   useEffect(() => {
-    discoverAgents();
+    try {
+      const storedRecords = localStorage.getItem("prooftrip_saved_records");
+      if (storedRecords) setSavedRecords(JSON.parse(storedRecords));
+
+      const storedExpenses = localStorage.getItem("prooftrip_expenses");
+      if (storedExpenses) setExpenses(JSON.parse(storedExpenses));
+
+      const storedAsset = localStorage.getItem("prooftrip_verified_asset");
+      if (storedAsset) setVerifiedAsset(storedAsset);
+    } catch {
+      // Ignore localStorage errors in SSR or restricted environments
+    }
+  }, []);
+
+  // Save records and expenses when updated
+  const saveRecordsToStorage = (records: any[]) => {
+    setSavedRecords(records);
+    try {
+      localStorage.setItem("prooftrip_saved_records", JSON.stringify(records));
+    } catch {}
+  };
+
+  const saveExpensesToStorage = (newExpenses: any[]) => {
+    setExpenses(newExpenses);
+    try {
+      localStorage.setItem("prooftrip_expenses", JSON.stringify(newExpenses));
+    } catch {}
+  };
+
+  const saveVerifiedAssetToStorage = (asset: string | null) => {
+    setVerifiedAsset(asset);
+    try {
+      if (asset) localStorage.setItem("prooftrip_verified_asset", asset);
+      else localStorage.removeItem("prooftrip_verified_asset");
+    } catch {}
+  };
+
+  // Discover agents once on mount without duplicate fetching
+  useEffect(() => {
+    let active = true;
+    async function loadInitialAgents() {
+      if (agents.length > 0) return;
+      setAgentsLoading(true);
+      setAgentStatus("Querying live Solana Devnet Metaplex Registry...");
+      try {
+        const res = await fetch("/api/agents?query=travel");
+        const data = await res.json();
+        if (active) {
+          setAgents(data.data?.agents || []);
+          setAgentStatus(`Live Devnet Registry: ${data.data?.agents?.length || 0} agents loaded (${new Date().toLocaleTimeString()}).`);
+        }
+      } catch (e: any) {
+        if (active) setAgentStatus("Discovery API error: " + e.message);
+      } finally {
+        if (active) setAgentsLoading(false);
+      }
+    }
+    loadInitialAgents();
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Filtered destination cards
@@ -326,15 +386,13 @@ export default function Home() {
 
       setCommitTx(signature);
       setVerifyHashInput(hashHex);
-      setSavedRecords((prev) => [
-        {
-          dest: selectedDest.name,
-          tx: signature,
-          hash: hashHex,
-          time: new Date().toLocaleTimeString(),
-        },
-        ...prev,
-      ]);
+      const newRec = {
+        dest: selectedDest.name,
+        tx: signature,
+        hash: hashHex,
+        time: new Date().toLocaleTimeString(),
+      };
+      saveRecordsToStorage([newRec, ...savedRecords]);
     } catch (err: any) {
       setCommitError(err?.message || "Transaction rejected or network error.");
     } finally {
@@ -366,7 +424,7 @@ export default function Home() {
       const res = await fetch(`/api/agents/verify?asset=${encodeURIComponent(assetPubkey)}`);
       const data = await res.json();
       if (data.registered) {
-        setVerifiedAsset(assetPubkey);
+        saveVerifiedAssetToStorage(assetPubkey);
         setAgentStatus(`✓ Agent verified on Solana Devnet! Program Derived Address (PDA): ${data.identityPda}`);
       } else {
         setAgentStatus(`Verification: ${data.reason}`);
@@ -1047,7 +1105,7 @@ export default function Home() {
                 style={{ padding: "12px 18px" }}
                 onClick={() => {
                   if (newExpName && newExpAmount) {
-                    setExpenses([
+                    saveExpensesToStorage([
                       ...expenses,
                       {
                         id: Date.now().toString(),
@@ -1103,7 +1161,17 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             {/* Committed Records Column */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>Committed Devnet Records</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Committed Devnet Records</div>
+                {savedRecords.length > 0 && (
+                  <button
+                    style={{ background: "transparent", border: "none", color: "var(--gray)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
+                    onClick={() => saveRecordsToStorage([])}
+                  >
+                    Clear History
+                  </button>
+                )}
+              </div>
               {savedRecords.length === 0 ? (
                 <div style={{ padding: 24, background: "rgba(0,0,0,0.2)", borderRadius: 16, color: "var(--gray)", fontSize: 13, textAlign: "center" }}>
                   No local commitments saved yet. Generate an itinerary and click "Commit Itinerary Hash on Solana Devnet" above.

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { Connection, PublicKey } from "@solana/web3.js";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Official Metaplex Agent Registry program ID (Devnet & Mainnet)
 const MPL_AGENT_REGISTRY_PROGRAM = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 

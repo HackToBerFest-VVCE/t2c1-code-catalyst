@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Tourism-relevance keywords found in real Metaplex agent descriptions
 const TOURISM_KEYWORDS = [
   "travel", "trip", "tour", "tourism", "hotel", "accommodation", "flight",
@@ -33,7 +36,7 @@ async function fetchAgents(params: Record<string, string>) {
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
   const res = await fetch(url.toString(), {
-    next: { revalidate: 30 },
+    cache: "no-store",
     headers: { "Accept": "application/json" },
   });
 
