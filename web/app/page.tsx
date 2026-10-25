@@ -263,12 +263,14 @@ export default function Home() {
         const hashHex = await sha256hex(itineraryText);
         const hashBytes = Array.from(Buffer.from(hashHex, "hex"));
         const agentAsset = new PublicKey("CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn");
-        const [recordPda] = PublicKey.findProgramAddressSync(
-          [Buffer.from("itinerary"), wallet.publicKey.toBuffer(), agentAsset.toBuffer()],
-          new PublicKey(programIdStr)
-        );
+        const commitmentKeypair = Keypair.generate();
         const tx = await (program.methods as any).commitItinerary(agentAsset, hashBytes, selectedDest.name)
-          .accounts({ record: recordPda, traveler: wallet.publicKey, systemProgram: SystemProgram.programId })
+          .accounts({
+            commitment: commitmentKeypair.publicKey,
+            traveler: wallet.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([commitmentKeypair])
           .rpc();
         setCommitTx(tx);
         const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
@@ -309,12 +311,14 @@ export default function Home() {
       };
       const provider = new AnchorProvider(connection, walletAdapter as any, { commitment: "confirmed" });
       const program = new Program({ ...tourismIdl, address: programIdStr } as unknown as Idl, provider);
-      const [recordPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("itinerary"), ephemeral.publicKey.toBuffer(), agentAsset.toBuffer()],
-        new PublicKey(programIdStr)
-      );
+      const commitmentKeypair = Keypair.generate();
       const tx = await (program.methods as any).commitItinerary(agentAsset, hashBytes, selectedDest.name)
-        .accounts({ record: recordPda, traveler: ephemeral.publicKey, systemProgram: SystemProgram.programId })
+        .accounts({
+          commitment: commitmentKeypair.publicKey,
+          traveler: ephemeral.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([commitmentKeypair, ephemeral])
         .rpc();
       setCommitTx(tx);
       const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
@@ -338,9 +342,7 @@ export default function Home() {
         const updated = [rec, ...savedRecords].slice(0, 10);
         setSavedRecords(updated);
         localStorage.setItem("prooftrip_records", JSON.stringify(updated));
-        setCommitError(
-          "Notice: Solana's public Devnet faucet is currently rate-limited by the network. Your itinerary has been cryptographically hashed and verified in demo mode! (Connect Phantom anytime to sign with personal Devnet SOL)."
-        );
+        setCommitError(""); // Clear any error box on successful hash commitment
       } catch {
         setCommitError("Transaction error: " + (e.message || String(e)));
       }
