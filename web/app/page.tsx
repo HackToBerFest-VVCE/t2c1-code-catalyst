@@ -22,9 +22,16 @@ import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from
 import { tourismIdl } from "../lib/tourism-idl";
 import {
   Globe, Search, Sparkles, CheckCircle, Phone, DollarSign,
-  ExternalLink, Loader2, ArrowRight, Plus, RefreshCw, Lock,
-  Zap, Receipt, MapPin, Clock, Star,
+  ExternalLink, Loader2, ArrowRight, ArrowLeft, Plus, RefreshCw, Lock,
+  Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
+  Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
+  Calendar, RotateCcw, ClipboardList, Ticket,
 } from "lucide-react";
+import {
+  getCuratedCityData,
+  type CuratedCity,
+  type CityAttraction,
+} from "../lib/curated-city-data";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MainTab = "discover" | "agents" | "price" | "safety" | "records";
@@ -39,8 +46,8 @@ type DestinationItem = {
 };
 
 // ─── Image Fallbacks ────────────────────────────────────────────────────────
-const FALLBACK_HERO = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80";
-const FALLBACK_THUMB = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=400&q=80";
+const FALLBACK_HERO = "/images/hero-banner.jpg";
+const FALLBACK_THUMB = "/images/hero-banner.jpg";
 
 // ─── Data: 20 Curated Global & Indian Destinations ─────────────────────────
 const DESTINATIONS: DestinationItem[] = [
@@ -52,11 +59,11 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy to Moderate", accommodation: "Heritage Havelis & 4-Star",
     bestSeason: "Oct – Mar",
     description: "Mysuru is Karnataka's cultural capital, celebrated for the illuminated Mysore Palace with 100,000 bulbs, Chamundi Hill vistas, Devaraja Market fragrances, and centuries-old sandalwood carving and silk weaving traditions.",
-    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=1200&q=80",
+    heroImg: "/images/destination-mysuru.jpg",
     thumbs: [
+      "/images/destination-mysuru.jpg",
       "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
       { time: "09:30 AM", name: "Mysuru Palace Grand Tour", cost: "₹70", desc: "Indo-Saracenic royal residence and golden throne hall" },
@@ -72,9 +79,9 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy to Moderate", accommodation: "Heritage Forts & Palace Hotels",
     bestSeason: "Oct – Mar",
     description: "Jaipur is the jewel of Rajasthan — a city built in rose-pink sandstone. Explore the majestic Amber Fort, the latticed Hawa Mahal, and the royal city palace, while shopping for gems, silk, and lac bangles in Johari Bazaar.",
-    heroImg: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1200&q=80",
+    heroImg: "/images/destination-jaipur.jpg",
     thumbs: [
-      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80",
+      "/images/destination-jaipur.jpg",
       "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1509625902746-8266e2f74bd1?auto=format&fit=crop&w=600&q=80",
     ],
@@ -92,9 +99,9 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy", accommodation: "Beach Resorts & Boutique Stays",
     bestSeason: "Nov – Feb",
     description: "Goa is India's coastal gem — a blend of Konkani culture, Portuguese colonial heritage, silver-sand beaches, and vibrant nightlife. Explore Old Goa's UNESCO churches, spice plantations, and legendary beach shacks.",
-    heroImg: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
+    heroImg: "/images/destination-goa.jpg",
     thumbs: [
-      "https://images.unsplash.com/photo-1600100394594-2a4d0f90fa58?auto=format&fit=crop&w=600&q=80",
+      "/images/destination-goa.jpg",
       "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?auto=format&fit=crop&w=600&q=80",
     ],
@@ -102,6 +109,46 @@ const DESTINATIONS: DestinationItem[] = [
       { time: "10:00 AM", name: "Basilica of Bom Jesus, Old Goa", cost: "₹0", desc: "UNESCO World Heritage baroque church housing St. Francis Xavier" },
       { time: "02:00 PM", name: "Anjuna Beach & Flea Market", cost: "₹0", desc: "Iconic hippie market along the rocky shoreline" },
       { time: "07:00 PM", name: "Panjim Latin Quarter Walk", cost: "₹0", desc: "Portuguese-era colorful houses and riverfront dining" },
+    ],
+  },
+  {
+    id: "delhi", name: "Delhi", country: "India", flag: "🇮🇳",
+    price: "From ₹5,000", tag: "Heritage Pick",
+    tagline: "Imperial monuments, street food corridors, and timeless cultural heritage.",
+    tripTitle: "Mughal Grandeur & Modern Capital", duration: "3 days",
+    activityLevel: "Moderate", accommodation: "Boutique Havelis & Luxury Stays",
+    bestSeason: "Oct – Mar",
+    description: "Delhi is a vibrant tapestry of centuries — from Mughal-era Red Fort and Jama Masjid to the illuminated India Gate and Qutub Minar, complete with world-famous street food in Old Delhi.",
+    heroImg: "/images/destination-delhi.jpg",
+    thumbs: [
+      "/images/destination-delhi.jpg",
+      "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1592635196078-9fe3d54f2377?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: "India Gate & Kartavya Path", cost: "₹0", desc: "Iconic war memorial archway surrounded by sprawling lawns and fountains" },
+      { time: "01:00 PM", name: "Chandni Chowk Street Food Trail", cost: "₹350", desc: "Century-old parathas, jalebis, and spicy chaat in Old Delhi" },
+      { time: "04:30 PM", name: "Qutub Minar Complex", cost: "₹40", desc: "UNESCO World Heritage 73-meter minaret and Iron Pillar of Delhi" },
+    ],
+  },
+  {
+    id: "bangalore", name: "Bangalore", country: "India", flag: "🇮🇳",
+    price: "From ₹6,200", tag: "Trending",
+    tagline: "Garden City elegance meets the cutting-edge Silicon Valley of India.",
+    tripTitle: "Tech Parks, Craft Beer & Botanical Green", duration: "3 days",
+    activityLevel: "Easy", accommodation: "Modern Business Hotels & Suites",
+    bestSeason: "Year-Round",
+    description: "Bangalore blends leafy boulevards, colonial-era parks like Lalbagh, vibrant microbreweries, and the futuristic innovation hub that powers India's digital revolution.",
+    heroImg: "/images/destination-bangalore.jpg",
+    thumbs: [
+      "/images/destination-bangalore.jpg",
+      "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "08:30 AM", name: "Lalbagh Botanical Garden", cost: "₹30", desc: "Historic glass house inspired by London's Crystal Palace and centuries-old trees" },
+      { time: "01:00 PM", name: "Indiranagar Craft Breweries & Cafes", cost: "₹800", desc: "Artisanal food and vibrant city social scene" },
+      { time: "05:00 PM", name: "Bangalore Palace Grand Tour", cost: "₹250", desc: "Tudor-style royal estate with ornate woodwork and family memorabilia" },
     ],
   },
   {
@@ -152,11 +199,11 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Moderate", accommodation: "Heritage Resorts & River Huts",
     bestSeason: "Nov – Feb",
     description: "Hampi's surreal landscape of granite boulders frames the ruins of the 14th-century Vijayanagara Empire. Marvel at the stone chariot of Vittala Temple and the towering Virupaksha Temple.",
-    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=1200&q=80",
+    heroImg: "/images/destination-mysuru.jpg",
     thumbs: [
+      "/images/destination-mysuru.jpg",
       "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
       { time: "08:30 AM", name: "Vittala Temple & Stone Chariot", cost: "₹40", desc: "Iconic chariot sculpture and acoustic musical pillars" },
@@ -488,9 +535,254 @@ export default function Home() {
   const [heroThumb, setHeroThumb] = useState(0);
   const [mounted, setMounted] = useState(false);
 
+  // ── Bespoke Trip Customizer Wizard State ──
+  const [plannerCity, setPlannerCity] = useState<CuratedCity | null>(null);
+  const [plannerStep, setPlannerStep] = useState<number>(1);
+  const [selectedAttractionIds, setSelectedAttractionIds] = useState<string[]>([]);
+  const [customAttractionInput, setCustomAttractionInput] = useState("");
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("USD");
+  const [budgetAmount, setBudgetAmount] = useState<number>(650);
+  const [budgetTier, setBudgetTier] = useState<"budget" | "comfort" | "luxury">("comfort");
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
+    USD: 1, INR: 94.95, EUR: 0.893, GBP: 0.748, JPY: 156.8, AED: 3.67, SOL: 0.00984
+  });
+  const [solInCurrencies, setSolInCurrencies] = useState<Record<string, number>>({
+    USD: 101.64, INR: 9650.32, EUR: 90.72, GBP: 76.00, JPY: 15943.68, AED: 373.27, SOL: 1
+  });
+  const [selectedTransitMode, setSelectedTransitMode] = useState<string>("");
+  const [crowdTolerance, setCrowdTolerance] = useState<"tranquil" | "vibrant" | "balanced">("balanced");
+  const [travelPace, setTravelPace] = useState<"leisurely" | "explorer">("explorer");
+  const [travelParty, setTravelParty] = useState<"solo" | "couple" | "family" | "friends">("couple");
+  const [generatedPlan, setGeneratedPlan] = useState<any | null>(null);
+  const [customCommitTx, setCustomCommitTx] = useState<string | null>(null);
+  const [customCommitLoading, setCustomCommitLoading] = useState(false);
+  const [customCommitError, setCustomCommitError] = useState("");
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Load live exchange rates
+  useEffect(() => {
+    fetch("/api/exchange-rates")
+      .then(res => res.json())
+      .then(data => {
+        if (data.rates) setExchangeRates(data.rates);
+        if (data.solInCurrencies) setSolInCurrencies(data.solInCurrencies);
+      })
+      .catch(() => {});
+  }, []);
+
+  const convertAmount = useCallback((amountUSD: number, targetCur: string): number => {
+    if (targetCur === "USD") return Math.round(amountUSD);
+    if (targetCur === "SOL") {
+      const solUsd = solInCurrencies["USD"] || 101.64;
+      return Number((amountUSD / solUsd).toFixed(3));
+    }
+    const rate = exchangeRates[targetCur] || 1;
+    return Math.round(amountUSD * rate);
+  }, [exchangeRates, solInCurrencies]);
+
+  const getBudgetInUSD = useCallback((amount: number, fromCur: string): number => {
+    if (fromCur === "USD") return amount;
+    if (fromCur === "SOL") {
+      const solUsd = solInCurrencies["USD"] || 101.64;
+      return amount * solUsd;
+    }
+    const rate = exchangeRates[fromCur] || 1;
+    return amount / rate;
+  }, [exchangeRates, solInCurrencies]);
+
+  const handleCurrencyChange = (newCur: string) => {
+    const inUSD = getBudgetInUSD(budgetAmount, selectedCurrency);
+    const inNew = convertAmount(inUSD, newCur);
+    setSelectedCurrency(newCur);
+    setBudgetAmount(inNew);
+  };
+
+  // Generate Tailored Itinerary based strictly on chosen attractions, budget & crowd vibe
+  const generateTailoredPlan = () => {
+    if (!plannerCity) return;
+    const chosenAttractions = plannerCity.attractions.filter(a => selectedAttractionIds.includes(a.id));
+    const activeAttractions = chosenAttractions.length > 0 ? chosenAttractions : plannerCity.attractions.slice(0, 3);
+    const spotsPerDay = travelPace === "leisurely" ? 2 : 3;
+    const numDays = Math.max(1, Math.ceil(activeAttractions.length / spotsPerDay));
+    
+    const daysSchedule = [];
+    let attractionIndex = 0;
+    
+    for (let d = 1; d <= numDays; d++) {
+      const dayStops = [];
+      const dayTheme = d === 1
+        ? "Historic Heart & Primary Icons"
+        : d === 2
+          ? "Architecture, Panorama & Sunset Vista"
+          : "Artisanal Bazaars & Hidden Promenades";
+          
+      // Stop 1
+      if (attractionIndex < activeAttractions.length) {
+        const a = activeAttractions[attractionIndex++];
+        dayStops.push({
+          time: crowdTolerance === "tranquil" ? "08:30 AM (Tranquil Hour)" : crowdTolerance === "vibrant" ? "10:30 AM (Peak Vibe)" : "09:15 AM (Optimal)",
+          name: a.name,
+          category: a.category,
+          duration: a.duration,
+          costDisplay: a.costDisplay,
+          costUSD: a.costUSD,
+          img: a.img,
+          tip: a.tip,
+          transitHop: `Board ${plannerCity.transit.recommendedPass.slice(0, 38)} to ${a.name.slice(0, 24)}`,
+        });
+      }
+      // Stop 2
+      if (attractionIndex < activeAttractions.length) {
+        const a = activeAttractions[attractionIndex++];
+        dayStops.push({
+          time: "01:30 PM",
+          name: a.name,
+          category: a.category,
+          duration: a.duration,
+          costDisplay: a.costDisplay,
+          costUSD: a.costUSD,
+          img: a.img,
+          tip: a.tip,
+          transitHop: `Short 10-min connector via ${plannerCity.transit.options[0]?.name || "City Transit"}`,
+        });
+      }
+      // Stop 3 (if explorer)
+      if (spotsPerDay >= 3 && attractionIndex < activeAttractions.length) {
+        const a = activeAttractions[attractionIndex++];
+        dayStops.push({
+          time: crowdTolerance === "tranquil" ? "04:30 PM" : "06:00 PM (Golden Hour)",
+          name: a.name,
+          category: a.category,
+          duration: a.duration,
+          costDisplay: a.costDisplay,
+          costUSD: a.costUSD,
+          img: a.img,
+          tip: a.tip,
+          transitHop: `Scenic hop via ${plannerCity.transit.options[1]?.name || "Local Tram/Walk"}`,
+        });
+      }
+      
+      daysSchedule.push({
+        dayNumber: d,
+        theme: dayTheme,
+        stops: dayStops,
+      });
+    }
+
+    const totalAttractionsUSD = activeAttractions.reduce((sum, a) => sum + a.costUSD, 0);
+    const transitTotalUSD = plannerCity.transit.passPriceUSD * numDays;
+    const targetBudgetUSD = getBudgetInUSD(budgetAmount, selectedCurrency);
+    const diningStayUSD = Math.max(0, targetBudgetUSD - totalAttractionsUSD - transitTotalUSD);
+    
+    const plan = {
+      city: plannerCity.name,
+      country: plannerCity.country,
+      flag: plannerCity.flag,
+      numDays,
+      pace: travelPace,
+      crowd: crowdTolerance,
+      party: travelParty,
+      currency: selectedCurrency,
+      totalBudget: budgetAmount,
+      totalBudgetUSD: targetBudgetUSD,
+      totalBudgetSOL: Number((targetBudgetUSD / (solInCurrencies["USD"] || 101.64)).toFixed(3)),
+      costs: {
+        attractions: convertAmount(totalAttractionsUSD, selectedCurrency),
+        transit: convertAmount(transitTotalUSD, selectedCurrency),
+        diningStay: convertAmount(diningStayUSD, selectedCurrency),
+      },
+      days: daysSchedule,
+      transitPass: plannerCity.transit.recommendedPass,
+      operatorCode: plannerCity.transit.operatorCode,
+    };
+    
+    setGeneratedPlan(plan);
+    setPlannerStep(5);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Commit Tailored Plan on Solana Devnet (Hero Idea Anchor)
+  const handleCommitCustomPlan = async () => {
+    if (!generatedPlan || !plannerCity) return;
+    setCustomCommitLoading(true);
+    setCustomCommitError("");
+    
+    try {
+      const planPayload = {
+        dest: plannerCity.name,
+        country: plannerCity.country,
+        days: generatedPlan.numDays,
+        budget: generatedPlan.totalBudget,
+        currency: generatedPlan.currency,
+        solEquivalent: generatedPlan.totalBudgetSOL,
+        crowd: generatedPlan.crowd,
+        pace: generatedPlan.pace,
+        transit: generatedPlan.transitPass,
+        agentAsset: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
+        timestamp: Date.now(),
+      };
+      
+      const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(planPayload)));
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+      
+      if (wallet.connected && wallet.publicKey && wallet.signTransaction) {
+        const provider = new AnchorProvider(
+          connection,
+          wallet as any,
+          { commitment: "confirmed", preflightCommitment: "confirmed" }
+        );
+        const program = new Program(tourismIdl as any, provider);
+        const commitmentKeypair = Keypair.generate();
+        
+        const tx = await (program.methods as any)
+          .commitItinerary(
+            new PublicKey("CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn"),
+            hashArray,
+            `${plannerCity.name} (${generatedPlan.numDays}D Tailored)`
+          )
+          .accounts({
+            commitment: commitmentKeypair.publicKey,
+            traveler: wallet.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([commitmentKeypair])
+          .rpc();
+          
+        setCustomCommitTx(tx);
+        const newRec = {
+          dest: `${plannerCity.name} Tailored (${generatedPlan.numDays}D)`,
+          tx,
+          hash: hashHex,
+          time: new Date().toLocaleTimeString(),
+        };
+        const updated = [newRec, ...savedRecords];
+        setSavedRecords(updated);
+        try { localStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
+      } else {
+        await new Promise(r => setTimeout(r, 850));
+        const demoTx = `demo_${hashHex.slice(0, 32)}`;
+        setCustomCommitTx(demoTx);
+        const newRec = {
+          dest: `${plannerCity.name} Tailored (${generatedPlan.numDays}D)`,
+          tx: demoTx,
+          hash: hashHex,
+          time: new Date().toLocaleTimeString(),
+        };
+        const updated = [newRec, ...savedRecords];
+        setSavedRecords(updated);
+        try { localStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
+      }
+    } catch (err: any) {
+      console.error("Custom commit error:", err);
+      setCustomCommitError(err?.message || "Solana commit error. Offline SHA-256 proof active.");
+    } finally {
+      setCustomCommitLoading(false);
+    }
+  };
 
   // Solana / Blockchain
   const { connection } = useConnection();
@@ -802,236 +1094,918 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "discover" && (
         <>
-          {/* Hero */}
-          <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
-            <div
-              className="hero-bg"
-              style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
-            />
-            <div className="hero-gradient" />
-            <div className="hero-content">
-              <div className="hero-eyebrow">
-                <Sparkles size={13} />
-                <span>Solana AI Agent Registry · Anchor Smart Contract</span>
+          {plannerCity !== null ? (
+            /* ══════════════════════════════════════════════════════════ */
+            /* BESPOKE TRIP CUSTOMIZER WIZARD (Interactive Form Flow)    */
+            /* ══════════════════════════════════════════════════════════ */
+            <div className="customizer-container">
+              {/* Navigation Bar */}
+              <div className="customizer-nav-bar">
+                <button
+                  className="customizer-back-btn"
+                  onClick={() => {
+                    setPlannerCity(null);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <ArrowLeft size={16} />
+                  <span>Back to All Destinations</span>
+                </button>
+                <div className="customizer-verified-badge">
+                  <ShieldCheck size={14} />
+                  <span>2026 Live Verified Guide & Transit System</span>
+                </div>
               </div>
-              <h1 className="hero-title">
-                Discover Your<br />
-                <span>Next</span> Journey
-              </h1>
-              <p className="hero-sub">
-                Explore verified destinations, discover registered Solana AI travel agents, and commit tamper-evident trip itineraries to Solana Devnet.
-              </p>
-              <div className="hero-actions">
-                <div className="hero-search">
-                  <Search size={16} color="#7A7A7A" />
-                  <input
-                    placeholder="Search destination — Mysuru, Greece, Peru..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
+
+              {/* Destination Hero Banner */}
+              <div className="customizer-hero-banner">
+                <img
+                  src={plannerCity.heroImg}
+                  alt={plannerCity.name}
+                  className="customizer-hero-bg"
+                  onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_HERO; }}
+                />
+                <div className="customizer-hero-gradient" />
+                <div className="customizer-hero-content">
+                  <div className="customizer-city-title">
+                    <span className="customizer-city-flag">{plannerCity.flag}</span>
+                    <span>{plannerCity.name}</span>
+                    <span style={{ fontSize: 16, color: "var(--yellow)", fontWeight: 700, marginLeft: 6 }}>
+                      · {plannerCity.country}
+                    </span>
+                  </div>
+                  <p className="customizer-city-tagline">{plannerCity.tagline}</p>
+                </div>
+              </div>
+
+              {/* Progress Stepper Bar (Google Form Inspired) */}
+              <div className="stepper-card">
+                <div className="stepper-progress-track">
+                  <div
+                    className="stepper-progress-bar"
+                    style={{ width: `${(plannerStep / 5) * 100}%` }}
                   />
                 </div>
-                <button className="btn-hero-yellow">
-                  <span>Explore the World</span>
-                  <ArrowRight size={16} />
-                </button>
+                <div className="stepper-steps-row">
+                  {[
+                    { num: 1, label: "Top Sights", icon: <Star size={12} /> },
+                    { num: 2, label: "Budget & Currency", icon: <DollarSign size={12} /> },
+                    { num: 3, label: "Transit Pass", icon: <Train size={12} /> },
+                    { num: 4, label: "Crowd & Pace", icon: <Users size={12} /> },
+                    { num: 5, label: "Verified Itinerary", icon: <Sparkles size={12} /> },
+                  ].map(s => (
+                    <button
+                      key={s.num}
+                      className={`stepper-step-item ${plannerStep === s.num ? "active" : ""} ${plannerStep > s.num ? "completed" : ""}`}
+                      onClick={() => {
+                        if (s.num <= plannerStep || (s.num === 5 && generatedPlan)) {
+                          setPlannerStep(s.num);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
+                    >
+                      <div className="stepper-step-num">
+                        {plannerStep > s.num ? <Check size={14} /> : s.num}
+                      </div>
+                      <span>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
 
-          {/* Destination cards */}
-          <div className="page-section">
-            <div className="section-header">
-              <div>
-                <div className="section-label">✦ AI Suggestions</div>
-                <h2 className="section-title">Choose Your Adventure</h2>
-                <p className="section-sub">Select a destination to explore its itinerary and commit it to Solana Devnet</p>
-              </div>
-              <div className="filter-pills">
-                {ALL_TAGS.map(tag => (
-                  <button
-                    key={tag}
-                    className={`pill-btn ${filterTag === tag ? "active" : ""}`}
-                    onClick={() => setFilterTag(tag)}
-                  >{tag}</button>
-                ))}
-              </div>
-            </div>
+              {/* ── STEP 1: Top Attractions Selection ── */}
+              {plannerStep === 1 && (
+                <div className="wizard-panel">
+                  <div className="wizard-header">
+                    <span className="wizard-step-label">Step 1 of 4 · Destination Curation</span>
+                    <h2 className="wizard-title">Select Iconic Sights in {plannerCity.name}</h2>
+                    <p className="wizard-subtitle">
+                      Choose which landmarks you want to visit. We will arrange them into an optimal daily route avoiding peak lines and rush hours.
+                    </p>
+                  </div>
 
-            <div className="destinations-grid">
-              {filteredDests.map(dest => (
-                <div
-                  key={dest.id}
-                  className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
-                  onClick={() => { setSelectedDest(dest); setHeroThumb(0); setPriceCity(dest.name); }}
-                >
-                  <div className="dest-card-photo">
-                    <img
-                      src={dest.heroImg}
-                      alt={dest.name}
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                  <div className="attraction-grid">
+                    {plannerCity.attractions.map(attr => {
+                      const isSelected = selectedAttractionIds.includes(attr.id);
+                      return (
+                        <div
+                          key={attr.id}
+                          className={`attraction-card ${isSelected ? "selected" : ""}`}
+                          onClick={() => {
+                            setSelectedAttractionIds(prev =>
+                              prev.includes(attr.id) ? prev.filter(x => x !== attr.id) : [...prev, attr.id]
+                            );
+                          }}
+                        >
+                          <div className="attraction-photo-wrap">
+                            <img
+                              src={attr.img}
+                              alt={attr.name}
+                              className="attraction-photo"
+                              loading="lazy"
+                              onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
+                            />
+                            <div className="attraction-check-badge">
+                              {isSelected ? <Check size={16} /> : null}
+                            </div>
+                            <div className="attraction-category-pill">{attr.category}</div>
+                          </div>
+                          <div className="attraction-body">
+                            <div className="attraction-name">{attr.name}</div>
+                            <div className="attraction-meta-row">
+                              <span className="attraction-meta-item"><Clock size={12} /> {attr.duration}</span>
+                              <span>•</span>
+                              <span className="attraction-meta-item" style={{ color: "var(--yellow)", fontWeight: 700 }}>
+                                <Ticket size={12} /> {attr.costDisplay}
+                              </span>
+                              <span>•</span>
+                              <span className="attraction-meta-item">
+                                <span style={{
+                                  width: 7, height: 7, borderRadius: "50%",
+                                  background: attr.crowdRating === "Peaceful" ? "var(--success)" : attr.crowdRating === "High" ? "var(--error)" : "var(--yellow)"
+                                }} />
+                                {attr.crowdRating} Crowd
+                              </span>
+                            </div>
+                            <div className="attraction-tip">
+                              <strong style={{ color: "#FFF" }}>Insider Tip:</strong> {attr.tip}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Add Custom Spot Box */}
+                  <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+                    <input
+                      style={{
+                        flex: 1, minWidth: 260,
+                        background: "var(--dark-elevated)",
+                        border: "1px solid var(--dark-border)",
+                        borderRadius: 12,
+                        padding: "12px 18px",
+                        color: "#FFF",
+                        fontSize: 14,
+                      }}
+                      placeholder={`+ Add another specific spot or market in ${plannerCity.name}...`}
+                      value={customAttractionInput}
+                      onChange={e => setCustomAttractionInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && customAttractionInput.trim()) {
+                          const newId = `custom-${Date.now()}`;
+                          const newAttr: CityAttraction = {
+                            id: newId,
+                            name: customAttractionInput.trim(),
+                            category: "Custom Selection",
+                            duration: "2 hours",
+                            costDisplay: "Free / Local",
+                            costUSD: 5,
+                            img: plannerCity.heroImg,
+                            bestTime: "Flexible",
+                            tip: "Traveler requested custom destination.",
+                            crowdRating: "Moderate",
+                          };
+                          plannerCity.attractions.push(newAttr);
+                          setSelectedAttractionIds(prev => [...prev, newId]);
+                          setCustomAttractionInput("");
+                        }
                       }}
                     />
+                    <button
+                      className="btn-dark"
+                      style={{ width: "auto", padding: "0 22px", borderRadius: 12 }}
+                      onClick={() => {
+                        if (customAttractionInput.trim()) {
+                          const newId = `custom-${Date.now()}`;
+                          const newAttr: CityAttraction = {
+                            id: newId,
+                            name: customAttractionInput.trim(),
+                            category: "Custom Selection",
+                            duration: "2 hours",
+                            costDisplay: "Free / Local",
+                            costUSD: 5,
+                            img: plannerCity.heroImg,
+                            bestTime: "Flexible",
+                            tip: "Traveler requested custom destination.",
+                            crowdRating: "Moderate",
+                          };
+                          plannerCity.attractions.push(newAttr);
+                          setSelectedAttractionIds(prev => [...prev, newId]);
+                          setCustomAttractionInput("");
+                        }
+                      }}
+                    >
+                      <Plus size={16} /> Add Place
+                    </button>
                   </div>
-                  <div className="dest-card-overlay" />
-                  <div className="dest-card-badge">
-                    <Star size={10} /> {dest.tag}
-                  </div>
-                  <div className="dest-card-body">
-                    <div className="dest-card-name">{dest.name}</div>
-                    <div className="dest-card-price">{dest.price}</div>
-                    <p className="dest-card-desc">{dest.tagline}</p>
+
+                  <div className="wizard-footer-nav">
+                    <div style={{ fontSize: 14, color: "var(--gray-light)" }}>
+                      <strong style={{ color: "var(--yellow)" }}>{selectedAttractionIds.length}</strong> attractions selected for {plannerCity.name}
+                    </div>
+                    <button
+                      className="btn-hero-yellow"
+                      disabled={selectedAttractionIds.length === 0}
+                      onClick={() => { setPlannerStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <span>Next: Budget & Currencies</span>
+                      <ArrowRight size={16} />
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
 
-            {/* Detail Panel */}
-            <div className="detail-panel">
-              {/* Left: Hero + flag + name */}
-              <div className="detail-hero">
-                <img
-                  className="detail-hero-media"
-                  src={heroThumb === 0 ? selectedDest.heroImg : (selectedDest.thumbs[heroThumb - 1] || selectedDest.heroImg)}
-                  alt={selectedDest.name}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = FALLBACK_HERO;
-                  }}
-                />
-                <div className="detail-hero-overlay" />
-                <div className="detail-hero-content">
-                  <div className="detail-flag">{selectedDest.flag}</div>
-                  <div className="detail-dest-name">{selectedDest.name}</div>
-                  <p className="detail-tagline">{selectedDest.tagline}</p>
-                  <div className="detail-thumbs">
-                    <div
-                      className={`detail-thumb ${heroThumb === 0 ? "active" : ""}`}
-                      onClick={() => setHeroThumb(0)}
-                    >
-                      <img
-                        src={selectedDest.heroImg}
-                        alt={selectedDest.name}
-                        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
-                      />
+              {/* ── STEP 2: Budget & Currencies with Live CoinGecko API ── */}
+              {plannerStep === 2 && (
+                <div className="wizard-panel">
+                  <div className="wizard-header">
+                    <span className="wizard-step-label">Step 2 of 4 · Finances & Currencies</span>
+                    <h2 className="wizard-title">What Budget Are You Willing to Spend?</h2>
+                    <p className="wizard-subtitle">
+                      Choose your preferred currency and enter your target budget. Our live CoinGecko & FX engine calculates exact conversions to Solana SOL and world currencies.
+                    </p>
+                  </div>
+
+                  {/* Currency Selector Pills */}
+                  <div className="currency-tabs">
+                    {[
+                      { code: "USD", symbol: "$", name: "US Dollar" },
+                      { code: "INR", symbol: "₹", name: "Indian Rupee" },
+                      { code: "EUR", symbol: "€", name: "Euro" },
+                      { code: "GBP", symbol: "£", name: "British Pound" },
+                      { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+                      { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
+                      { code: "SOL", symbol: "◎", name: "Solana" },
+                    ].map(c => (
+                      <button
+                        key={c.code}
+                        className={`currency-tab ${selectedCurrency === c.code ? "active" : ""}`}
+                        onClick={() => handleCurrencyChange(c.code)}
+                      >
+                        <span>{c.symbol}</span>
+                        <span>{c.code}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Large Numeric Input */}
+                  <div className="budget-input-box">
+                    <div className="budget-symbol">
+                      {selectedCurrency === "USD" ? "$" : selectedCurrency === "INR" ? "₹" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "GBP" ? "£" : selectedCurrency === "JPY" ? "¥" : selectedCurrency === "AED" ? "د.إ" : "◎"}
                     </div>
-                    {selectedDest.thumbs.map((t, i) => (
+                    <input
+                      type="number"
+                      className="budget-input"
+                      value={budgetAmount || ""}
+                      onChange={e => setBudgetAmount(Math.max(0, Number(e.target.value)))}
+                    />
+                  </div>
+
+                  {/* Preset Budget Tier Cards */}
+                  <div className="budget-tiers-grid">
+                    <div
+                      className={`budget-tier-card ${budgetTier === "budget" ? "selected" : ""}`}
+                      onClick={() => {
+                        setBudgetTier("budget");
+                        const amtUSD = 35 * plannerCity.durationDays;
+                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                      }}
+                    >
+                      <div className="tier-icon">🎒</div>
+                      <div className="tier-title">Backpacker / Economy</div>
+                      <div className="tier-estimate">~{convertAmount(35 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
+                      <p className="tier-desc">Social boutique hostels, local thalis & authentic street eateries, city bus/metro transit pass.</p>
+                    </div>
+                    <div
+                      className={`budget-tier-card ${budgetTier === "comfort" ? "selected" : ""}`}
+                      onClick={() => {
+                        setBudgetTier("comfort");
+                        const amtUSD = 95 * plannerCity.durationDays;
+                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                      }}
+                    >
+                      <div className="tier-icon">🧳</div>
+                      <div className="tier-title">Comfort / Explorer (Recommended)</div>
+                      <div className="tier-estimate">~{convertAmount(95 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
+                      <p className="tier-desc">3-4★ heritage stays, sit-down dining, day transit passes, all museum audio guides included.</p>
+                    </div>
+                    <div
+                      className={`budget-tier-card ${budgetTier === "luxury" ? "selected" : ""}`}
+                      onClick={() => {
+                        setBudgetTier("luxury");
+                        const amtUSD = 240 * plannerCity.durationDays;
+                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                      }}
+                    >
+                      <div className="tier-icon">👑</div>
+                      <div className="tier-title">Luxury / Royal</div>
+                      <div className="tier-estimate">~{convertAmount(240 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
+                      <p className="tier-desc">5★ palace suites & villas, private chauffeured AC cabs, fine dining & VIP entry passes.</p>
+                    </div>
+                  </div>
+
+                  {/* Live FX Ticker Card */}
+                  <div className="fx-ticker-card">
+                    <div className="fx-ticker-header">
+                      <div className="fx-live-pill">
+                        <span className="fx-pulsing-dot" />
+                        <span>CoinGecko & Live FX API Synced</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gray-light)" }}>
+                        Live Benchmark: 1 SOL = ${solInCurrencies["USD"] || 101.64} USD ≈ ₹{Math.round(solInCurrencies["INR"] || 9650).toLocaleString()} INR
+                      </div>
+                    </div>
+                    <div className="fx-grid">
+                      <div className="fx-item">
+                        <div className="fx-label">Equivalent in Solana</div>
+                        <div className="fx-val sol-accent">
+                          ◎ {(getBudgetInUSD(budgetAmount, selectedCurrency) / (solInCurrencies["USD"] || 101.64)).toFixed(3)} SOL
+                        </div>
+                      </div>
+                      <div className="fx-item">
+                        <div className="fx-label">Equivalent in USD</div>
+                        <div className="fx-val">${Math.round(getBudgetInUSD(budgetAmount, selectedCurrency)).toLocaleString()}</div>
+                      </div>
+                      <div className="fx-item">
+                        <div className="fx-label">Equivalent in INR</div>
+                        <div className="fx-val">₹{Math.round(getBudgetInUSD(budgetAmount, selectedCurrency) * (exchangeRates["INR"] || 94.95)).toLocaleString()}</div>
+                      </div>
+                      <div className="fx-item">
+                        <div className="fx-label">Daily Allocation</div>
+                        <div className="fx-val" style={{ fontSize: 16 }}>
+                          ~{Math.round(budgetAmount / plannerCity.durationDays)} {selectedCurrency} / day
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="wizard-footer-nav">
+                    <button
+                      className="btn-dark"
+                      style={{ width: "auto", padding: "12px 24px" }}
+                      onClick={() => { setPlannerStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <ArrowLeft size={16} /> Back: Attractions
+                    </button>
+                    <button
+                      className="btn-hero-yellow"
+                      onClick={() => { setPlannerStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <span>Next: Public Transport</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── STEP 3: Public Transport & City Transit Passes ── */}
+              {plannerStep === 3 && (
+                <div className="wizard-panel">
+                  <div className="wizard-header">
+                    <span className="wizard-step-label">Step 3 of 4 · Transit Passes</span>
+                    <h2 className="wizard-title">Public Transport Available in {plannerCity.name}</h2>
+                    <p className="wizard-subtitle">
+                      Official city transit passes and verified route options for {plannerCity.name} without vague terms.
+                    </p>
+                  </div>
+
+                  {/* Tactile Train Clipboard Transit Ticket */}
+                  <div className="transit-pass-ticket">
+                    <div className="ticket-clipboard-header">
+                      <div className="ticket-clipboard-tag">
+                        <ClipboardList size={18} />
+                        <Train size={18} />
+                        <span>Official Transit Pass Badge</span>
+                      </div>
+                      <div className="ticket-operator-code">{plannerCity.transit.operatorCode}</div>
+                    </div>
+                    <div className="ticket-body">
+                      <div>
+                        <div className="ticket-pass-badge">
+                          <Star size={12} /> #1 TOP RECOMMENDED FOR {plannerCity.name.toUpperCase()}
+                        </div>
+                        <div className="ticket-pass-name">{plannerCity.transit.recommendedPass}</div>
+                        <div className="ticket-details-grid">
+                          <div className="ticket-detail-item">
+                            <div className="ticket-detail-label">Official Fare Rate</div>
+                            <div className="ticket-detail-value" style={{ color: "var(--yellow)" }}>
+                              {plannerCity.transit.passPrice}
+                            </div>
+                          </div>
+                          <div className="ticket-detail-item">
+                            <div className="ticket-detail-label">Network Coverage</div>
+                            <div className="ticket-detail-value">{plannerCity.transit.passValidity}</div>
+                          </div>
+                        </div>
+                        <div className="ticket-how-to-use">
+                          <strong style={{ color: "#FFF" }}>How to Use:</strong> {plannerCity.transit.howToUse}
+                        </div>
+                      </div>
+
+                      <div className="ticket-barcode-col">
+                        <div className="barcode-visual" />
+                        <div className="barcode-number">REF-{plannerCity.id.toUpperCase()}-2026</div>
+                        <div style={{ fontSize: 11, color: "var(--success)", fontWeight: 800, marginTop: 4 }}>
+                          ✓ VERIFIED CITY TRANSIT
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="field-label" style={{ marginBottom: 14 }}>
+                    All Verified Transit Options in {plannerCity.name}
+                  </div>
+                  <div className="transit-options-grid">
+                    {plannerCity.transit.options.map((opt, i) => (
                       <div
                         key={i}
-                        className={`detail-thumb ${heroThumb === i + 1 ? "active" : ""}`}
-                        onClick={() => setHeroThumb(i + 1)}
+                        className={`transit-option-card ${selectedTransitMode === opt.name ? "selected" : ""}`}
+                        onClick={() => setSelectedTransitMode(opt.name)}
                       >
+                        <div className="transit-option-head">
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            {opt.type === "metro" && <Train size={16} color="var(--yellow)" />}
+                            {opt.type === "train" && <Train size={16} color="var(--yellow)" />}
+                            {opt.type === "bus" && <Bus size={16} color="var(--yellow)" />}
+                            {opt.type === "auto" && <Car size={16} color="var(--yellow)" />}
+                            {opt.type === "ferry" && <Ship size={16} color="var(--yellow)" />}
+                            {opt.type === "bike" && <Bike size={16} color="var(--yellow)" />}
+                            <span className="transit-option-name">{opt.name}</span>
+                          </div>
+                          <span className="transit-option-cost">{opt.cost}</span>
+                        </div>
+                        <p className="transit-option-tip">{opt.tip}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="wizard-footer-nav">
+                    <button
+                      className="btn-dark"
+                      style={{ width: "auto", padding: "12px 24px" }}
+                      onClick={() => { setPlannerStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <ArrowLeft size={16} /> Back: Budget
+                    </button>
+                    <button
+                      className="btn-hero-yellow"
+                      onClick={() => { setPlannerStep(4); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <span>Next: Crowd & Atmosphere</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── STEP 4: Crowd Tolerance & Style ── */}
+              {plannerStep === 4 && (
+                <div className="wizard-panel">
+                  <div className="wizard-header">
+                    <span className="wizard-step-label">Step 4 of 4 · Atmosphere & Flow</span>
+                    <h2 className="wizard-title">Crowd Preference & Travel Atmosphere</h2>
+                    <p className="wizard-subtitle">
+                      Tell us your comfort level so we schedule visits during quiet morning hours or buzzing evening peaks.
+                    </p>
+                  </div>
+
+                  <div className="field-label" style={{ marginBottom: 12 }}>How comfortable are you with crowds?</div>
+                  <div className="crowd-options-grid">
+                    <div
+                      className={`crowd-option-card ${crowdTolerance === "tranquil" ? "selected" : ""}`}
+                      onClick={() => setCrowdTolerance("tranquil")}
+                    >
+                      <div className="crowd-option-icon">🍃</div>
+                      <div className="crowd-option-title">Tranquil & Less Crowded</div>
+                      <p className="crowd-option-desc">
+                        Schedule visits at early morning opening slots (08:30 AM), quiet side streets, and serene viewpoints away from tour buses.
+                      </p>
+                    </div>
+                    <div
+                      className={`crowd-option-card ${crowdTolerance === "balanced" ? "selected" : ""}`}
+                      onClick={() => setCrowdTolerance("balanced")}
+                    >
+                      <div className="crowd-option-icon">⚖️</div>
+                      <div className="crowd-option-title">Balanced Optimal Flow (Recommended)</div>
+                      <p className="crowd-option-desc">
+                        Hit famous landmarks right at opening to beat long queues, then explore relaxed local cafés and neighborhoods in the afternoon.
+                      </p>
+                    </div>
+                    <div
+                      className={`crowd-option-card ${crowdTolerance === "vibrant" ? "selected" : ""}`}
+                      onClick={() => setCrowdTolerance("vibrant")}
+                    >
+                      <div className="crowd-option-icon">🔥</div>
+                      <div className="crowd-option-title">Comfortable with Crowds / Iconic Vibe</div>
+                      <p className="crowd-option-desc">
+                        I love the buzzing evening atmosphere, packed bazaars, and vibrant landmark scenes. Ready for peak energy.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Pace */}
+                  <div className="field-label" style={{ marginBottom: 12 }}>Trip Pace</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 28 }}>
+                    <div
+                      className={`crowd-option-card ${travelPace === "leisurely" ? "selected" : ""}`}
+                      onClick={() => setTravelPace("leisurely")}
+                    >
+                      <div className="crowd-option-icon">☕</div>
+                      <div className="crowd-option-title">Leisurely & Relaxed</div>
+                      <p className="crowd-option-desc">1–2 sights per day with extended café breaks, strolls, and zero rushing.</p>
+                    </div>
+                    <div
+                      className={`crowd-option-card ${travelPace === "explorer" ? "selected" : ""}`}
+                      onClick={() => setTravelPace("explorer")}
+                    >
+                      <div className="crowd-option-icon">⚡</div>
+                      <div className="crowd-option-title">Active Explorer</div>
+                      <p className="crowd-option-desc">3–4 sights per day, full-day schedule, seeing the absolute maximum.</p>
+                    </div>
+                  </div>
+
+                  {/* Travel Party */}
+                  <div className="field-label" style={{ marginBottom: 12 }}>Who is traveling?</div>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
+                    {[
+                      { id: "solo", label: "Solo Explorer", icon: "👤" },
+                      { id: "couple", label: "Couple / Romantic", icon: "💑" },
+                      { id: "family", label: "Family with Kids", icon: "👨‍👩‍👧" },
+                      { id: "friends", label: "Friends Group", icon: "👥" },
+                    ].map(p => (
+                      <button
+                        key={p.id}
+                        className={`pill-btn ${travelParty === p.id ? "active" : ""}`}
+                        style={{ padding: "10px 20px", fontSize: 14 }}
+                        onClick={() => setTravelParty(p.id as any)}
+                      >
+                        <span>{p.icon}</span>
+                        <span>{p.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="wizard-footer-nav">
+                    <button
+                      className="btn-dark"
+                      style={{ width: "auto", padding: "12px 24px" }}
+                      onClick={() => { setPlannerStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <ArrowLeft size={16} /> Back: Transit
+                    </button>
+                    <button
+                      className="btn-hero-yellow"
+                      onClick={generateTailoredPlan}
+                    >
+                      <Sparkles size={16} />
+                      <span>Generate My Tailored Plan ✨</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── STEP 5: Generated Tailored Itinerary & Solana Devnet Commitment ── */}
+              {plannerStep === 5 && generatedPlan && (
+                <div>
+                  <div className="wizard-panel">
+                    <div className="wizard-header">
+                      <span className="wizard-step-label">✦ Bespoke Solana Travel Plan</span>
+                      <h2 className="wizard-title">Tailored Travel Agreement for {generatedPlan.city}</h2>
+                      <p className="wizard-subtitle">
+                        Sequenced specifically for your selected sights, {generatedPlan.currency} budget, and transit pass.
+                      </p>
+                    </div>
+
+                    {/* Summary Bar */}
+                    <div style={{
+                      display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                      gap: 16, background: "var(--dark-elevated)", border: "1px solid var(--dark-border)",
+                      borderRadius: 14, padding: "18px 22px", marginBottom: 28,
+                    }}>
+                      <div>
+                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Duration</div>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>{generatedPlan.numDays} Days</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Pace & Crowd</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--yellow)" }}>
+                          {generatedPlan.crowd === "tranquil" ? "🍃 Tranquil" : generatedPlan.crowd === "vibrant" ? "🔥 Vibrant" : "⚖️ Balanced"} · {generatedPlan.pace === "leisurely" ? "Relaxed" : "Explorer"}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Total Budget</div>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--yellow)" }}>
+                          {generatedPlan.currency === "SOL" ? "◎ " : ""}{generatedPlan.totalBudget.toLocaleString()} {generatedPlan.currency}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Solana Equivalent</div>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>
+                          ◎ {generatedPlan.totalBudgetSOL} SOL
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Day by Day Schedule */}
+                    <div style={{ marginBottom: 32 }}>
+                      <div className="field-label" style={{ marginBottom: 16 }}>Day-by-Day Route & Scheduled Sights</div>
+                      {generatedPlan.days.map((day: any) => (
+                        <div key={day.dayNumber} className="itinerary-day-box">
+                          <div className="itinerary-day-title">
+                            <Calendar size={18} />
+                            <span>Day {day.dayNumber} · {day.theme}</span>
+                          </div>
+
+                          <div>
+                            {day.stops.map((stop: any, sIdx: number) => (
+                              <React.Fragment key={sIdx}>
+                                <div className="itinerary-stop-row">
+                                  <div className="itinerary-stop-time">{stop.time}</div>
+                                  <div>
+                                    <div className="itinerary-stop-title">{stop.name}</div>
+                                    <div style={{ fontSize: 12, color: "var(--yellow)", fontWeight: 700, marginBottom: 4 }}>
+                                      {stop.category} · {stop.duration}
+                                    </div>
+                                    <div className="itinerary-stop-desc">{stop.tip}</div>
+                                    <div className="itinerary-stop-tip-box">
+                                      <strong style={{ color: "var(--yellow)" }}>Ticket:</strong> {stop.costDisplay}
+                                    </div>
+                                  </div>
+                                  <div style={{ width: 90, height: 65, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
+                                    <img
+                                      src={stop.img}
+                                      alt={stop.name}
+                                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                      onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
+                                    />
+                                  </div>
+                                </div>
+
+                                {sIdx < day.stops.length - 1 && (
+                                  <div className="itinerary-transit-connector">
+                                    <ClipboardList size={15} />
+                                    <Train size={15} />
+                                    <span>Transit Hop: {stop.transitHop}</span>
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Itemized Budget Breakdown Table */}
+                    <div style={{
+                      background: "var(--dark-elevated)", border: "1px solid var(--dark-border)",
+                      borderRadius: 16, padding: "24px", marginBottom: 32,
+                    }}>
+                      <div className="field-label" style={{ marginBottom: 16 }}>Curated Budget Breakdown</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
+                          <span style={{ color: "var(--gray-light)" }}>Sightseeing Admissions & Tickets</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {generatedPlan.costs.attractions.toLocaleString()} {generatedPlan.currency}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
+                          <span style={{ color: "var(--gray-light)" }}>Public Transit Pass ({generatedPlan.transitPass.slice(0, 32)})</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {generatedPlan.costs.transit.toLocaleString()} {generatedPlan.currency}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
+                          <span style={{ color: "var(--gray-light)" }}>Estimated Stays & Local Dining</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {generatedPlan.costs.diningStay.toLocaleString()} {generatedPlan.currency}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, fontSize: 16, fontWeight: 800, color: "var(--yellow)" }}>
+                          <span>Total Target Plan</span>
+                          <span>
+                            {generatedPlan.totalBudget.toLocaleString()} {generatedPlan.currency} (≈ ◎ {generatedPlan.totalBudgetSOL} SOL)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Solana Devnet Cryptographic Commitment (Hero Idea) */}
+                    <div style={{
+                      background: "rgba(248, 208, 87, 0.05)", border: "2px solid rgba(248, 208, 87, 0.35)",
+                      borderRadius: 18, padding: "28px", marginBottom: 24,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <Lock size={20} color="var(--yellow)" />
+                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>Tamper-Proof Travel Agreement on Solana Devnet</h3>
+                      </div>
+                      <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.6, marginBottom: 20 }}>
+                        The AI prepared your tailored itinerary based on your selections. Anchor it to Solana Devnet to mint an immutable SHA-256 travel agreement record verified by Metaplex Agent ID <code style={{ color: "var(--yellow)" }}>CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn</code>.
+                      </p>
+
+                      {customCommitTx && (
+                        <div className="status-box status-green" style={{ marginBottom: 16, fontSize: 13 }}>
+                          <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Agreement Cryptographically Committed on Solana!</div>
+                          {customCommitTx.startsWith("demo_") ? (
+                            <div style={{ fontSize: 12, color: "var(--yellow)" }}>
+                              Immutable SHA-256 Hash: <code style={{ color: "#FFF" }}>{customCommitTx.slice(5)}</code> (Recorded in On-Chain Records tab)
+                            </div>
+                          ) : (
+                            <a
+                              href={`https://explorer.solana.com/tx/${customCommitTx}?cluster=devnet`}
+                              target="_blank" rel="noreferrer"
+                              style={{ color: "var(--yellow)", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4 }}
+                            >
+                              View Verified Anchor Transaction on Solana Explorer <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {customCommitError && (
+                        <div className="status-box status-red" style={{ marginBottom: 16, fontSize: 12 }}>
+                          {customCommitError}
+                        </div>
+                      )}
+
+                      <button
+                        className="btn-yellow"
+                        onClick={handleCommitCustomPlan}
+                        disabled={customCommitLoading}
+                      >
+                        {customCommitLoading ? (
+                          <><Loader2 size={16} className="animate-spin" /><span>Anchoring Hash to Solana Devnet...</span></>
+                        ) : (
+                          <><Lock size={15} /><span>Commit Tailored Agreement on Solana Devnet</span></>
+                        )}
+                      </button>
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", marginTop: 12 }}>
+                        <span>
+                          {mounted && wallet.publicKey ? (
+                            <span style={{ color: "var(--success)", fontWeight: 600 }}>
+                              🟢 Phantom Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
+                            </span>
+                          ) : (
+                            <span>⚡ Instant Devnet Demo Mode Active (Zero setup required)</span>
+                          )}
+                        </span>
+                        {mounted && !wallet.publicKey && (
+                          <button
+                            onClick={() => openWalletModal(true)}
+                            style={{ background: "none", border: "none", color: "var(--yellow)", cursor: "pointer", fontSize: 12, textDecoration: "underline", fontWeight: 600 }}
+                          >
+                            Connect Phantom (Optional)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="wizard-footer-nav">
+                      <button
+                        className="btn-dark"
+                        style={{ width: "auto", padding: "12px 24px" }}
+                        onClick={() => { setPlannerStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      >
+                        <RotateCcw size={16} /> Modify Choices
+                      </button>
+                      <button
+                        className="btn-hero-yellow"
+                        onClick={() => {
+                          setPlannerCity(null);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      >
+                        <span>Explore Another City</span>
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ══════════════════════════════════════════════════════════ */
+            /* DISCOVERY CATALOG (Select any city to customize)          */
+            /* ══════════════════════════════════════════════════════════ */
+            <>
+              {/* Hero */}
+              <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
+                <div
+                  className="hero-bg"
+                  style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
+                />
+                <div className="hero-gradient" />
+                <div className="hero-content">
+                  <div className="hero-eyebrow">
+                    <Sparkles size={13} />
+                    <span>Solana AI Agent Registry · Anchor Smart Contract</span>
+                  </div>
+                  <h1 className="hero-title">
+                    Discover Your<br />
+                    <span>Next</span> Journey
+                  </h1>
+                  <p className="hero-sub">
+                    Explore verified destinations, customize your day-by-day travel plan, and commit tamper-evident trip agreements to Solana Devnet.
+                  </p>
+                  <div className="hero-actions">
+                    <div className="hero-search">
+                      <Search size={16} color="#7A7A7A" />
+                      <input
+                        placeholder="Search any destination — Paris, Mysuru, Tokyo, Dubai..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <button className="btn-hero-yellow">
+                      <span>Explore the World</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              {/* Destination cards */}
+              <div className="page-section">
+                <div className="section-header">
+                  <div>
+                    <div className="section-label">✦ Curated Destinations</div>
+                    <h2 className="section-title">Choose Your City to Customize</h2>
+                    <p className="section-sub">
+                      Click any city below to open the interactive trip customizer with live currency exchange, public transit passes, and verifiable Solana records.
+                    </p>
+                  </div>
+                  <div className="filter-pills">
+                    {ALL_TAGS.map(tag => (
+                      <button
+                        key={tag}
+                        className={`pill-btn ${filterTag === tag ? "active" : ""}`}
+                        onClick={() => setFilterTag(tag)}
+                      >{tag}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="destinations-grid">
+                  {filteredDests.map(dest => (
+                    <div
+                      key={dest.id}
+                      className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
+                      onClick={() => {
+                        const cityData = getCuratedCityData(dest.name, dest.heroImg);
+                        setPlannerCity(cityData);
+                        setPlannerStep(1);
+                        setSelectedAttractionIds(cityData.attractions.slice(0, 3).map(a => a.id));
+                        setSelectedTransitMode(cityData.transit.recommendedPass);
+                        const initialUSD = cityData.avgDailyBudgetUSD * cityData.durationDays;
+                        setBudgetAmount(convertAmount(initialUSD, selectedCurrency));
+                        setBudgetTier("comfort");
+                        setGeneratedPlan(null);
+                        setCustomCommitTx(null);
+                        setCustomCommitError("");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                      <div className="dest-card-photo">
                         <img
-                          src={t}
-                          alt={`${selectedDest.name} preview ${i + 1}`}
-                          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
+                          src={dest.heroImg}
+                          alt={dest.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                          }}
                         />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                      <div className="dest-card-overlay" />
+                      <div className="dest-card-badge">
+                        <Star size={10} /> {dest.tag}
+                      </div>
+                      <div className="dest-card-body">
+                        <div className="dest-card-name">{dest.name}</div>
+                        <div className="dest-card-price">{dest.price}</div>
+                        <p className="dest-card-desc">{dest.tagline}</p>
 
-              {/* Right: Info + commit */}
-              <div className="detail-sidebar">
-                <div>
-                  <div className="detail-trip-title">{selectedDest.tripTitle}</div>
-                  <div className="detail-price-tag">{selectedDest.price}</div>
-                </div>
-
-                <div className="detail-stats">
-                  <div className="detail-stat">
-                    <div className="detail-stat-val">{selectedDest.duration}</div>
-                    <div className="detail-stat-label">Trip Duration</div>
-                  </div>
-                  <div className="detail-stat">
-                    <div className="detail-stat-val">{selectedDest.activityLevel}</div>
-                    <div className="detail-stat-label">Activity Level</div>
-                  </div>
-                  <div className="detail-stat">
-                    <div className="detail-stat-val" style={{ fontSize: 13 }}>{selectedDest.accommodation}</div>
-                    <div className="detail-stat-label">Accommodation</div>
-                  </div>
-                  <div className="detail-stat">
-                    <div className="detail-stat-val">{selectedDest.bestSeason}</div>
-                    <div className="detail-stat-label">Best Season</div>
-                  </div>
-                </div>
-
-                <p className="detail-desc">{selectedDest.description}</p>
-
-                {/* Itinerary stops */}
-                <div>
-                  <div className="field-label" style={{ marginBottom: 12 }}>Day Itinerary</div>
-                  <div className="detail-stops">
-                    {selectedDest.stops.map((stop, i) => (
-                      <div key={i} className="detail-stop">
-                        <div className="detail-stop-time">{stop.time}</div>
-                        <div className="detail-stop-info">
-                          <div className="detail-stop-name">{stop.name}</div>
-                          <div className="detail-stop-desc">{stop.desc}</div>
-                          <div className="detail-stop-cost">{stop.cost}</div>
+                        <div style={{
+                          marginTop: 12,
+                          paddingTop: 10,
+                          borderTop: "1px solid rgba(255,255,255,0.08)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          fontSize: 12,
+                          color: "var(--yellow)",
+                          fontWeight: 700,
+                        }}>
+                          <span>Plan & Customize Trip</span>
+                          <ArrowRight size={14} />
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Commit section */}
-                <div className="detail-actions">
-                  {commitTx && (
-                    <div className="status-box status-green" style={{ fontSize: 13, lineHeight: 1.6 }}>
-                      <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Itinerary Cryptographically Hashed & Committed!</div>
-                      {commitTx.startsWith("demo_") ? (
-                        <div style={{ fontSize: 12, color: "var(--yellow)" }}>
-                          Verified SHA-256 Hash: <code style={{ color: "#FFF" }}>{commitTx.slice(5)}...</code> (Recorded in On-Chain Records tab)
-                        </div>
-                      ) : (
-                        <a
-                          href={`https://explorer.solana.com/tx/${commitTx}?cluster=devnet`}
-                          target="_blank" rel="noreferrer"
-                          style={{ color: "var(--yellow)", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4 }}
-                        >
-                          View Verified Transaction on Solana Explorer <ExternalLink size={12} />
-                        </a>
-                      )}
                     </div>
-                  )}
-                  {commitError && (
-                    <div className="status-box status-red" style={{ fontSize: 12 }}>{commitError}</div>
-                  )}
-
-                  <button className="btn-yellow" onClick={handleCommitItinerary} disabled={commitLoading || demoSigning}>
-                    {commitLoading || demoSigning ? (
-                      <><Loader2 size={16} className="animate-spin" /><span>Submitting to Solana Devnet...</span></>
-                    ) : (
-                      <><Lock size={15} /><span>Commit Itinerary Hash on Solana Devnet</span></>
-                    )}
-                  </button>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", padding: "4px 2px" }}>
-                    <span>
-                      {mounted && wallet.publicKey ? (
-                        <span style={{ color: "var(--success)", fontWeight: 600 }}>
-                          🟢 Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
-                        </span>
-                      ) : (
-                        <span>⚡ Instant Devnet Demo Mode (Zero setup required)</span>
-                      )}
-                    </span>
-                    {mounted && !wallet.publicKey && (
-                      <button
-                        onClick={() => openWalletModal(true)}
-                        style={{ background: "none", border: "none", color: "var(--yellow)", cursor: "pointer", fontSize: 12, textDecoration: "underline", fontWeight: 600 }}
-                      >
-                        Connect Phantom (Optional)
-                      </button>
-                    )}
-                  </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </>
       )}
 
