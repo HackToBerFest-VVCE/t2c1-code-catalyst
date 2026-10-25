@@ -2927,11 +2927,6 @@ export default function Home() {
         <div>© 2026 Touristमत्रम्. All rights reserved.</div>
       </footer>
 
-      {/* Floating Experience Rating Card (img 4) */}
-      <div className="floating-experience-rating">
-        <ExperienceRatingWidget />
-      </div>
-
       {/* Traveler Persona & Official Visa Advisor Modal */}
       <TravelerPersonaModal
         isOpen={isPersonaModalOpen}
