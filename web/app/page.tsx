@@ -18,18 +18,6 @@ const WalletMultiButton = dynamic(
   }
 );
 
-// Client-only dynamic import of 3D Google Earth Globe
-const EarthGlobe = dynamic(() => import("../components/EarthGlobe"), {
-  ssr: false,
-  loading: () => (
-    <div className="earth-loading-state">
-      <Loader2 className="animate-spin" size={36} color="var(--yellow)" />
-      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)", marginTop: 12 }}>
-        Initializing Google Earth 3D Planetary Viewport...
-      </div>
-    </div>
-  ),
-});
 import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
 import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { tourismIdl } from "../lib/tourism-idl";
@@ -549,10 +537,6 @@ export default function Home() {
   const [customCommitLoading, setCustomCommitLoading] = useState(false);
   const [customCommitError, setCustomCommitError] = useState("");
 
-  // ── Google Earth 3D Exploration & Locator State ──
-  const [viewMode, setViewMode] = useState<"earth" | "cards">("cards");
-  const [locatingCity, setLocatingCity] = useState<string | null>(null);
-
   // ── Traveler Persona State (Indian Citizen vs Foreign Visitor) ──
   const [travelerType, setTravelerType] = useState<"indian" | "foreign" | null>(null);
   const [foreignCountry, setForeignCountry] = useState<string>("United States");
@@ -577,26 +561,7 @@ export default function Home() {
   };
 
   const handleInitiateSelection = (cityName: string, fallbackHero?: string) => {
-    const clean = cityName.trim();
-    if (!clean) return;
-    if (viewMode === "earth") {
-      const earthEl = document.getElementById("earth-viewport-section");
-      if (earthEl && window.scrollY > 200) {
-        earthEl.scrollIntoView({ behavior: "smooth" });
-      }
-      setLocatingCity(clean);
-    } else {
-      setLocatingCity(clean);
-      setViewMode("earth");
-    }
-  };
-
-  const handleFlyComplete = () => {
-    if (locatingCity) {
-      const city = locatingCity;
-      setLocatingCity(null);
-      handleSelectDestination(city);
-    }
+    handleSelectDestination(cityName, fallbackHero);
   };
 
   const handleSelectIndian = () => {
@@ -1001,8 +966,15 @@ export default function Home() {
   const [verifyHashInput, setVerifyHashInput] = useState("");
   const [verifyStatus, setVerifyStatus] = useState("");
 
-  // Active destination plan state
+  // Tabs are unlocked once user selects a place or fills the form
   const hasActivePlan = Boolean(plannerCity !== null || customCommitTx !== null || savedRecords.length > 0);
+
+  // Fallback active tab to discover if active plan resets
+  useEffect(() => {
+    if (!hasActivePlan && activeTab !== "discover") {
+      setActiveTab("discover");
+    }
+  }, [hasActivePlan, activeTab]);
 
   // ── Load agents on mount ──
   useEffect(() => {
@@ -1245,82 +1217,36 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop Navigation Links in Vita Travel Style */}
-          <div className="vita-nav-links" style={{ display: "flex", alignItems: "center", gap: "1.75rem" }}>
-            <span
-              className="vita-nav-link"
-              onClick={() => { setActiveTab("discover"); setPlannerCity(null); }}
-              style={{ cursor: "pointer", color: activeTab === "discover" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>Destinations
-            </span>
-            <span
-              className="vita-nav-link"
-              onClick={() => {
-                setActiveTab("discover");
-                setPlannerCity(null);
-                setViewMode(viewMode === "earth" ? "cards" : "earth");
-              }}
-              style={{ cursor: "pointer", color: viewMode === "earth" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>{viewMode === "earth" ? "Editorial Cards" : "3D Earth"}
-            </span>
-            <span
-              className="vita-nav-link"
-              onClick={() => setActiveTab("agents")}
-              style={{ cursor: "pointer", color: activeTab === "agents" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>Concierges
-            </span>
-            <span
-              className="vita-nav-link"
-              onClick={() => setActiveTab("price")}
-              style={{ cursor: "pointer", color: activeTab === "price" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>Rate Cards
-            </span>
-            <span
-              className="vita-nav-link"
-              onClick={() => setActiveTab("safety")}
-              style={{ cursor: "pointer", color: activeTab === "safety" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>Safety
-            </span>
-            <span
-              className="vita-nav-link"
-              onClick={() => setActiveTab("records")}
-              style={{ cursor: "pointer", color: activeTab === "records" ? "var(--brand-accent)" : "var(--white-100)" }}
-            >
-              <span className="plus">+</span>Solana Proof
-              {savedRecords.length > 0 && (
-                <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 7px", background: "rgba(251, 152, 38, 0.2)", color: "var(--brand-accent)", borderRadius: 10, fontWeight: 700 }}>
-                  {savedRecords.length}
-                </span>
-              )}
-            </span>
+          {/* Desktop Tabs - Empty until user selects a place or fills the form */}
+          <div className="nav-tabs">
+            {hasActivePlan ? (
+              (["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
+                <button
+                  key={tab}
+                  className={`nav-tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : `🗺 ${t.navDiscover}`)}
+                  {tab === "agents" && `🤖 ${t.navConcierge}`}
+                  {tab === "price" && `💰 ${t.navPrice}`}
+                  {tab === "safety" && `🛡 ${t.navSafety}`}
+                  {tab === "records" && (
+                    <span>
+                      🔗 {t.navRecords}
+                      {savedRecords.length > 0 && (
+                        <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
+                          {savedRecords.length}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </button>
+              ))
+            ) : null}
           </div>
 
           {/* Right: Language, Traveler Status & Wallet */}
           <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Explore CTA Button from Vita Travel */}
-            <a
-              href="#featured-journeys"
-              className="btn-vita-primary mobile-hidden"
-              style={{ padding: "0.55rem 1.25rem", fontSize: "0.85rem", gap: "0.45rem", textDecoration: "none" }}
-              onClick={(e) => {
-                if (plannerCity) {
-                  e.preventDefault();
-                  setPlannerStep(1);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-              }}
-            >
-              <span>{plannerCity ? "Active Plan" : "Explore"}</span>
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 0C8 0 7.32057 2.41553 7.32057 4C7.32057 5.58447 8 8 8 8C8 8 5.58447 7.32057 4 7.32057C2.41553 7.32057 0 8 0 8C0 8 0.679427 5.58447 0.679427 4C0.679427 2.41553 0 0 0 0C0 0 2.41553 0.679426 4 0.679426C5.58447 0.679426 8 0 8 0Z" fill="#0D2E37"/>
-              </svg>
-            </a>
-
             {/* Language Selector Button */}
             <button
               className="nav-lang-btn"
@@ -2254,679 +2180,187 @@ export default function Home() {
             /* DISCOVERY CATALOG (Select any city to customize)          */
             /* ══════════════════════════════════════════════════════════ */
             <>
-              {/* Google Earth 3D Planetary Explorer or Classic Cards View */}
-              {viewMode === "earth" ? (
-                <section id="earth-viewport-section" className="earth-hero-dome" style={{ paddingTop: "var(--nav-h)" }}>
-                  {/* WebGL 3D Interactive Earth Canvas */}
-                  <div className="earth-viewport-container">
-                    <EarthGlobe
-                      locatingCity={locatingCity}
-                      onSelectCity={(city) => handleInitiateSelection(city)}
-                      onFlyComplete={handleFlyComplete}
-                    />
-                  </div>
-
-                  {/* Top Bar with Mode Switcher */}
-                  <div className="earth-top-bar" style={{ justifyContent: "flex-end" }}>
-                    <div className="view-mode-toggle">
-                      <button
-                        className="view-toggle-btn active"
-                        onClick={() => setViewMode("earth")}
-                      >
-                        <Globe size={14} />
-                        <span>{t.viewEarth}</span>
-                      </button>
-                      <button
-                        className="view-toggle-btn"
-                        onClick={() => setViewMode("cards")}
-                      >
-                        <Sparkles size={14} />
-                        <span>{t.viewCards}</span>
-                      </button>
+              {/* Hero Section */}
+              <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
+                <div
+                  className="hero-bg"
+                  style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
+                />
+                <div className="hero-gradient" />
+                <div className="hero-content">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                    <div className="hero-eyebrow" style={{ margin: 0 }}>
+                      <Sparkles size={13} />
+                      <span>Verified Travel Concierge · Guaranteed Price Integrity</span>
                     </div>
                   </div>
+                  <h1 className="hero-title">
+                    {t.heroTitle}
+                  </h1>
+                  <p className="hero-sub">
+                    {t.heroSub}
+                  </p>
 
-                  {/* Floating Search & Location Console */}
-                  <div className="earth-floating-console">
-                    <div className="earth-console-eyebrow">
-                      <Sparkles size={12} />
-                      <span>Touristमत्रम् Live Planetary Navigation</span>
+                  {/* Traveler Category Context Banner */}
+                  {travelerType === "foreign" ? (
+                    <div className="traveler-status-banner foreign" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <Globe size={14} color="var(--yellow)" />
+                        <span>International Visitor ({foreignCountry})</span>
+                        <span className="visa-chip">Official e-Visa Guide</span>
+                      </div>
+                      <span className="view-docs-link">Review Visa Documents & White-Bg Photo Specs →</span>
                     </div>
-                    <h1 className="earth-console-title">
-                      {t.earthHeading}
-                    </h1>
-
-                    {/* Traveler Category Context Banner */}
-                    {travelerType === "foreign" ? (
-                      <div className="traveler-status-banner foreign" onClick={() => setIsPersonaModalOpen(true)}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <Globe size={14} color="var(--yellow)" />
-                          <span>International Visitor ({foreignCountry})</span>
-                          <span className="visa-chip">Official e-Visa Guide</span>
-                        </div>
-                        <span className="view-docs-link">Review Required Documents & White-Bg Photo Specs →</span>
+                  ) : (
+                    <div className="traveler-status-banner indian" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span>🇮🇳</span>
+                        <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
                       </div>
-                    ) : (
-                      <div className="traveler-status-banner indian" onClick={() => setIsPersonaModalOpen(true)}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span>🇮🇳</span>
-                          <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
-                        </div>
-                        <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
-                      </div>
-                    )}
+                      <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
+                    </div>
+                  )}
 
-                    <div className="earth-search-row">
-                      <Search size={18} color="var(--yellow)" />
+                  <div className="hero-actions">
+                    <div className="hero-search">
+                      <Search size={16} color="#7A7A7A" />
                       <input
-                        className="earth-search-input"
                         placeholder={t.heroSearchPlaceholder}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={e => {
                           if (e.key === "Enter") {
                             const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                            handleInitiateSelection(query);
+                            handleSelectDestination(query);
                           }
                         }}
                       />
+                    </div>
+                    <button
+                      className="btn-hero-yellow"
+                      onClick={() => {
+                        const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                        handleSelectDestination(query);
+                      }}
+                    >
+                      <span>{t.exploreBtn}</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+
+                  {/* Quick-Pick Popular City Chips */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
+                    <span style={{ fontSize: 12, color: "var(--gray-light)", fontWeight: 600 }}>Popular Destinations:</span>
+                    {[
+                      { name: "Mysuru", flag: "🇮🇳" },
+                      { name: "Jaipur", flag: "🇮🇳" },
+                      { name: "Agra", flag: "🇮🇳" },
+                      { name: "Delhi", flag: "🇮🇳" },
+                      { name: "Goa", flag: "🇮🇳" },
+                      { name: "Kerala", flag: "🇮🇳" },
+                      { name: "Varanasi", flag: "🇮🇳" },
+                      { name: "Ladakh", flag: "🇮🇳" },
+                      { name: "Srinagar", flag: "🇮🇳" },
+                    ].map(chip => (
                       <button
-                        className="btn-locate-earth"
-                        onClick={() => {
-                          const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                          handleInitiateSelection(query);
+                        key={chip.name}
+                        onClick={() => handleSelectDestination(chip.name)}
+                        style={{
+                          background: "rgba(255, 255, 255, 0.08)",
+                          border: "1px solid rgba(255, 255, 255, 0.16)",
+                          borderRadius: 20,
+                          padding: "5px 13px",
+                          color: "#FFF",
+                          fontSize: 12,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "var(--yellow)";
+                          e.currentTarget.style.background = "rgba(248, 208, 87, 0.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
                         }}
                       >
-                        <Compass size={15} />
-                        <span>{t.locateAndFly}</span>
+                        <span>{chip.flag}</span>
+                        <span>{chip.name}</span>
                       </button>
-                    </div>
-
-                    {/* Quick-Pick Orbital City Chips */}
-                    <div className="earth-quick-chips">
-                      {[
-                        { name: "Mysuru", flag: "🇮🇳" },
-                        { name: "Jaipur", flag: "🇮🇳" },
-                        { name: "Agra", flag: "🇮🇳" },
-                        { name: "Delhi", flag: "🇮🇳" },
-                        { name: "Goa", flag: "🇮🇳" },
-                        { name: "Mumbai", flag: "🇮🇳" },
-                        { name: "Varanasi", flag: "🇮🇳" },
-                        { name: "Kerala", flag: "🇮🇳" },
-                        { name: "Ladakh", flag: "🇮🇳" },
-                        { name: "Hampi", flag: "🇮🇳" },
-                        { name: "Udaipur", flag: "🇮🇳" },
-                        { name: "Amritsar", flag: "🇮🇳" },
-                        { name: "Rishikesh", flag: "🇮🇳" },
-                        { name: "Srinagar", flag: "🇮🇳" },
-                        { name: "Andaman", flag: "🇮🇳" },
-                      ].map(chip => (
-                        <button
-                          key={chip.name}
-                          className="earth-quick-chip"
-                          onClick={() => handleInitiateSelection(chip.name)}
-                        >
-                          <span>{chip.flag}</span>
-                          <span>{chip.name}</span>
-                        </button>
-                      ))}
-                    </div>
+                    ))}
                   </div>
-                </section>
-              ) : (
-                /* ══════════════════════════════════════════════════════════════
-                   VITA TRAVEL EDITORIAL LANDING EXPERIENCE (vita-travel.webflow.io)
-                   ══════════════════════════════════════════════════════════════ */
-                <div>
-                  {/* ── 1. Hero Intro Section ── */}
-                  <section className="vita-intro">
-                    <div className="vita-container">
-                      <div className="vita-intro__content">
-                        <div className="vita-tag-badge">
-                          <Sparkles size={13} color="var(--brand-accent)" />
-                          <span>Verified Platforms · Guaranteed Price Integrity</span>
-                        </div>
-
-                        <h1 className="vita-h1">Travel</h1>
-
-                        <p className="vita-lead">
-                          With purpose. Book retreats, active tours, and boutique stays in one place.
-                        </p>
-
-                        {/* Traveler Persona Context Banner */}
-                        {travelerType === "foreign" ? (
-                          <div
-                            className="traveler-status-banner foreign"
-                            style={{ margin: "0 auto 2rem auto", maxWidth: 580, cursor: "pointer" }}
-                            onClick={() => setIsPersonaModalOpen(true)}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <Globe size={14} color="var(--brand-accent)" />
-                              <span>International Visitor ({foreignCountry})</span>
-                              <span className="visa-chip">Official e-Visa Guide</span>
-                            </div>
-                            <span className="view-docs-link">Review Visa Documents & White-Bg Photo Specs →</span>
-                          </div>
-                        ) : (
-                          <div
-                            className="traveler-status-banner indian"
-                            style={{ margin: "0 auto 2rem auto", maxWidth: 580, cursor: "pointer" }}
-                            onClick={() => setIsPersonaModalOpen(true)}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span>🇮🇳</span>
-                              <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
-                            </div>
-                            <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
-                          </div>
-                        )}
-
-                        {/* CTA & View Mode Controls */}
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "1.75rem" }}>
-                          <a href="#featured-journeys" className="btn-vita-primary">
-                            <span>Explore Retreats</span>
-                            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M8 0C8 0 7.32057 2.41553 7.32057 4C7.32057 5.58447 8 8 8 8C8 8 5.58447 7.32057 4 7.32057C2.41553 7.32057 0 8 0 8C0 8 0.679427 5.58447 0.679427 4C0.679427 2.41553 0 0 0 0C0 0 2.41553 0.679426 4 0.679426C5.58447 0.679426 8 0 8 0Z" fill="#0D2E37"/>
-                            </svg>
-                          </a>
-                          <button
-                            className="btn-vita-secondary"
-                            onClick={() => {
-                              setViewMode("earth");
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                          >
-                            <Globe size={15} color="var(--brand-accent)" />
-                            <span>Switch to 3D Earth Globe</span>
-                          </button>
-                        </div>
-
-                        {/* Vita Sleek Search Bar */}
-                        <div className="vita-search-wrap">
-                          <Search size={18} color="var(--brand-accent)" />
-                          <input
-                            className="vita-search-input"
-                            placeholder="Search destinations (e.g. Mysuru, Varanasi, Jaipur, Kochi, Goa...)"
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === "Enter") {
-                                const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                                handleInitiateSelection(query);
-                              }
-                            }}
-                          />
-                          <button
-                            className="btn-vita-primary"
-                            style={{ padding: "0.55rem 1.25rem", fontSize: "0.85rem" }}
-                            onClick={() => {
-                              const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                              handleInitiateSelection(query);
-                            }}
-                          >
-                            <span>Search</span>
-                            <ArrowRight size={13} />
-                          </button>
-                        </div>
-
-                        {/* Quick Chips */}
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
-                          {DESTINATIONS.slice(0, 6).map(city => (
-                            <button
-                              key={city.name}
-                              className="city-chip"
-                              style={{ background: "rgba(13, 46, 55, 0.6)", borderColor: "var(--white-10)" }}
-                              onClick={() => handleInitiateSelection(city.name, city.heroImg)}
-                            >
-                              <span>{city.flag}</span>
-                              <span>{city.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 2. Statistic Highlights Section ── */}
-                  <section className="vita-stats-section">
-                    <div className="vita-container">
-                      <div className="vita-section-head">
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>Retreats & Circuits</span>
-                          </div>
-                          <h2 className="vita-h2" style={{ maxWidth: 720 }}>
-                            We've vetted retreats in more than 100 destinations · See for yourself
-                          </h2>
-                        </div>
-                      </div>
-
-                      <div className="vita-stats-grid">
-                        <div
-                          className="vita-stat-col"
-                          onClick={() => { setFilterTag("Heritage"); const el = document.getElementById("featured-journeys"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
-                        >
-                          <div className="vita-stat-head">
-                            <div className="vita-stat-title">Heritage Retreats</div>
-                            <div className="vita-stat-sub">/ 89+ Locations</div>
-                          </div>
-                          <img
-                            src="/images/destinations/amber-fort.jpg"
-                            alt="Heritage Retreats"
-                            className="vita-stat-thumb"
-                            loading="lazy"
-                          />
-                        </div>
-
-                        <div
-                          className="vita-stat-col"
-                          onClick={() => { setFilterTag("Spiritual"); const el = document.getElementById("featured-journeys"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
-                        >
-                          <div className="vita-stat-head">
-                            <div className="vita-stat-title">Yoga & Ghat Retreats</div>
-                            <div className="vita-stat-sub">/ 56+ Locations</div>
-                          </div>
-                          <img
-                            src="/images/destinations/dashashwamedh-ghat.jpg"
-                            alt="Yoga & Ghat Retreats"
-                            className="vita-stat-thumb"
-                            loading="lazy"
-                          />
-                        </div>
-
-                        <div
-                          className="vita-stat-col"
-                          onClick={() => { setFilterTag("Nature"); const el = document.getElementById("featured-journeys"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
-                        >
-                          <div className="vita-stat-head">
-                            <div className="vita-stat-title">Nature & Detox Stays</div>
-                            <div className="vita-stat-sub">/ 74+ Locations</div>
-                          </div>
-                          <img
-                            src="/images/destinations/coorg-hills.jpg"
-                            alt="Nature & Detox Stays"
-                            className="vita-stat-thumb"
-                            loading="lazy"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 3. About Us Section ── */}
-                  <section className="vita-about-section">
-                    <div className="vita-container">
-                      <div className="vita-about-grid">
-                        <div className="vita-about-visual">
-                          <img
-                            src="/images/destinations/city-palace-jaipur.jpg"
-                            alt="About Touristमत्रम्"
-                            loading="lazy"
-                          />
-                        </div>
-
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>About Us</span>
-                          </div>
-                          <h2 className="vita-h2" style={{ marginBottom: "1.5rem" }}>
-                            Not just trips — experiences that nurture body and soul
-                          </h2>
-                          <p className="vita-lead" style={{ marginBottom: "1.5rem" }}>
-                            Touristमत्रम् is a premium cultural travel marketplace that blends the ease of booking with the feel of an editorial magazine. Discover curated programs, match them with exceptional stays, and book seamlessly with guaranteed on-chain price protection.
-                          </p>
-
-                          <div className="vita-about-metrics">
-                            <div>
-                              <div className="vita-metric-num">100+</div>
-                              <div style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--white-100)" }}>Total destinations explored</div>
-                              <div style={{ fontSize: "0.85rem", color: "var(--white-60)", marginTop: 4 }}>
-                                Trusted by travelers looking for more than ordinary vacations.
-                              </div>
-                            </div>
-                            <div>
-                              <div className="vita-metric-num" style={{ color: "var(--brand-accent)" }}>1,472+</div>
-                              <div style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--white-100)" }}>Total retreats certified</div>
-                              <div style={{ fontSize: "0.85rem", color: "var(--white-60)", marginTop: 4 }}>
-                                Cryptographically locked on Solana Devnet with tamper-evident certificates.
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 4. Featured Journeys Section (Split Editorial Cards) ── */}
-                  <section id="featured-journeys" className="vita-featured-section">
-                    <div className="vita-container">
-                      <div className="vita-section-head">
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>Featured Retreats</span>
-                          </div>
-                          <h2 className="vita-h2">Featured Retreats</h2>
-                        </div>
-                        <p className="vita-lead" style={{ maxWidth: 460 }}>
-                          Discover unique locations, engaging cultural activities, and expert-led circuits designed to inspire and refresh your spirit.
-                        </p>
-                      </div>
-
-                      {/* Filter Pills */}
-                      <div className="filter-pills" style={{ marginBottom: "2rem" }}>
-                        {ALL_TAGS.map(tag => (
-                          <button
-                            key={tag}
-                            className={`pill-btn ${filterTag === tag ? "active" : ""}`}
-                            style={{
-                              borderRadius: "9999px",
-                              padding: "0.55rem 1.25rem",
-                              background: filterTag === tag ? "var(--brand-accent)" : "rgba(13, 46, 55, 0.6)",
-                              borderColor: filterTag === tag ? "var(--brand-accent)" : "var(--white-10)",
-                              color: filterTag === tag ? "#000" : "var(--white-100)",
-                              fontWeight: 600,
-                            }}
-                            onClick={() => setFilterTag(tag)}
-                          >
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Split Editorial Cards */}
-                      <div className="vita-featured-grid">
-                        {filteredDests.map((dest, idx) => (
-                          <div
-                            key={dest.id}
-                            className="vita-card"
-                            onClick={() => handleInitiateSelection(dest.name, dest.heroImg)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="vita-card__text">
-                              <div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                                  <h3 className="vita-h3">{dest.tripTitle}</h3>
-                                  <div className="vita-card__price-badge">
-                                    <span>from</span>
-                                    <strong>{dest.price}</strong>
-                                  </div>
-                                </div>
-
-                                <p style={{ color: "var(--white-60)", fontSize: "0.95rem", margin: "0.75rem 0 1.25rem 0", lineHeight: 1.5 }}>
-                                  {dest.tagline}
-                                </p>
-
-                                <div className="vita-properties-list">
-                                  <div className="vita-property-row">
-                                    <span className="sub">Destination:</span>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <MapPin size={14} color="var(--brand-accent)" />
-                                      <strong>{dest.name}, India</strong>
-                                    </div>
-                                  </div>
-                                  <div className="vita-property-row">
-                                    <span className="sub">Duration:</span>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <Calendar size={14} color="var(--brand-accent)" />
-                                      <span>{dest.duration}</span>
-                                    </div>
-                                  </div>
-                                  <div className="vita-property-row">
-                                    <span className="sub">Group Capacity:</span>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <Users size={14} color="var(--brand-accent)" />
-                                      <span>Solo / Duo / Boutique Group</span>
-                                    </div>
-                                  </div>
-                                  <div className="vita-property-row">
-                                    <span className="sub">Verified Trust:</span>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <Star size={14} color="var(--brand-accent)" fill="var(--brand-accent)" />
-                                      <span style={{ color: "var(--brand-accent)", fontWeight: 700 }}>4.95 Rating · Solana Locked</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <button
-                                className="btn-vita-secondary"
-                                style={{ alignSelf: "flex-start", width: "100%", maxWidth: 220 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleInitiateSelection(dest.name, dest.heroImg);
-                                }}
-                              >
-                                <span>Explore Retreat</span>
-                                <ArrowRight size={15} />
-                              </button>
-                            </div>
-
-                            <div className="vita-card__visual">
-                              <img
-                                src={dest.heroImg}
-                                alt={dest.name}
-                                loading="lazy"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = FALLBACK_HERO;
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 5. Combine Journey 4-Step Process Section ── */}
-                  <section className="vita-combine-section">
-                    <div className="vita-container">
-                      <div className="vita-section-head">
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>Seamless Checkout</span>
-                          </div>
-                          <h2 className="vita-h2">Combine Retreat</h2>
-                        </div>
-                        <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", fontSize: "1.25rem", fontWeight: 700 }}>
-                          <span><span style={{ color: "var(--brand-accent)" }}>+</span> Stay</span>
-                          <span><span style={{ color: "var(--brand-accent)" }}>+</span> Transfers</span>
-                          <span><span style={{ color: "var(--brand-accent)" }}>+</span> Extras</span>
-                        </div>
-                      </div>
-
-                      <div className="vita-combine-grid">
-                        <div className="vita-combine-lead">
-                          <p className="vita-lead" style={{ fontSize: "1.15rem" }}>
-                            Combine retreat into one seamless checkout. Instant confirmations where available, or concierge support for bespoke itineraries.
-                          </p>
-                        </div>
-
-                        <div className="vita-step-card">
-                          <div className="vita-corner-dec vita-corner-dec--tl" />
-                          <div className="vita-corner-dec vita-corner-dec--tr" />
-                          <div className="vita-corner-dec vita-corner-dec--bl" />
-                          <div className="vita-corner-dec vita-corner-dec--br" />
-                          <div>
-                            <div className="vita-step-num">01</div>
-                            <div className="vita-step-label">Step</div>
-                          </div>
-                          <div className="vita-step-title">Choose <br/>Retreat</div>
-                        </div>
-
-                        <div className="vita-step-card">
-                          <div className="vita-corner-dec vita-corner-dec--tl" />
-                          <div className="vita-corner-dec vita-corner-dec--tr" />
-                          <div className="vita-corner-dec vita-corner-dec--bl" />
-                          <div className="vita-corner-dec vita-corner-dec--br" />
-                          <div>
-                            <div className="vita-step-num">02</div>
-                            <div className="vita-step-label">Step</div>
-                          </div>
-                          <div className="vita-step-title">Match Boutique <br/>Stay</div>
-                        </div>
-
-                        <div className="vita-step-card">
-                          <div className="vita-corner-dec vita-corner-dec--tl" />
-                          <div className="vita-corner-dec vita-corner-dec--tr" />
-                          <div className="vita-corner-dec vita-corner-dec--bl" />
-                          <div className="vita-corner-dec vita-corner-dec--br" />
-                          <div>
-                            <div className="vita-step-num">03</div>
-                            <div className="vita-step-label">Step</div>
-                          </div>
-                          <div className="vita-step-title">Add Transfers &amp; <br/>Extras</div>
-                        </div>
-
-                        <div className="vita-step-card">
-                          <div className="vita-corner-dec vita-corner-dec--tl" />
-                          <div className="vita-corner-dec vita-corner-dec--tr" />
-                          <div className="vita-corner-dec vita-corner-dec--bl" />
-                          <div className="vita-corner-dec vita-corner-dec--br" />
-                          <div>
-                            <div className="vita-step-num">04</div>
-                            <div className="vita-step-label">Step</div>
-                          </div>
-                          <div className="vita-step-title">Secure <br/>On-Chain Seal</div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 6. Destination Coordinates Radar Section ── */}
-                  <section className="vita-destination-section">
-                    <div className="vita-container">
-                      <div className="vita-section-head">
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>Destination Explorer</span>
-                          </div>
-                          <h2 className="vita-h2">Explore by Destination</h2>
-                        </div>
-                        <p className="vita-lead" style={{ maxWidth: 460 }}>
-                          Discover your next adventure! Choose from curated circuits across North India (289+ stops), vibrant South India (90+ stops), and Western heritage.
-                        </p>
-                      </div>
-
-                      <div className="vita-radar-wrap">
-                        {/* Amber glowing radar SVG from Vita Travel */}
-                        <svg width="100%" height="220" viewBox="0 0 1100 220" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxWidth: 1000 }}>
-                          <defs>
-                            <radialGradient id="radarAmber" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 0) scale(28)">
-                              <stop stopColor="#FBA13A" />
-                              <stop offset="1" stopColor="#071418" stopOpacity="0" />
-                            </radialGradient>
-                          </defs>
-                          <line x1="50" y1="110" x2="1050" y2="110" stroke="rgba(255,255,255,0.08)" strokeDasharray="4 6" />
-                          <circle cx="150" cy="110" r="28" fill="url(#radarAmber)" opacity="0.3" />
-                          <circle cx="150" cy="110" r="4" fill="#FBA13A" />
-                          <circle cx="320" cy="70" r="32" fill="url(#radarAmber)" opacity="0.3" />
-                          <circle cx="320" cy="70" r="5" fill="#FBA13A" />
-                          <circle cx="550" cy="110" r="40" fill="url(#radarAmber)" opacity="0.35" />
-                          <circle cx="550" cy="110" r="6" fill="#FBA13A" />
-                          <circle cx="780" cy="140" r="28" fill="url(#radarAmber)" opacity="0.3" />
-                          <circle cx="780" cy="140" r="4" fill="#FBA13A" />
-                          <circle cx="950" cy="90" r="32" fill="url(#radarAmber)" opacity="0.3" />
-                          <circle cx="950" cy="90" r="5" fill="#FBA13A" />
-                        </svg>
-
-                        <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center", marginTop: "1rem" }}>
-                          <button
-                            className="btn-vita-secondary"
-                            onClick={() => {
-                              setViewMode("earth");
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                          >
-                            <Globe size={15} color="var(--brand-accent)" />
-                            <span>Launch Google Earth 3D Explorer</span>
-                          </button>
-                          <a href="#featured-journeys" className="btn-vita-primary">
-                            <span>Browse All 10+ Circuits</span>
-                            <ArrowRight size={14} />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── 7. Practitioners & Concierges Showcase ── */}
-                  <section className="vita-about-section" style={{ borderTop: "1px solid var(--white-10)" }}>
-                    <div className="vita-container">
-                      <div className="vita-section-head">
-                        <div>
-                          <div className="vita-tag-badge">
-                            <Sparkles size={12} color="var(--brand-accent)" />
-                            <span>Practitioners &amp; Coaches</span>
-                          </div>
-                          <h2 className="vita-h2">The 200+ faces behind Touristमत्रम्</h2>
-                        </div>
-                        <p className="vita-lead" style={{ maxWidth: 460 }}>
-                          Certified concierges and local cultural experts backed by on-chain identity records and authentic traveler reviews.
-                        </p>
-                      </div>
-
-                      <div className="vita-coaches-grid">
-                        <div className="vita-coach-card" onClick={() => setActiveTab("agents")}>
-                          <div className="vita-coach-visual">
-                            <img src="/images/destinations/cst-mumbai.jpg" alt="Aarav Sharma" loading="lazy" />
-                          </div>
-                          <div className="vita-coach-info">
-                            <div className="vita-coach-name">Aarav Sharma</div>
-                            <div className="vita-coach-role">Heritage &amp; Architecture Specialist</div>
-                            <div style={{ fontSize: "0.8rem", color: "var(--white-60)", marginTop: 4 }}>
-                              14 Cities · 4.96 Trust Score
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="vita-coach-card" onClick={() => setActiveTab("agents")}>
-                          <div className="vita-coach-visual">
-                            <img src="/images/destinations/beatles-ashram.jpg" alt="Priya Sundaram" loading="lazy" />
-                          </div>
-                          <div className="vita-coach-info">
-                            <div className="vita-coach-name">Priya Sundaram</div>
-                            <div className="vita-coach-role">Yoga &amp; Meditation Concierge</div>
-                            <div style={{ fontSize: "0.8rem", color: "var(--white-60)", marginTop: 4 }}>
-                              18 Retreats · 4.98 Trust Score
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="vita-coach-card" onClick={() => setActiveTab("agents")}>
-                          <div className="vita-coach-visual">
-                            <img src="/images/destinations/coorg-hills.jpg" alt="Rohan Verma" loading="lazy" />
-                          </div>
-                          <div className="vita-coach-info">
-                            <div className="vita-coach-name">Rohan Verma</div>
-                            <div className="vita-coach-role">Trek &amp; Wildlife Naturalist</div>
-                            <div style={{ fontSize: "0.8rem", color: "var(--white-60)", marginTop: 4 }}>
-                              24 Expeditions · 4.94 Trust Score
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="vita-coach-card" onClick={() => setActiveTab("agents")}>
-                          <div className="vita-coach-visual">
-                            <img src="/images/destinations/devaraja-market.jpg" alt="Meera Iyer" loading="lazy" />
-                          </div>
-                          <div className="vita-coach-info">
-                            <div className="vita-coach-name">Meera Iyer</div>
-                            <div className="vita-coach-role">Silk &amp; Culinary Historian</div>
-                            <div style={{ fontSize: "0.8rem", color: "var(--white-60)", marginTop: 4 }}>
-                              12 Heritage Circuits · 4.97 Trust Score
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
                 </div>
-              )}
+              </section>
+
+              {/* Destination cards */}
+              <div className="page-section">
+                <div className="section-header">
+                  <div>
+                    <div className="section-label">✦ {t.navDiscover}</div>
+                    <h2 className="section-title">{t.curatedHeading}</h2>
+                    <p className="section-sub">
+                      {t.curatedSub}
+                    </p>
+                  </div>
+                  <div className="filter-pills">
+                    {ALL_TAGS.map(tag => (
+                      <button
+                        key={tag}
+                        className={`pill-btn ${filterTag === tag ? "active" : ""}`}
+                        onClick={() => setFilterTag(tag)}
+                      >{tag}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="destinations-grid">
+                  {filteredDests.map(dest => (
+                    <div
+                      key={dest.id}
+                      className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
+                      onClick={() => handleSelectDestination(dest.name, dest.heroImg)}
+                    >
+                      <div className="dest-card-photo">
+                        <img
+                          src={dest.heroImg}
+                          alt={dest.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                          }}
+                        />
+                      </div>
+                      <div className="dest-card-overlay" />
+                      <div className="dest-card-badge">
+                        <Star size={10} /> {dest.tag}
+                      </div>
+                      <div className="dest-card-body">
+                        <div className="dest-card-name">{dest.name}</div>
+                        <div className="dest-card-price">{dest.price}</div>
+                        <p className="dest-card-desc">{dest.tagline}</p>
+
+                        <div style={{
+                          marginTop: 12,
+                          paddingTop: 10,
+                          borderTop: "1px solid rgba(255,255,255,0.08)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          fontSize: 12,
+                          color: "var(--yellow)",
+                          fontWeight: 700,
+                        }}>
+                          <span>Plan & Customize Trip</span>
+                          <ArrowRight size={14} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </>
           )}
         </>
@@ -2937,14 +2371,28 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "agents" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing certified tourism concierges and guides.</span>
-              <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Back to Plan
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🤖</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Certified AI Travel Concierges provide localized cultural guidance, itinerary verification, and booking protection. Please select a city in Discover or build a custom plan to unlock verified concierges.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
               </button>
             </div>
-          )}
+          ) : (
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing certified tourism concierges and guides.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
+                  </button>
+                </div>
+              )}
               <div className="section-header">
                 <div>
                   <div className="section-label">✦ Certified Travel Network</div>
@@ -3026,6 +2474,8 @@ export default function Home() {
                   ))}
                 </div>
               )}
+            </>
+          )}
         </div>
       )}
 
@@ -3034,14 +2484,28 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "price" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Benchmarked against verified 2024–2025 municipal rates.</span>
-              <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Back to Plan
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>💰</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Fair Price Protection compares real quotes against verified municipal benchmarks and transit rates for your destination. Pick a destination or customize your trip in Discover to unlock price checking.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
               </button>
             </div>
-          )}
+          ) : (
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Benchmarked against verified 2024–2025 municipal rates.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
+                  </button>
+                </div>
+              )}
               <div className="section-header">
                 <div>
                   <div className="section-label">✦ Price Protection</div>
@@ -3100,6 +2564,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </>
+          )}
         </div>
       )}
 
@@ -3108,14 +2574,28 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "safety" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers &amp; customized budget.</span>
-              <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Back to Plan
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🛡️</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Safety contacts, emergency helplines, and the trip expense tracker are tailored to your chosen destination. Select a city in Discover to view emergency numbers and manage your budget.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
               </button>
             </div>
-          )}
+          ) : (
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
+                  </button>
+                </div>
+              )}
               <div className="section-header">
                 <div>
                   <div className="section-label">✦ Trip Management</div>
@@ -3188,6 +2668,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </>
+          )}
         </div>
       )}
 
@@ -3196,14 +2678,28 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "records" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && !customCommitTx && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
-              <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Proceed to Step 5 to Lock Agreement
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🔗</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>No On-Chain Records Yet</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Tamper-evident trip agreements are hashed (SHA-256) and committed immutably to Solana Devnet. Select a destination in Discover and complete your 5-step customized plan to record your travel agreement.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
               </button>
             </div>
-          )}
+          ) : (
+            <>
+              {plannerCity && !customCommitTx && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
+                  <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Proceed to Step 5 to Lock Agreement
+                  </button>
+                </div>
+              )}
               <div className="section-header">
                 <div>
                   <div className="section-label">✦ Certified Travel Ledgers</div>
@@ -3274,81 +2770,34 @@ export default function Home() {
                   </div>
                 )}
               </div>
+            </>
+          )}
         </div>
       )}
 
-      {/* ══ VITA TRAVEL TWO-TIER FOOTER ══ */}
-      <footer className="vita-footer">
-        <div className="vita-container">
-          <div className="vita-footer-top">
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                <img
-                  src="/logo.png"
-                  alt="Touristमत्रम् Logo"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    objectFit: "contain",
-                    border: "1px solid rgba(251, 152, 38, 0.4)",
-                  }}
-                />
-                <span style={{ fontSize: 22, fontWeight: 900 }}>
-                  Tourist<span style={{ color: "var(--brand-accent)" }}>मत्रम्</span>
-                </span>
-              </div>
-              <p style={{ color: "var(--white-60)", fontSize: "0.95rem", lineHeight: 1.6, maxWidth: 380 }}>
-                Curated cultural travel marketplace with certified concierges and tamper-evident price protection anchored on Solana Devnet.
-              </p>
-            </div>
-
-            <div className="vita-footer-links-grid">
-              <div>
-                <div style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--brand-accent)", marginBottom: 14 }}>
-                  NAVIGATION
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: "0.92rem", color: "var(--white-60)" }}>
-                  <a href="#featured-journeys" style={{ transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = "#FFF")} onMouseLeave={e => (e.currentTarget.style.color = "var(--white-60)")}>+Destinations</a>
-                  <span onClick={() => setActiveTab("agents")} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = "#FFF")} onMouseLeave={e => (e.currentTarget.style.color = "var(--white-60)")}>+Verified Concierges</span>
-                  <span onClick={() => setActiveTab("price")} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = "#FFF")} onMouseLeave={e => (e.currentTarget.style.color = "var(--white-60)")}>+Fare Benchmarks</span>
-                  <span onClick={() => setActiveTab("safety")} style={{ cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={e => (e.currentTarget.style.color = "#FFF")} onMouseLeave={e => (e.currentTarget.style.color = "var(--white-60)")}>+SOS &amp; Helplines</span>
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--brand-accent)", marginBottom: 14 }}>
-                  BLOCKCHAIN &amp; TRUST
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: "0.92rem", color: "var(--white-60)" }}>
-                  <span onClick={() => setActiveTab("records")} style={{ cursor: "pointer" }}>+Solana Devnet Registry</span>
-                  <span>+SHA-256 Trip Attestation</span>
-                  <span>+SEAL Tier-1 Verified</span>
-                  <span>+Municipal Fare Benchmark</span>
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.08em", color: "var(--brand-accent)", marginBottom: 14 }}>
-                  24/7 HELPLINES
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: "0.92rem", color: "var(--white-60)" }}>
-                  <div>📞 <strong>1363</strong> (Tourist Helpline)</div>
-                  <div>🚨 <strong>112</strong> (National Emergency)</div>
-                  <div>✉️ concierge@touristmatram.in</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="vita-footer-bottom">
-            <div>© 2026 Touristमत्रम्. All rights reserved. Crafted with editorial excellence.</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4CAF7D", display: "inline-block" }} />
-              <span style={{ color: "var(--white-60)" }}>Connected to Solana Devnet Cluster</span>
-            </div>
-          </div>
+      {/* ══ FOOTER ══ */}
+      <footer className="site-footer">
+        <div className="footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <img
+            src="/logo.png"
+            alt="Touristमत्रम् Logo"
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              objectFit: "contain",
+              border: "1px solid rgba(248, 208, 87, 0.35)",
+            }}
+          />
+          <span style={{ fontSize: 18, fontWeight: 900 }}>
+            Tourist<span style={{ color: "var(--yellow)" }}>मत्रम्</span>
+          </span>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="footer-devnet-dot" style={{ background: "var(--success)" }} />
+          <span>Encrypted & Certified Travel Network</span>
+        </div>
+        <div>© 2026 Touristमत्रम्. All rights reserved.</div>
       </footer>
 
       {/* Traveler Persona & Official Visa Advisor Modal */}

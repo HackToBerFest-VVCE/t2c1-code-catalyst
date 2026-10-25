@@ -591,19 +591,19 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
       <table class="budget-table">
         <tr>
           <td style="color: var(--text-muted);">Attractions & Sights Admission</td>
-          <td style="text-align: right; font-weight: 700;">${(plan.costs?.attractions ?? Math.round((plan.totalBudget || 0) * 0.4)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700;">${plan.costs.attractions.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr>
           <td style="color: var(--text-muted);">Transit Pass & Connectors</td>
-          <td style="text-align: right; font-weight: 700;">${(plan.costs?.transit ?? Math.round((plan.totalBudget || 0) * 0.2)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700;">${plan.costs.transit.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr>
           <td style="color: var(--text-muted);">Estimated Stays & Local Dining</td>
-          <td style="text-align: right; font-weight: 700;">${(plan.costs?.diningStay ?? Math.round((plan.totalBudget || 0) * 0.4)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700;">${plan.costs.diningStay.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr>
           <td>Total Curated Budget</td>
-          <td style="text-align: right;">${(plan.totalBudget ?? 0).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right;">${plan.totalBudget.toLocaleString()} ${plan.currency}</td>
         </tr>
       </table>
     </div>
@@ -744,19 +744,19 @@ export function generateItineraryEmailHTML(plan: ItineraryPlan, options: PassGen
       <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; color: #C9D1D9;">
         <tr>
           <td style="padding: 5px 0;">Sightseeing Admissions:</td>
-          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${(plan.costs?.attractions ?? Math.round((plan.totalBudget || 0) * 0.4)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${plan.costs.attractions.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr>
           <td style="padding: 5px 0;">Transit Pass & Connectors:</td>
-          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${(plan.costs?.transit ?? Math.round((plan.totalBudget || 0) * 0.2)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${plan.costs.transit.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr>
           <td style="padding: 5px 0;">Stays & Dining:</td>
-          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${(plan.costs?.diningStay ?? Math.round((plan.totalBudget || 0) * 0.4)).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 700; color: #FFFFFF;">${plan.costs.diningStay.toLocaleString()} ${plan.currency}</td>
         </tr>
         <tr style="border-top: 1px solid #30363D;">
           <td style="padding: 8px 0; font-weight: 800; color: #F8D057;">Total Budget:</td>
-          <td style="text-align: right; font-weight: 800; color: #F8D057; font-size: 14px;">${(plan.totalBudget ?? 0).toLocaleString()} ${plan.currency || "USD"}</td>
+          <td style="text-align: right; font-weight: 800; color: #F8D057; font-size: 14px;">${plan.totalBudget.toLocaleString()} ${plan.currency}</td>
         </tr>
       </table>
     </div>
