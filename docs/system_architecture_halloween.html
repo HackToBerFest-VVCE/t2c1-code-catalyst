@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Touristमत्रम् — System Architecture Diagram (Team Code Catalyst)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000000;
+      color: #111111;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    /* Print / Export button */
+    .no-print-bar {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: #f8d057;
+      color: #0b0f19;
+      border: 1px solid #d4af37;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: #ffdb65;
+      transform: translateY(-1px);
+    }
+
+    /* Main Poster Canvas (matches 3:2 landscape aspect ratio from Hacktober template) */
+    .sheet-canvas {
+      width: 1380px;
+      background: #FFFFFF;
+      border: 12px solid #000000;
+      outline: 4px solid #111111;
+      box-shadow: 0 0 40px rgba(248, 208, 87, 0.25), 0 20px 60px rgba(0,0,0,0.9);
+      position: relative;
+      padding: 24px 28px 20px 28px;
+      overflow: hidden;
+    }
+
+    /* Spooky Halloween Border Illustrations */
+    .spooky-corner {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .corner-tl { top: 6px; left: 6px; width: 140px; height: 140px; }
+    .corner-tr { top: 6px; right: 6px; width: 140px; height: 140px; }
+    .corner-bl { bottom: 6px; left: 6px; width: 160px; height: 120px; }
+    .corner-br { bottom: 6px; right: 6px; width: 180px; height: 140px; }
+
+    /* Header Section */
+    .header-container {
+      text-align: center;
+      position: relative;
+      margin-bottom: 16px;
+      padding-top: 6px;
+    }
+
+    .team-badge-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .team-banner {
+      font-family: 'Cinzel', serif;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #000000;
+      border: 3px solid #000000;
+      padding: 4px 34px;
+      background: #FFFFFF;
+      position: relative;
+      box-shadow: 3px 3px 0 #000000;
+      text-transform: uppercase;
+    }
+
+    .team-banner::before, .team-banner::after {
+      content: '🦇';
+      font-size: 18px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .team-banner::before { left: 8px; }
+    .team-banner::after { right: 8px; }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: #000000;
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    .sheet-subtitle {
+      font-size: 12px;
+      color: #333333;
+      max-width: 980px;
+      margin: 0 auto;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* ── Top Row: 5 Pipeline Steps ── */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .step-box {
+      border: 2px solid #000000;
+      border-radius: 8px;
+      background: #F9F9FB;
+      padding: 10px 10px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 2px 2px 0 #000000;
+    }
+
+    .step-box::after {
+      content: '➔';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 900;
+      color: #000000;
+      background: #FFF;
+      border: 1px solid #000;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    .step-box:last-child::after {
+      display: none;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 6px;
+    }
+
+    .step-num {
+      background: #000000;
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.2;
+    }
+
+    .step-card-item {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      background: #FFFFFF;
+      border: 1px solid #D5D5DC;
+      border-radius: 6px;
+      padding: 6px 7px;
+    }
+
+    .step-card-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-icon-badge {
+      font-size: 15px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-bullets {
+      font-size: 10.5px;
+      color: #222222;
+      line-height: 1.35;
+    }
+
+    .step-bullets b {
+      color: #000000;
+      font-weight: 700;
+    }
+
+    /* ── Middle Row: Network Deployment & Tech Stack ── */
+    .middle-grid {
+      display: grid;
+      grid-template-columns: 2.1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    /* Network Deployment Container */
+    .network-container {
+      border: 2px solid #000000;
+      border-radius: 8px;
+      background: #F8F9FA;
+      padding: 12px 14px;
+      box-shadow: 2px 2px 0 #000000;
+      position: relative;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 10px;
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 4px;
+    }
+
+    .agents-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .agent-pill {
+      background: #FFFFFF;
+      border: 1px solid #000000;
+      border-radius: 6px;
+      padding: 6px 8px;
+      text-align: center;
+      box-shadow: 1px 1px 0 #000000;
+    }
+
+    .agent-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 2px;
+    }
+
+    .agent-desc {
+      font-size: 9.5px;
+      color: #555555;
+      line-height: 1.25;
+    }
+
+    /* Solana Network Box */
+    .solana-box {
+      border: 2px solid #000000;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      box-shadow: 2px 2px 0 #000000;
+    }
+
+    .solana-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #999;
+      padding-bottom: 4px;
+    }
+
+    .solana-modules {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .module-item {
+      border: 1.5px solid #000000;
+      border-radius: 6px;
+      background: #F4F5F8;
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+    .module-name {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    .module-sub {
+      font-size: 9px;
+      color: #666666;
+    }
+
+    /* Users / DApp Row */
+    .user-dapp-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #FFFFFF;
+      border: 1.5px solid #000000;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 800;
+      border-right: 1.5px solid #000;
+      padding-right: 12px;
+    }
+
+    .dapp-flow {
+      font-size: 11px;
+      color: #222222;
+      flex: 1;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .dapp-chip {
+      background: #F0F2F6;
+      border: 1px solid #CCC;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    /* Tech Stack Card */
+    .tech-stack-card {
+      border: 2px solid #000000;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 12px 14px;
+      box-shadow: 2px 2px 0 #000000;
+    }
+
+    .tech-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5px;
+    }
+
+    .tech-table tr {
+      border-bottom: 1px solid #E5E5E9;
+    }
+
+    .tech-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .tech-table td {
+      padding: 4.5px 4px;
+      vertical-align: middle;
+    }
+
+    .tech-label {
+      font-weight: 800;
+      color: #000000;
+      width: 44%;
+    }
+
+    .tech-val {
+      color: #333333;
+      font-weight: 600;
+    }
+
+    /* ── Bottom Row: Key Features ── */
+    .features-container {
+      border: 2px solid #000000;
+      border-radius: 8px;
+      background: #F9F9FB;
+      padding: 10px 14px;
+      box-shadow: 2px 2px 0 #000000;
+    }
+
+    .features-header {
+      font-size: 12px;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .features-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .feature-card {
+      background: #FFFFFF;
+      border: 1.5px solid #000000;
+      border-radius: 6px;
+      padding: 8px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 1px 1px 0 #000000;
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feature-icon {
+      font-size: 18px;
+    }
+
+    .feature-name {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.2;
+    }
+
+    .feature-desc {
+      font-size: 9.5px;
+      color: #444444;
+      line-height: 1.3;
+    }
+
+    /* Watermark / Footer Spooky Stamp */
+    .footer-stamp {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      font-size: 10px;
+      color: #555555;
+      font-weight: 600;
+      border-top: 1px solid #000000;
+      padding-top: 6px;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: #FFF;
+      }
+      .no-print-bar {
+        display: none;
+      }
+      .sheet-canvas {
+        box-shadow: none;
+        width: 100%;
+        border-width: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Utility Bar -->
+  <div class="no-print-bar">
+    <button class="btn-action" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <!-- Main Canvas Sheet -->
+  <div class="sheet-canvas">
+
+    <!-- Top-Left Spooky Silhouette: Haunted Web & Spider -->
+    <svg class="spooky-corner corner-tl" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0 L140 0 C110 30 100 80 0 140 Z" fill="#000000" opacity="0.08"/>
+      <path d="M5 5 L130 5 C95 35 90 70 5 130 Z" stroke="#000000" stroke-width="2" fill="none"/>
+      <path d="M5 5 L90 90 M5 5 L50 120 M5 5 L120 50" stroke="#000000" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <circle cx="85" cy="85" r="4" fill="#000000"/>
+      <!-- Spider -->
+      <line x1="85" y1="85" x2="85" y2="115" stroke="#000000" stroke-width="1"/>
+      <circle cx="85" cy="120" r="5" fill="#000000"/>
+      <circle cx="85" cy="116" r="3" fill="#000000"/>
+      <path d="M80 118 Q72 112 70 124 M90 118 Q98 112 100 124 M80 122 Q72 128 72 134 M90 122 Q98 128 98 134" stroke="#000000" stroke-width="1.2" fill="none"/>
+    </svg>
+
+    <!-- Top-Right Spooky Silhouette: Moon & Bats -->
+    <svg class="spooky-corner corner-tr" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="38" r="28" fill="#F8D057" stroke="#000000" stroke-width="2"/>
+      <circle cx="112" cy="30" r="24" fill="#FFFFFF"/>
+      <!-- Flying Bats -->
+      <path d="M40 30 Q50 20 60 28 Q70 20 80 30 Q65 38 60 30 Q55 38 40 30 Z" fill="#000000"/>
+      <path d="M15 50 Q23 42 30 48 Q37 42 45 50 Q34 56 30 50 Q26 56 15 50 Z" fill="#000000"/>
+      <path d="M70 65 Q76 59 82 64 Q88 59 94 65 Q85 70 82 65 Q79 70 70 65 Z" fill="#000000"/>
+    </svg>
+
+    <!-- Bottom-Left Spooky Silhouette: Jack-o'-Lantern & Gravestones -->
+    <svg class="spooky-corner corner-bl" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 115 Q40 50 80 115 Z" fill="#000000"/>
+      <!-- Pumpkin Left -->
+      <ellipse cx="45" cy="98" rx="22" ry="17" fill="#000000"/>
+      <path d="M43 81 Q45 74 48 76" stroke="#000000" stroke-width="3" fill="none"/>
+      <polygon points="36,94 40,94 38,90" fill="#FFF"/>
+      <polygon points="50,94 54,94 52,90" fill="#FFF"/>
+      <polygon points="43,96 47,96 45,93" fill="#FFF"/>
+      <path d="M34 103 Q45 110 56 103 Q45 106 34 103 Z" fill="#FFF"/>
+      <!-- Gravestone -->
+      <path d="M95 115 L95 85 Q105 75 115 85 L115 115 Z" fill="#000000"/>
+      <line x1="105" y1="88" x2="105" y2="102" stroke="#FFF" stroke-width="2"/>
+      <line x1="99" y1="93" x2="111" y2="93" stroke="#FFF" stroke-width="2"/>
+    </svg>
+
+    <!-- Bottom-Right Spooky Silhouette: Haunted Tree & Spooky Castle -->
+    <svg class="spooky-corner corner-br" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Haunted Castle Spire -->
+      <path d="M120 135 L120 70 L135 45 L150 70 L150 135 Z" fill="#000000"/>
+      <path d="M150 135 L150 85 L165 65 L175 85 L175 135 Z" fill="#000000"/>
+      <rect x="131" y="80" width="8" height="14" rx="4" fill="#F8D057"/>
+      <!-- Twisted Gnarled Tree -->
+      <path d="M90 135 Q95 100 80 80 Q65 65 50 70 Q70 60 75 50 Q65 40 55 45 Q75 35 85 45 Q95 30 105 35 Q100 48 95 65 Q115 60 125 50 Q118 68 105 75 Q110 95 90 135 Z" fill="#000000"/>
+    </svg>
+
+    <!-- ── HEADER ── -->
+    <header class="header-container">
+      <div class="team-badge-wrapper">
+        <div class="team-banner">TEAM CODE CATALYST</div>
+      </div>
+      <h1 class="sheet-title">Touristमत्रम्: Certified Travel Concierge & Price Protection Network on Solana</h1>
+      <p class="sheet-subtitle">
+        A decentralized platform for verifiable cultural travel curation, anti-scam benchmark enforcement, Metaplex Agent Identity discovery, and cryptographic SHA-256 travel agreement certification using the Anchor Smart Contract Framework.
+      </p>
+    </header>
+
+    <!-- ── TOP ROW: 5 PIPELINE STEPS ── -->
+    <section class="pipeline-grid">
+      <!-- Step 1 -->
+      <div class="step-box">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <span class="step-title">Traveler Discovery & Persona</span>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">🌍</span>
+          <div class="step-bullets">
+            <b>3D Google Earth</b><br>
+            Planetary WebGL flight navigation across 20 Indian hubs.
+          </div>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">🛂</span>
+          <div class="step-bullets">
+            <b>Persona Advisor</b><br>
+            Indian Citizen domestic perks or Foreign e-Visa rules & photo specs.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-box">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <span class="step-title">Concierge & Budget Lock</span>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">✨</span>
+          <div class="step-bullets">
+            <b>Curated Sights</b><br>
+            User selects iconic landmarks, pacing, and crowd tolerance.
+          </div>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">💰</span>
+          <div class="step-bullets">
+            <b>Live Currency & Pass</b><br>
+            CoinGecko live FX exchange & state transit clipboard passes.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-box">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <span class="step-title">Hashing & Agent Proof</span>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">🤖</span>
+          <div class="step-bullets">
+            <b>Metaplex Identity</b><br>
+            On-chain agent asset PDA validation and identity scoring.
+          </div>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">#️⃣</span>
+          <div class="step-bullets">
+            <b>SHA-256 Hash</b><br>
+            Deterministic cryptographic digest of canonical itinerary JSON.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-box">
+        <div class="step-header">
+          <span class="step-num">4</span>
+          <span class="step-title">On-Chain Commitment</span>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">⚓</span>
+          <div class="step-bullets">
+            <b>Anchor Smart Contract</b><br>
+            Writes TripCommitment account state on Solana Devnet.
+          </div>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">🔒</span>
+          <div class="step-bullets">
+            <b>Guaranteed Pricing</b><br>
+            Prices locked against tourist surge inflation & local scams.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-box">
+        <div class="step-header">
+          <span class="step-num">5</span>
+          <span class="step-title">Settlement & Safety Shield</span>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">📜</span>
+          <div class="step-bullets">
+            <b>Digital Certificate</b><br>
+            Tamper-proof verifiable travel agreement certificate with QR.
+          </div>
+        </div>
+        <div class="step-card-item">
+          <span class="step-icon-badge">🛡️</span>
+          <div class="step-bullets">
+            <b>24x7 Safety Shield</b><br>
+            1363 Ministry Helpline integration in 14 Indian & world languages.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MIDDLE ROW: NETWORK DEPLOYMENT & TECH STACK ── -->
+    <section class="middle-grid">
+
+      <!-- Left: Network Deployment -->
+      <div class="network-container">
+        <div class="section-head">
+          <span>💻</span>
+          <span>Network Deployment (Hybrid Off-Chain Concierge & On-Chain Solana Architecture)</span>
+        </div>
+
+        <!-- Off-Chain Agents Row -->
+        <div class="agents-row">
+          <div class="agent-pill">
+            <div class="agent-name">🗺️ Itinerary Planner</div>
+            <div class="agent-desc">Bespoke route sequencing & time slot routing</div>
+          </div>
+          <div class="agent-pill">
+            <div class="agent-name">💰 Price Sentinel</div>
+            <div class="agent-desc">Fair benchmark quote validation & anti-scam AI</div>
+          </div>
+          <div class="agent-pill">
+            <div class="agent-name">🌐 i18n Translation</div>
+            <div class="agent-desc">14-Language engine with dynamic RTL Arabic</div>
+          </div>
+          <div class="agent-pill">
+            <div class="agent-name">🛡️ Safety Concierge</div>
+            <div class="agent-desc">Official 1363 emergency dispatch & city helplines</div>
+          </div>
+        </div>
+
+        <!-- Solana Network Block -->
+        <div class="solana-box">
+          <div class="solana-head">
+            <span>⚡ Solana Network (Anchor Smart Contract Framework)</span>
+            <span style="font-size: 10px; color: #555;">Program ID: A7yU8i4Y...34VSzN</span>
+          </div>
+          <div class="solana-modules">
+            <div class="module-item">
+              <div class="module-name">Metaplex Registry</div>
+              <div class="module-sub">Agent Identity PDA</div>
+            </div>
+            <div class="module-item">
+              <div class="module-name">TripCommitment</div>
+              <div class="module-sub">SHA-256 Hash PDA</div>
+            </div>
+            <div class="module-item">
+              <div class="module-name">Price Protection</div>
+              <div class="module-sub">Fair Benchmark Escrow</div>
+            </div>
+            <div class="module-item">
+              <div class="module-name">Token Settlement</div>
+              <div class="module-sub">SOL / SPL Payment</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users & DApp Row -->
+        <div class="user-dapp-row">
+          <div class="user-badge">
+            <span>👥</span>
+            <span>Travelers</span>
+          </div>
+          <div class="dapp-flow">
+            <span class="dapp-chip">3D Planetary Explorer</span>
+            <span>➔</span>
+            <span class="dapp-chip">Touristमत्रम् DApp Interface</span>
+            <span>➔</span>
+            <span class="dapp-chip">Solana Wallet Adapter</span>
+            <span>➔</span>
+            <span class="dapp-chip">Explorer Proofs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Tech Stack Table -->
+      <div class="tech-stack-card">
+        <div class="section-head">
+          <span>⚙️</span>
+          <span>Verified Tech Stack</span>
+        </div>
+        <table class="tech-table">
+          <tr>
+            <td class="tech-label">Chain Layer</td>
+            <td class="tech-val">Solana (Devnet / Mainnet)</td>
+          </tr>
+          <tr>
+            <td class="tech-label">Smart Contracts</td>
+            <td class="tech-val">Anchor Framework / Rust</td>
+          </tr>
+          <tr>
+            <td class="tech-label">Agent Registry</td>
+            <td class="tech-val">Metaplex Agent Registry (Core)</td>
+          </tr>
+          <tr>
+            <td class="tech-label">Proof Mechanism</td>
+            <td class="tech-val">SHA-256 Canonical Trip Hashing</td>
+          </tr>
+          <tr>
+            <td class="tech-label">On-Chain State</td>
+            <td class="tech-val">TripCommitment PDA Accounts</td>
+          </tr>
+          <tr>
+            <td class="tech-label">Web Client</td>
+            <td class="tech-val">Next.js 14 / TypeScript / Tailwind</td>
+          </tr>
+          <tr>
+            <td class="tech-label">3D Engine</td>
+            <td class="tech-val">Three.js Interactive Planetary Earth</td>
+          </tr>
+          <tr>
+            <td class="tech-label">External APIs</td>
+            <td class="tech-val">CoinGecko FX / Incredible India 1363</td>
+          </tr>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ── BOTTOM ROW: 5 KEY FEATURES ── -->
+    <section class="features-container">
+      <div class="features-header">
+        <span>⭐</span>
+        <span>Key Competitive Advantages & Architectural Innovations</span>
+      </div>
+      <div class="features-row">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-top">
+            <span class="feature-icon">📜</span>
+            <div class="feature-name">Verifiable Travel Certificate</div>
+          </div>
+          <div class="feature-desc">
+            SHA-256 hash committed directly on Solana guarantees itinerary pricing & route authenticity against alteration.
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-top">
+            <span class="feature-icon">💰</span>
+            <div class="feature-name">Fair Price Protection</div>
+          </div>
+          <div class="feature-desc">
+            Benchmark database flags overpriced tourist traps and enforces official rates for auto-rickshaws and guides.
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-top">
+            <span class="feature-icon">🤖</span>
+            <div class="feature-name">Metaplex Agent Identity</div>
+          </div>
+          <div class="feature-desc">
+            Autonomous travel concierges register on-chain credentials via Metaplex for trustless identity validation.
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-top">
+            <span class="feature-icon">🌐</span>
+            <div class="feature-name">3D Google Earth Navigation</div>
+          </div>
+          <div class="feature-desc">
+            Interactive WebGL 3D globe with planetary camera fly-to transitions and corridor transit arcs across Indian hubs.
+          </div>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-top">
+            <span class="feature-icon">🛡️</span>
+            <div class="feature-name">14-Language Safety Shield</div>
+          </div>
+          <div class="feature-desc">
+            Emergency 1363 helpline, police/medical dispatch, and visa advisory supporting 8 Indian and 6 global languages.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spooky Footer Stamp -->
+    <footer class="footer-stamp">
+      <div>🎃 Hacktober 2026 Architectural Submission — Team Code Catalyst</div>
+      <div>Designed exclusively for Team VectorFlow Evaluation · Solana Devnet Anchor Program A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

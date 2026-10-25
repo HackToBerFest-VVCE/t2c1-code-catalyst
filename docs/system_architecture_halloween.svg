@@ -1,0 +1,471 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 1365" width="2048" height="1365" style="background:#FFFFFF; font-family:'Inter', Arial, Helvetica, sans-serif;">
+  <defs>
+    <style>
+      .title-font { font-family: 'Cinzel', 'Georgia', serif; font-weight: 900; }
+      .bold-font { font-weight: 800; }
+      .semi-font { font-weight: 600; }
+      .regular-font { font-weight: 500; }
+    </style>
+    <!-- Drop Shadow Filter -->
+    <filter id="boxShadow" x="-2%" y="-2%" width="104%" height="106%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#000000" flood-opacity="1" />
+    </filter>
+  </defs>
+
+  <!-- ════ OUTER HALLOWEEN FRAME & BORDERS ════ -->
+  <rect x="16" y="16" width="2016" height="1333" fill="#FFFFFF" stroke="#000000" stroke-width="12" />
+  <rect x="28" y="28" width="1992" height="1309" fill="none" stroke="#000000" stroke-width="3" stroke-dasharray="10 6" />
+
+  <!-- ── Spooky Corner 1: Top-Left Spiderweb & Spider ── -->
+  <g transform="translate(32, 32)">
+    <path d="M 0 0 L 220 0 C 180 50 160 120 0 220 Z" fill="#000000" opacity="0.06"/>
+    <path d="M 0 0 L 200 0 C 150 50 140 100 0 200 Z" stroke="#000000" stroke-width="2.5" fill="none"/>
+    <path d="M 0 0 L 150 0 C 110 40 100 80 0 150 Z" stroke="#000000" stroke-width="2" fill="none"/>
+    <path d="M 0 0 L 100 0 C 70 30 60 55 0 100 Z" stroke="#000000" stroke-width="1.5" fill="none"/>
+    <line x1="0" y1="0" x2="140" y2="140" stroke="#000000" stroke-width="2" stroke-dasharray="4 2"/>
+    <line x1="0" y1="0" x2="80" y2="180" stroke="#000000" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <line x1="0" y1="0" x2="180" y2="80" stroke="#000000" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <!-- Hanging Spider -->
+    <line x1="140" y1="140" x2="140" y2="190" stroke="#000000" stroke-width="1.5"/>
+    <circle cx="140" cy="198" r="8" fill="#000000"/>
+    <circle cx="140" cy="192" r="5" fill="#000000"/>
+    <path d="M 134 195 Q 120 186 116 200 M 146 195 Q 160 186 164 200 M 134 200 Q 120 208 118 218 M 146 200 Q 160 208 162 218" stroke="#000000" stroke-width="1.8" fill="none"/>
+  </g>
+
+  <!-- ── Spooky Corner 2: Top-Right Full Moon & Swarm of Bats ── -->
+  <g transform="translate(1808, 32)">
+    <circle cx="140" cy="65" r="42" fill="#F8D057" stroke="#000000" stroke-width="3"/>
+    <circle cx="158" cy="53" r="36" fill="#FFFFFF"/>
+    <!-- Bats -->
+    <path d="M 50 40 Q 65 25 80 37 Q 95 25 110 40 Q 88 52 80 40 Q 72 52 50 40 Z" fill="#000000"/>
+    <path d="M 10 70 Q 22 58 35 68 Q 48 58 60 70 Q 42 80 35 70 Q 28 80 10 70 Z" fill="#000000"/>
+    <path d="M 85 95 Q 94 85 104 93 Q 114 85 124 95 Q 110 103 104 95 Q 98 103 85 95 Z" fill="#000000"/>
+  </g>
+
+  <!-- ── Spooky Corner 3: Bottom-Left Jack-o'-Lanterns & Tombstone ── -->
+  <g transform="translate(36, 1155)">
+    <!-- Gravestone -->
+    <path d="M 130 180 L 130 135 Q 145 120 160 135 L 160 180 Z" fill="#000000"/>
+    <line x1="145" y1="138" x2="145" y2="160" stroke="#FFFFFF" stroke-width="3"/>
+    <line x1="136" y1="146" x2="154" y2="146" stroke="#FFFFFF" stroke-width="3"/>
+    <!-- Giant Pumpkin -->
+    <ellipse cx="65" cy="155" rx="35" ry="26" fill="#000000"/>
+    <path d="M 62 129 Q 65 118 70 121" stroke="#000000" stroke-width="4.5" fill="none"/>
+    <polygon points="52,148 58,148 55,142" fill="#FFFFFF"/>
+    <polygon points="72,148 78,148 75,142" fill="#FFFFFF"/>
+    <polygon points="62,152 68,152 65,147" fill="#FFFFFF"/>
+    <path d="M 48 162 Q 65 174 82 162 Q 65 167 48 162 Z" fill="#FFFFFF"/>
+  </g>
+
+  <!-- ── Spooky Corner 4: Bottom-Right Haunted Castle Spires & Twisted Tree ── -->
+  <g transform="translate(1788, 1135)">
+    <!-- Haunted Castle Spires -->
+    <path d="M 150 200 L 150 110 L 170 70 L 190 110 L 190 200 Z" fill="#000000"/>
+    <path d="M 190 200 L 190 130 L 205 100 L 220 130 L 220 200 Z" fill="#000000"/>
+    <rect x="165" y="125" width="10" height="20" rx="5" fill="#F8D057"/>
+    <!-- Gnarled Spooky Tree -->
+    <path d="M 105 200 Q 112 150 90 120 Q 70 95 48 105 Q 78 90 85 75 Q 70 60 55 68 Q 85 52 100 68 Q 115 45 130 52 Q 122 72 115 98 Q 145 90 160 75 Q 150 102 132 112 Q 138 142 105 200 Z" fill="#000000"/>
+  </g>
+
+  <!-- ════ HEADER: TEAM BANNER & TITLES ════ -->
+  <g transform="translate(1024, 60)" text-anchor="middle">
+    <!-- Jack-o'-lantern Center Top Badge -->
+    <g transform="translate(0, 10)">
+      <ellipse cx="0" cy="0" rx="20" ry="15" fill="#000000"/>
+      <path d="M -2 -15 Q 0 -22 4 -20" stroke="#000000" stroke-width="3" fill="none"/>
+      <polygon points="-8,-4 -4,-4 -6,-9" fill="#F8D057"/>
+      <polygon points="4,-4 8,-4 6,-9" fill="#F8D057"/>
+      <polygon points="-2,-1 2,-1 0,-4" fill="#F8D057"/>
+      <path d="M -10 4 Q 0 11 10 4 Q 0 7 -10 4 Z" fill="#F8D057"/>
+    </g>
+
+    <!-- Team Ribbon Banner -->
+    <g transform="translate(0, 48)">
+      <rect x="-240" y="-20" width="480" height="40" fill="#FFFFFF" stroke="#000000" stroke-width="4" filter="url(#boxShadow)"/>
+      <text x="-210" y="8" font-size="22">🦇</text>
+      <text x="210" y="8" font-size="22">🦇</text>
+      <text x="0" y="8" class="title-font" font-size="26" fill="#000000" letter-spacing="4">TEAM CODE CATALYST</text>
+    </g>
+
+    <!-- Main Title -->
+    <text x="0" y="125" class="bold-font" font-size="27" fill="#000000" letter-spacing="-0.3">
+      Touristमत्रम्: Verifiable AI Travel Concierge &amp; Guaranteed Price Protection Network on Solana
+    </text>
+
+    <!-- Subtitle -->
+    <text x="0" y="152" class="regular-font" font-size="15" fill="#333333">
+      A decentralized ecosystem for autonomous cultural travel curation, Metaplex Agent Identity discovery,
+    </text>
+    <text x="0" y="172" class="regular-font" font-size="15" fill="#333333">
+      tamper-proof on-chain travel commitments (SHA-256), dynamic fair price benchmarks, and 24x7 multi-lingual tourist protection.
+    </text>
+  </g>
+
+  <!-- ════ ROW 1: 5-STEP HORIZONTAL ARCHITECTURAL PIPELINE ════ -->
+  <g transform="translate(56, 260)">
+    <!-- ── Step 1 ── -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="365" height="240" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <!-- Header -->
+      <circle cx="26" cy="28" r="14" fill="#000000"/>
+      <text x="26" y="33" fill="#FFFFFF" class="bold-font" font-size="14" text-anchor="middle">1</text>
+      <text x="50" y="33" fill="#000000" class="bold-font" font-size="17">Traveler Discovery &amp; Persona</text>
+      <line x1="12" y1="52" x2="353" y2="52" stroke="#000000" stroke-width="2"/>
+      <!-- Subcard 1 -->
+      <rect x="14" y="64" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="94" font-size="24">🌍</text>
+      <text x="60" y="86" class="bold-font" font-size="14" fill="#000000">• 3D Google Earth Navigation</text>
+      <text x="60" y="106" class="regular-font" font-size="12.5" fill="#444444">Interactive WebGL planetary flight</text>
+      <text x="60" y="124" class="regular-font" font-size="12.5" fill="#444444">camera fly-to across 20 Indian hubs.</text>
+      <!-- Subcard 2 -->
+      <rect x="14" y="148" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="178" font-size="24">🛂</text>
+      <text x="60" y="170" class="bold-font" font-size="14" fill="#000000">• Persona &amp; Visa Advisor</text>
+      <text x="60" y="190" class="regular-font" font-size="12.5" fill="#444444">Indian Citizen domestic rates or Foreign</text>
+      <text x="60" y="208" class="regular-font" font-size="12.5" fill="#444444">e-Visa rules &amp; white-bg photo specs.</text>
+      <!-- Arrow -->
+      <circle cx="377" cy="120" r="13" fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
+      <text x="377" y="125" font-size="14" class="bold-font" text-anchor="middle">➔</text>
+    </g>
+
+    <!-- ── Step 2 ── -->
+    <g transform="translate(393, 0)">
+      <rect x="0" y="0" width="365" height="240" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <circle cx="26" cy="28" r="14" fill="#000000"/>
+      <text x="26" y="33" fill="#FFFFFF" class="bold-font" font-size="14" text-anchor="middle">2</text>
+      <text x="50" y="33" fill="#000000" class="bold-font" font-size="17">Concierge &amp; Budget Lock</text>
+      <line x1="12" y1="52" x2="353" y2="52" stroke="#000000" stroke-width="2"/>
+      <!-- Subcard 1 -->
+      <rect x="14" y="64" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="94" font-size="24">✨</text>
+      <text x="60" y="86" class="bold-font" font-size="14" fill="#000000">• Bespoke Sight Curation</text>
+      <text x="60" y="106" class="regular-font" font-size="12.5" fill="#444444">User selects verified iconic landmarks,</text>
+      <text x="60" y="124" class="regular-font" font-size="12.5" fill="#444444">trip pacing, and crowd tolerance.</text>
+      <!-- Subcard 2 -->
+      <rect x="14" y="148" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="178" font-size="24">💰</text>
+      <text x="60" y="170" class="bold-font" font-size="14" fill="#000000">• Live Currency &amp; Transit</text>
+      <text x="60" y="190" class="regular-font" font-size="12.5" fill="#444444">CoinGecko live FX exchange rates &amp;</text>
+      <text x="60" y="208" class="regular-font" font-size="12.5" fill="#444444">clipboard-style state transit passes.</text>
+      <!-- Arrow -->
+      <circle cx="377" cy="120" r="13" fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
+      <text x="377" y="125" font-size="14" class="bold-font" text-anchor="middle">➔</text>
+    </g>
+
+    <!-- ── Step 3 ── -->
+    <g transform="translate(786, 0)">
+      <rect x="0" y="0" width="365" height="240" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <circle cx="26" cy="28" r="14" fill="#000000"/>
+      <text x="26" y="33" fill="#FFFFFF" class="bold-font" font-size="14" text-anchor="middle">3</text>
+      <text x="50" y="33" fill="#000000" class="bold-font" font-size="17">Hashing &amp; Agent Proof</text>
+      <line x1="12" y1="52" x2="353" y2="52" stroke="#000000" stroke-width="2"/>
+      <!-- Subcard 1 -->
+      <rect x="14" y="64" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="94" font-size="24">🤖</text>
+      <text x="60" y="86" class="bold-font" font-size="14" fill="#000000">• Metaplex Agent Identity</text>
+      <text x="60" y="106" class="regular-font" font-size="12.5" fill="#444444">Autonomous service agent verified on</text>
+      <text x="60" y="124" class="regular-font" font-size="12.5" fill="#444444">Solana Agent Registry (PDA Asset).</text>
+      <!-- Subcard 2 -->
+      <rect x="14" y="148" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="178" font-size="24">#️⃣</text>
+      <text x="60" y="170" class="bold-font" font-size="14" fill="#000000">• SHA-256 Canonical Digest</text>
+      <text x="60" y="190" class="regular-font" font-size="12.5" fill="#444444">Deterministic cryptographic hash of</text>
+      <text x="60" y="208" class="regular-font" font-size="12.5" fill="#444444">trip itinerary, items, and cost terms.</text>
+      <!-- Arrow -->
+      <circle cx="377" cy="120" r="13" fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
+      <text x="377" y="125" font-size="14" class="bold-font" text-anchor="middle">➔</text>
+    </g>
+
+    <!-- ── Step 4 ── -->
+    <g transform="translate(1179, 0)">
+      <rect x="0" y="0" width="365" height="240" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <circle cx="26" cy="28" r="14" fill="#000000"/>
+      <text x="26" y="33" fill="#FFFFFF" class="bold-font" font-size="14" text-anchor="middle">4</text>
+      <text x="50" y="33" fill="#000000" class="bold-font" font-size="17">Anchor Commitment</text>
+      <line x1="12" y1="52" x2="353" y2="52" stroke="#000000" stroke-width="2"/>
+      <!-- Subcard 1 -->
+      <rect x="14" y="64" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="94" font-size="24">⚓</text>
+      <text x="60" y="86" class="bold-font" font-size="14" fill="#000000">• On-Chain TripCommitment</text>
+      <text x="60" y="106" class="regular-font" font-size="12.5" fill="#444444">Anchor smart contract records PDA</text>
+      <text x="60" y="124" class="regular-font" font-size="12.5" fill="#444444">on Solana Devnet (Program A7yU8i4...)</text>
+      <!-- Subcard 2 -->
+      <rect x="14" y="148" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="178" font-size="24">🔒</text>
+      <text x="60" y="170" class="bold-font" font-size="14" fill="#000000">• Price Integrity Lock</text>
+      <text x="60" y="190" class="regular-font" font-size="12.5" fill="#444444">Enforces certified maximum rates;</text>
+      <text x="60" y="208" class="regular-font" font-size="12.5" fill="#444444">shields tourists against fee surges.</text>
+      <!-- Arrow -->
+      <circle cx="377" cy="120" r="13" fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
+      <text x="377" y="125" font-size="14" class="bold-font" text-anchor="middle">➔</text>
+    </g>
+
+    <!-- ── Step 5 ── -->
+    <g transform="translate(1572, 0)">
+      <rect x="0" y="0" width="365" height="240" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <circle cx="26" cy="28" r="14" fill="#000000"/>
+      <text x="26" y="33" fill="#FFFFFF" class="bold-font" font-size="14" text-anchor="middle">5</text>
+      <text x="50" y="33" fill="#000000" class="bold-font" font-size="17">Settlement &amp; Safety Shield</text>
+      <line x1="12" y1="52" x2="353" y2="52" stroke="#000000" stroke-width="2"/>
+      <!-- Subcard 1 -->
+      <rect x="14" y="64" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="94" font-size="24">📜</text>
+      <text x="60" y="86" class="bold-font" font-size="14" fill="#000000">• Tamper-Proof Certificate</text>
+      <text x="60" y="106" class="regular-font" font-size="12.5" fill="#444444">Verifiable digital travel agreement</text>
+      <text x="60" y="124" class="regular-font" font-size="12.5" fill="#444444">with cryptographic explorer link &amp; QR.</text>
+      <!-- Subcard 2 -->
+      <rect x="14" y="148" width="337" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="1.8"/>
+      <text x="26" y="178" font-size="24">🛡️</text>
+      <text x="60" y="170" class="bold-font" font-size="14" fill="#000000">• 24x7 Multi-Lingual Shield</text>
+      <text x="60" y="190" class="regular-font" font-size="12.5" fill="#444444">1363 Incredible India 24x7 helpline</text>
+      <text x="60" y="208" class="regular-font" font-size="12.5" fill="#444444">in 14 regional &amp; international languages.</text>
+    </g>
+  </g>
+
+  <!-- ════ ROW 2: NETWORK DEPLOYMENT & TECH STACK ════ -->
+  <g transform="translate(56, 530)">
+    <!-- ── Left: Network Deployment (1260px wide) ── -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="1280" height="480" rx="10" fill="#F8F9FB" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <text x="24" y="34" class="bold-font" font-size="18" fill="#000000">💻 Network Deployment (Hybrid Off-Chain Concierge &amp; On-Chain Solana Architecture)</text>
+      <line x1="16" y1="48" x2="1264" y2="48" stroke="#000000" stroke-width="2"/>
+
+      <!-- Autonomous Agents Top Layer -->
+      <g transform="translate(24, 66)">
+        <!-- Agent 1 -->
+        <rect x="0" y="0" width="290" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="14" y="30" font-size="20">🗺️</text>
+        <text x="42" y="28" class="bold-font" font-size="14" fill="#000000">Itinerary Planner Agent</text>
+        <text x="42" y="48" class="regular-font" font-size="12" fill="#555555">Sequences attractions, optimal hours</text>
+        <text x="42" y="64" class="regular-font" font-size="12" fill="#555555">&amp; morning crowd avoidance flows</text>
+
+        <!-- Agent 2 -->
+        <rect x="312" y="0" width="290" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="326" y="30" font-size="20">💰</text>
+        <text x="354" y="28" class="bold-font" font-size="14" fill="#000000">Fair Price Sentinel</text>
+        <text x="354" y="48" class="regular-font" font-size="12" fill="#555555">Validates quotes against official rates;</text>
+        <text x="354" y="64" class="regular-font" font-size="12" fill="#555555">flags 3 common tourist scam triggers</text>
+
+        <!-- Agent 3 -->
+        <rect x="624" y="0" width="290" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="638" y="30" font-size="20">🌐</text>
+        <text x="666" y="28" class="bold-font" font-size="14" fill="#000000">i18n Translation Engine</text>
+        <text x="666" y="48" class="regular-font" font-size="12" fill="#555555">Real-time localized interface across</text>
+        <text x="666" y="64" class="regular-font" font-size="12" fill="#555555">8 Indian + 6 International languages</text>
+
+        <!-- Agent 4 -->
+        <rect x="936" y="0" width="296" height="74" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="950" y="30" font-size="20">🛡️</text>
+        <text x="978" y="28" class="bold-font" font-size="14" fill="#000000">Safety &amp; Helpline Agent</text>
+        <text x="978" y="48" class="regular-font" font-size="12" fill="#555555">1363 Tourism Helpline dispatch &amp;</text>
+        <text x="978" y="64" class="regular-font" font-size="12" fill="#555555">regional police &amp; medical contacts</text>
+      </g>
+
+      <!-- Connection Lines Downward -->
+      <g stroke="#000000" stroke-width="2" stroke-dasharray="4 3" fill="none">
+        <line x1="169" y1="140" x2="169" y2="182"/>
+        <line x1="481" y1="140" x2="481" y2="182"/>
+        <line x1="793" y1="140" x2="793" y2="182"/>
+        <line x1="1108" y1="140" x2="1108" y2="182"/>
+      </g>
+      <text x="640" y="166" class="bold-font" font-size="12" fill="#000000" text-anchor="middle">▼ Canonical Hashes &amp; Cryptographic Proofs ▼</text>
+
+      <!-- Solana Network Core Block -->
+      <g transform="translate(24, 182)">
+        <rect x="0" y="0" width="1232" height="175" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2.5" filter="url(#boxShadow)"/>
+        <!-- Solana Header Bar -->
+        <rect x="0" y="0" width="1232" height="38" rx="8" fill="#000000"/>
+        <text x="20" y="24" fill="#F8D057" class="bold-font" font-size="15">⚡ Solana Network (Anchor Smart Contract Framework)</text>
+        <text x="1212" y="24" fill="#FFFFFF" class="semi-font" font-size="12.5" text-anchor="end">Devnet Program: A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</text>
+
+        <!-- 4 Smart Contract Modules -->
+        <g transform="translate(18, 52)">
+          <!-- Module 1 -->
+          <rect x="0" y="0" width="280" height="106" rx="6" fill="#F7F8FA" stroke="#000000" stroke-width="1.8"/>
+          <text x="14" y="30" class="bold-font" font-size="14" fill="#000000">Metaplex Agent Registry</text>
+          <text x="14" y="52" class="regular-font" font-size="12" fill="#444444">• On-Chain Core Agent Asset PDA</text>
+          <text x="14" y="70" class="regular-font" font-size="12" fill="#444444">• Registry Owner Verification</text>
+          <text x="14" y="88" class="regular-font" font-size="12" fill="#444444">• Identity Discovery Metadata</text>
+
+          <!-- Module 2 -->
+          <rect x="304" y="0" width="280" height="106" rx="6" fill="#F7F8FA" stroke="#000000" stroke-width="1.8"/>
+          <text x="14" y="30" class="bold-font" font-size="14" fill="#000000">TripCommitment State</text>
+          <text x="14" y="52" class="regular-font" font-size="12" fill="#444444">• SHA-256 Itinerary Hash PDA</text>
+          <text x="14" y="70" class="regular-font" font-size="12" fill="#444444">• Traveler Wallet Pubkey binding</text>
+          <text x="14" y="88" class="regular-font" font-size="12" fill="#444444">• Immutable Timestamp Record</text>
+
+          <!-- Module 3 -->
+          <rect x="608" y="0" width="280" height="106" rx="6" fill="#F7F8FA" stroke="#000000" stroke-width="1.8"/>
+          <text x="14" y="30" class="bold-font" font-size="14" fill="#000000">Price Protection Escrow</text>
+          <text x="14" y="52" class="regular-font" font-size="12" fill="#444444">• Certified Benchmark Thresholds</text>
+          <text x="14" y="70" class="regular-font" font-size="12" fill="#444444">• Guaranteed Maximum Pricing</text>
+          <text x="14" y="88" class="regular-font" font-size="12" fill="#444444">• Automated dispute settlement</text>
+
+          <!-- Module 4 -->
+          <rect x="912" y="0" width="284" height="106" rx="6" fill="#F7F8FA" stroke="#000000" stroke-width="1.8"/>
+          <text x="14" y="30" class="bold-font" font-size="14" fill="#000000">SOL / SPL Settlement</text>
+          <text x="14" y="52" class="regular-font" font-size="12" fill="#444444">• Micro-transactions for Transit</text>
+          <text x="14" y="70" class="regular-font" font-size="12" fill="#444444">• CoinGecko live conversion lock</text>
+          <text x="14" y="88" class="regular-font" font-size="12" fill="#444444">• Trustless wallet signature</text>
+        </g>
+      </g>
+
+      <!-- Users & DApp Bottom Row -->
+      <g transform="translate(24, 380)">
+        <rect x="0" y="0" width="1232" height="78" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="24" y="46" font-size="28">👥</text>
+        <text x="64" y="38" class="bold-font" font-size="16" fill="#000000">Travelers &amp; Global Tourists</text>
+        <text x="64" y="58" class="regular-font" font-size="12" fill="#666666">Mobile &amp; Web Users</text>
+
+        <!-- Arrows & DApp Chips -->
+        <g transform="translate(290, 16)">
+          <rect x="0" y="0" width="190" height="46" rx="6" fill="#F0F2F6" stroke="#000000" stroke-width="1.5"/>
+          <text x="95" y="28" class="bold-font" font-size="12.5" fill="#000000" text-anchor="middle">3D Planetary Explorer</text>
+        </g>
+        <text x="500" y="45" class="bold-font" font-size="16" text-anchor="middle">➔</text>
+        <g transform="translate(520, 16)">
+          <rect x="0" y="0" width="190" height="46" rx="6" fill="#F0F2F6" stroke="#000000" stroke-width="1.5"/>
+          <text x="95" y="28" class="bold-font" font-size="12.5" fill="#000000" text-anchor="middle">Touristमत्रम् DApp</text>
+        </g>
+        <text x="730" y="45" class="bold-font" font-size="16" text-anchor="middle">➔</text>
+        <g transform="translate(750, 16)">
+          <rect x="0" y="0" width="200" height="46" rx="6" fill="#F0F2F6" stroke="#000000" stroke-width="1.5"/>
+          <text x="100" y="28" class="bold-font" font-size="12.5" fill="#000000" text-anchor="middle">Solana Wallet Adapter</text>
+        </g>
+        <text x="970" y="45" class="bold-font" font-size="16" text-anchor="middle">➔</text>
+        <g transform="translate(990, 16)">
+          <rect x="0" y="0" width="220" height="46" rx="6" fill="#F0F2F6" stroke="#000000" stroke-width="1.5"/>
+          <text x="110" y="28" class="bold-font" font-size="12.5" fill="#000000" text-anchor="middle">Solana Explorer Certificate</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- ── Right: Tech Stack Table (630px wide) ── -->
+    <g transform="translate(1306, 0)">
+      <rect x="0" y="0" width="630" height="480" rx="10" fill="#FFFFFF" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+      <text x="24" y="34" class="bold-font" font-size="18" fill="#000000">⚙️ Verified Tech Stack</text>
+      <line x1="16" y1="48" x2="614" y2="48" stroke="#000000" stroke-width="2"/>
+
+      <g transform="translate(20, 64)">
+        <!-- Row 1 -->
+        <rect x="0" y="0" width="590" height="42" fill="#F8F9FA" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="26" class="bold-font" font-size="13" fill="#000000">Chain Layer</text>
+        <text x="230" y="26" class="semi-font" font-size="13" fill="#222222">Solana (Devnet / Mainnet-Beta)</text>
+
+        <!-- Row 2 -->
+        <rect x="0" y="46" width="590" height="42" fill="#FFFFFF" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="72" class="bold-font" font-size="13" fill="#000000">Smart Contracts</text>
+        <text x="230" y="72" class="semi-font" font-size="13" fill="#222222">Anchor Framework / Rust</text>
+
+        <!-- Row 3 -->
+        <rect x="0" y="92" width="590" height="42" fill="#F8F9FA" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="118" class="bold-font" font-size="13" fill="#000000">Agent Identity</text>
+        <text x="230" y="118" class="semi-font" font-size="13" fill="#222222">Metaplex Agent Registry (Core Assets)</text>
+
+        <!-- Row 4 -->
+        <rect x="0" y="138" width="590" height="42" fill="#FFFFFF" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="164" class="bold-font" font-size="13" fill="#000000">Proof Mechanism</text>
+        <text x="230" y="164" class="semi-font" font-size="13" fill="#222222">SHA-256 Canonical Trip Hashing</text>
+
+        <!-- Row 5 -->
+        <rect x="0" y="184" width="590" height="42" fill="#F8F9FA" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="210" class="bold-font" font-size="13" fill="#000000">On-Chain State</text>
+        <text x="230" y="210" class="semi-font" font-size="13" fill="#222222">TripCommitment PDA Accounts</text>
+
+        <!-- Row 6 -->
+        <rect x="0" y="230" width="590" height="42" fill="#FFFFFF" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="256" class="bold-font" font-size="13" fill="#000000">Web Application</text>
+        <text x="230" y="256" class="semi-font" font-size="13" fill="#222222">Next.js 14 (App Router) / TypeScript</text>
+
+        <!-- Row 7 -->
+        <rect x="0" y="276" width="590" height="42" fill="#F8F9FA" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="302" class="bold-font" font-size="13" fill="#000000">3D Planetary Engine</text>
+        <text x="230" y="302" class="semi-font" font-size="13" fill="#222222">Three.js Interactive 3D WebGL Globe</text>
+
+        <!-- Row 8 -->
+        <rect x="0" y="322" width="590" height="42" fill="#FFFFFF" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="348" class="bold-font" font-size="13" fill="#000000">External Live APIs</text>
+        <text x="230" y="348" class="semi-font" font-size="13" fill="#222222">CoinGecko FX / Incredible India 1363</text>
+
+        <!-- Row 9 -->
+        <rect x="0" y="368" width="590" height="42" fill="#F8F9FA" stroke="#E5E5E9" stroke-width="1"/>
+        <text x="16" y="394" class="bold-font" font-size="13" fill="#000000">Security Suite</text>
+        <text x="230" y="394" class="semi-font" font-size="13" fill="#222222">Anti-Scam AI / Offline QR Certificate</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ════ ROW 3: KEY ARCHITECTURAL FEATURES (5 CARDS) ════ -->
+  <g transform="translate(56, 1038)">
+    <rect x="0" y="0" width="1936" height="230" rx="10" fill="#F9FAFC" stroke="#000000" stroke-width="3" filter="url(#boxShadow)"/>
+    <text x="24" y="32" class="bold-font" font-size="17" fill="#000000">⭐ Key Competitive Innovations &amp; Architectural Features</text>
+    <line x1="16" y1="44" x2="1920" y2="44" stroke="#000000" stroke-width="2"/>
+
+    <g transform="translate(18, 58)">
+      <!-- Card 1 -->
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="365" height="152" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="18" y="38" font-size="26">📜</text>
+        <text x="56" y="35" class="bold-font" font-size="14.5" fill="#000000">Verifiable Travel Certificate</text>
+        <text x="18" y="66" class="regular-font" font-size="12" fill="#444444">SHA-256 hash anchored to Solana</text>
+        <text x="18" y="86" class="regular-font" font-size="12" fill="#444444">guarantees itinerary routes and locked</text>
+        <text x="18" y="106" class="regular-font" font-size="12" fill="#444444">prices cannot be modified or inflated</text>
+        <text x="18" y="126" class="regular-font" font-size="12" fill="#444444">by third-party travel intermediaries.</text>
+      </g>
+
+      <!-- Card 2 -->
+      <g transform="translate(383, 0)">
+        <rect x="0" y="0" width="365" height="152" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="18" y="38" font-size="26">💰</text>
+        <text x="56" y="35" class="bold-font" font-size="14.5" fill="#000000">Guaranteed Fair Pricing</text>
+        <text x="18" y="66" class="regular-font" font-size="12" fill="#444444">Dynamic price benchmark engine</text>
+        <text x="18" y="86" class="regular-font" font-size="12" fill="#444444">enforces regulated monument rates &amp;</text>
+        <text x="18" y="106" class="regular-font" font-size="12" fill="#444444">prepaid auto-rickshaw meters,</text>
+        <text x="18" y="126" class="regular-font" font-size="12" fill="#444444">eliminating notorious tourist markups.</text>
+      </g>
+
+      <!-- Card 3 -->
+      <g transform="translate(766, 0)">
+        <rect x="0" y="0" width="365" height="152" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="18" y="38" font-size="26">🤖</text>
+        <text x="56" y="35" class="bold-font" font-size="14.5" fill="#000000">Metaplex Agent Identity</text>
+        <text x="18" y="66" class="regular-font" font-size="12" fill="#444444">Autonomous service concierges register</text>
+        <text x="18" y="86" class="regular-font" font-size="12" fill="#444444">verified on-chain credentials and skills</text>
+        <text x="18" y="106" class="regular-font" font-size="12" fill="#444444">via Metaplex Core standard for trustless</text>
+        <text x="18" y="126" class="regular-font" font-size="12" fill="#444444">identity and reputation scoring.</text>
+      </g>
+
+      <!-- Card 4 -->
+      <g transform="translate(1149, 0)">
+        <rect x="0" y="0" width="365" height="152" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="18" y="38" font-size="26">🌐</text>
+        <text x="56" y="35" class="bold-font" font-size="14.5" fill="#000000">3D Google Earth Navigation</text>
+        <text x="18" y="66" class="regular-font" font-size="12" fill="#444444">Three.js WebGL planetary globe</text>
+        <text x="18" y="86" class="regular-font" font-size="12" fill="#444444">initially centered on India with orbital</text>
+        <text x="18" y="106" class="regular-font" font-size="12" fill="#444444">flight arcs, search bar auto-locator,</text>
+        <text x="18" y="126" class="regular-font" font-size="12" fill="#444444">and seamless zoom-to-customizer flow.</text>
+      </g>
+
+      <!-- Card 5 -->
+      <g transform="translate(1532, 0)">
+        <rect x="0" y="0" width="368" height="152" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <text x="18" y="38" font-size="26">🛡️</text>
+        <text x="56" y="35" class="bold-font" font-size="14.5" fill="#000000">14-Language Safety Shield</text>
+        <text x="18" y="66" class="regular-font" font-size="12" fill="#444444">Integrated emergency numbers (112, 100,</text>
+        <text x="18" y="86" class="regular-font" font-size="12" fill="#444444">108) &amp; 1363 Tourism Helpline across</text>
+        <text x="18" y="106" class="regular-font" font-size="12" fill="#444444">8 Indian + 6 International languages with</text>
+        <text x="18" y="126" class="regular-font" font-size="12" fill="#444444">dynamic RTL Arabic orientation support.</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ════ FOOTER WATERMARK ════ -->
+  <g transform="translate(1024, 1315)" text-anchor="middle">
+    <text x="0" y="0" class="semi-font" font-size="13" fill="#444444">
+      🎃 Hacktober 2026 Architectural Submission — Team Code Catalyst · Prepared for Team VectorFlow Evaluation
+    </text>
+    <text x="0" y="20" class="regular-font" font-size="11.5" fill="#777777">
+      Solana Devnet Anchor Smart Contract Program: A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN · Metaplex Agent Registry PDA
+    </text>
+  </g>
+</svg>

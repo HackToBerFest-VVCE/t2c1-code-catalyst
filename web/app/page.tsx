@@ -39,6 +39,7 @@ import {
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
+  Mail, Download, WifiOff, Printer,
 } from "lucide-react";
 import {
   getCuratedCityData,
@@ -54,6 +55,13 @@ import {
   type LanguageCode,
 } from "../lib/i18n";
 import LanguageSelectorModal from "../components/LanguageSelectorModal";
+import { SendEmailModal } from "../components/SendEmailModal";
+import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
+import {
+  downloadOfflinePassFile,
+  printOfflinePass,
+  type ItineraryPlan,
+} from "../lib/offline-pass-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MainTab = "discover" | "agents" | "price" | "safety" | "records";
@@ -554,6 +562,10 @@ export default function Home() {
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
   const t = useMemo(() => getTranslation(language), [language]);
 
+  // ── Remote Area Offline Pass & Gmail Dispatch State ──
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isOfflineModalOpen, setIsOfflineModalOpen] = useState(false);
+
   const handleSelectLang = (code: LanguageCode) => {
     setLanguage(code);
     localStorage.setItem("touristmatram_lang", code);
@@ -895,6 +907,78 @@ export default function Home() {
   const [commitTx, setCommitTx] = useState<string | null>(null);
   const [commitError, setCommitError] = useState("");
   const [savedRecords, setSavedRecords] = useState<Array<{ dest: string; tx: string; hash: string; time: string }>>([]);
+
+  // Active or Fallback Itinerary Plan for Download/Email
+  const activeItineraryPlan: ItineraryPlan | null = useMemo(() => {
+    if (generatedPlan) return generatedPlan as ItineraryPlan;
+    if (plannerCity) {
+      return {
+        city: plannerCity.name,
+        country: "India",
+        numDays: plannerCity.durationDays || 3,
+        totalBudget: budgetAmount || 15000,
+        currency: selectedCurrency,
+        totalBudgetSOL: (budgetAmount / (solInCurrencies[selectedCurrency] || 9650)).toFixed(2),
+        crowd: crowdTolerance,
+        pace: travelPace,
+        days: [
+          {
+            dayNumber: 1,
+            theme: "Curated Cultural Highlights & Sights",
+            stops: plannerCity.attractions.slice(0, 3).map((a, idx) => ({
+              time: idx === 0 ? "09:30 AM" : idx === 1 ? "01:00 PM" : "04:30 PM",
+              name: a.name,
+              category: a.category,
+              duration: a.duration,
+              tip: a.tip,
+              costDisplay: a.costDisplay,
+              transitHop: idx === 0 ? `Board ${plannerCity.transit.recommendedPass.slice(0, 32)}` : undefined,
+            })),
+          },
+        ],
+        costs: {
+          attractions: Math.round(budgetAmount * 0.35),
+          transit: Math.round(budgetAmount * 0.15),
+          diningStay: Math.round(budgetAmount * 0.5),
+        },
+        transitPass: plannerCity.transit.recommendedPass,
+        operatorCode: plannerCity.transit.operatorCode,
+        certificateId: customCommitTx || undefined,
+      };
+    }
+    if (selectedDest) {
+      return {
+        city: selectedDest.name,
+        country: selectedDest.country,
+        numDays: 3,
+        totalBudget: selectedCurrency === "INR" ? 18500 : 220,
+        currency: selectedCurrency,
+        days: [
+          {
+            dayNumber: 1,
+            theme: "Iconic Cultural & Heritage Highlights",
+            stops: (selectedDest.stops || []).map((s, idx) => ({
+              time: s.time,
+              name: s.name,
+              category: "Sightseeing",
+              duration: "2-3 hours",
+              tip: s.desc,
+              costDisplay: s.cost,
+              transitHop: idx === 0 ? "Heritage rickshaw / Metro link" : undefined,
+            })),
+          },
+        ],
+        costs: {
+          attractions: selectedCurrency === "INR" ? 4000 : 45,
+          transit: selectedCurrency === "INR" ? 1500 : 18,
+          diningStay: selectedCurrency === "INR" ? 13000 : 157,
+        },
+        transitPass: `${selectedDest.name} City Heritage Pass`,
+        certificateId: commitTx || undefined,
+      };
+    }
+    return null;
+  }, [generatedPlan, plannerCity, budgetAmount, selectedCurrency, solInCurrencies, crowdTolerance, travelPace, customCommitTx, selectedDest, commitTx]);
 
   // Verified Concierges
   const [agents, setAgents] = useState<any[]>([]);
@@ -1249,6 +1333,30 @@ export default function Home() {
               <Globe size={13} color="var(--yellow)" />
               <span>{SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || "English"}</span>
             </button>
+
+            {/* Quick Remote & Gmail Dispatch Buttons when Active Plan exists */}
+            {hasActivePlan && (
+              <>
+                <button
+                  className="nav-lang-btn"
+                  onClick={() => setIsOfflineModalOpen(true)}
+                  title="Download offline remote pass (zero internet required)"
+                  style={{ borderColor: "rgba(88, 166, 255, 0.4)", background: "rgba(31, 111, 235, 0.12)" }}
+                >
+                  <WifiOff size={13} color="#58A6FF" />
+                  <span style={{ color: "#FFF" }}>Offline Pass</span>
+                </button>
+                <button
+                  className="nav-lang-btn"
+                  onClick={() => setIsEmailModalOpen(true)}
+                  title="Send itinerary to Gmail"
+                  style={{ borderColor: "rgba(234, 67, 53, 0.4)", background: "rgba(234, 67, 53, 0.12)" }}
+                >
+                  <Mail size={13} color="#FF7B72" />
+                  <span style={{ color: "#FFF" }}>Send to Gmail</span>
+                </button>
+              </>
+            )}
 
             {travelerType === "indian" ? (
               <button
@@ -1891,6 +1999,52 @@ export default function Home() {
                       </p>
                     </div>
 
+                    {/* ── REMOTE AREA EXPLORER PACK & EMAIL DISPATCH ── */}
+                    <div className="remote-action-strip">
+                      <div className="remote-action-strip-header">
+                        <div className="remote-action-icon-badge">
+                          <WifiOff size={20} color="var(--yellow)" />
+                        </div>
+                        <div>
+                          <div className="remote-action-title">Remote Area Explorer Pack &amp; Email Dispatch</div>
+                          <div className="remote-action-desc">
+                            Traveling to valleys, mountain passes, or remote areas with zero cell reception? Download your self-contained offline pass or send the complete itinerary to your Gmail.
+                          </div>
+                        </div>
+                      </div>
+                      <div className="remote-action-buttons">
+                        <button
+                          type="button"
+                          onClick={() => setIsOfflineModalOpen(true)}
+                          className="btn-remote-download"
+                          title="Download self-contained offline travel pass for remote areas"
+                        >
+                          <Download size={15} />
+                          <span>Download Remote Pass (Offline)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsEmailModalOpen(true)}
+                          className="btn-send-gmail"
+                          title="Send full itinerary and voucher to your Gmail inbox"
+                        >
+                          <Mail size={15} />
+                          <span>Send to Gmail</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => printOfflinePass(generatedPlan, { travelerType: travelerType || "indian", foreignCountry })}
+                          className="btn-print-action"
+                          title="Print itinerary or save to PDF"
+                        >
+                          <Printer size={15} />
+                          <span>Print / PDF</span>
+                        </button>
+                      </div>
+                    </div>
+
                     {/* Summary Bar */}
                     <div style={{
                       display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -2032,6 +2186,26 @@ export default function Home() {
                               View Verified Certificate on Ledger <ExternalLink size={12} />
                             </a>
                           )}
+                          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              onClick={() => setIsOfflineModalOpen(true)}
+                              className="btn-remote-download"
+                              style={{ fontSize: 12, padding: "8px 14px", textDecoration: "none" }}
+                            >
+                              <Download size={13} />
+                              <span>Save Offline Pass</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setIsEmailModalOpen(true)}
+                              className="btn-send-gmail"
+                              style={{ fontSize: 12, padding: "8px 14px", textDecoration: "none" }}
+                            >
+                              <Mail size={13} />
+                              <span>Send to Gmail</span>
+                            </button>
+                          </div>
                         </div>
                       )}
 
@@ -2827,6 +3001,28 @@ export default function Home() {
         onClose={() => setIsLangModalOpen(false)}
         currentLang={language}
         onSelectLang={handleSelectLang}
+      />
+
+      {/* Send Itinerary to Gmail Modal */}
+      <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        plan={activeItineraryPlan}
+        cityName={activeItineraryPlan?.city || plannerCity?.name || selectedDest?.name || "India"}
+        travelerType={travelerType || "indian"}
+        foreignCountry={foreignCountry}
+        certificateId={customCommitTx || commitTx || undefined}
+      />
+
+      {/* Offline Remote Travel Pass & SOS Guide Modal */}
+      <OfflineRemoteModal
+        isOpen={isOfflineModalOpen}
+        onClose={() => setIsOfflineModalOpen(false)}
+        plan={activeItineraryPlan}
+        cityName={activeItineraryPlan?.city || plannerCity?.name || selectedDest?.name || "India"}
+        travelerType={travelerType || "indian"}
+        foreignCountry={foreignCountry}
+        certificateId={customCommitTx || commitTx || undefined}
       />
     </>
   );
