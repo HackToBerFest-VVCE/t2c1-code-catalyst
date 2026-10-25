@@ -3,9 +3,18 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "ProofTrip — Tourism AI on Solana",
+  title: "Touristमत्रम् — Tourism AI & Verified Travel on Solana",
   description:
-    "Discover verified travel agents on Solana, plan AI-powered itineraries, and commit tamper-evident trip records on Devnet.",
+    "Touristमत्रम् — Discover verified travel agents on Solana, plan curated itineraries, and commit tamper-evident travel agreements on Devnet.",
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.svg",
+  },
+  openGraph: {
+    title: "Touristमत्रम् — Tourism AI on Solana",
+    description: "Discover verified travel agents on Solana and commit tamper-evident trip records on Devnet.",
+    images: [{ url: "/images/hero-banner.jpg", width: 1200, height: 630 }],
+  },
 };
 
 export default function RootLayout({

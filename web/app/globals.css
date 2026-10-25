@@ -64,33 +64,63 @@ img { display: block; max-width: 100%; }
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
 }
-.nav-logo-icon {
-  width: 38px; height: 38px;
-  background: var(--yellow);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  color: #000;
+.nav-brand:hover {
+  opacity: 0.95;
+}
+.nav-logo-wrap {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(248, 208, 87, 0.25));
+  transition: transform 0.25s ease;
+}
+.nav-brand:hover .nav-logo-wrap {
+  transform: scale(1.05) rotate(2deg);
+}
+.nav-brand-text {
+  display: flex;
+  align-items: baseline;
+  font-size: 21px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.nav-brand-tourist {
+  color: var(--white);
   font-weight: 900;
 }
-.nav-brand-name {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--white);
+.nav-brand-matram {
+  color: var(--yellow);
+  font-weight: 900;
+  margin-left: 1px;
+  filter: drop-shadow(0 0 10px rgba(248, 208, 87, 0.4));
 }
 .nav-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 10px;
   font-weight: 700;
-  background: rgba(248,208,87,0.15);
+  background: rgba(248,208,87,0.12);
   color: var(--yellow);
   border: 1px solid rgba(248,208,87,0.3);
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 20px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+}
+.nav-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #14F195;
+  box-shadow: 0 0 6px #14F195;
 }
 .nav-tabs {
   display: flex;

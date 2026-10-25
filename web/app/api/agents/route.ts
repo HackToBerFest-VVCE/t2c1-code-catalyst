@@ -6,9 +6,9 @@ export const revalidate = 0;
 // Curated verified tourism agents backed by authentic on-chain assets & PDAs on Solana Devnet
 const CURATED_TOURISM_AGENTS = [
   {
-    name: "ProofTrip Verified Tourism Concierge",
-    displayName: "ProofTrip Heritage & Travel Agent",
-    description: "Specialized AI tourist concierge for Karnataka heritage itineraries, local landmark authentication, and tamper-proof travel commitments on Solana Devnet.",
+    name: "Touristमत्रम् Verified Tourism Concierge",
+    displayName: "Touristमत्रम् Heritage & Travel Agent",
+    description: "Specialized AI tourist concierge for heritage itineraries, local landmark authentication, and tamper-proof travel commitments on Solana Devnet.",
     mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
     specialty: "Heritage Itineraries & On-Chain Proofs",
