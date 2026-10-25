@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -48,6 +48,12 @@ import {
   type CityAttraction,
 } from "../lib/curated-city-data";
 import TravelerPersonaModal from "../components/TravelerPersonaModal";
+import {
+  SUPPORTED_LANGUAGES,
+  getTranslation,
+  type LanguageCode,
+} from "../lib/i18n";
+import LanguageSelectorModal from "../components/LanguageSelectorModal";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MainTab = "discover" | "agents" | "price" | "safety" | "records";
@@ -543,6 +549,20 @@ export default function Home() {
   const [foreignCountry, setForeignCountry] = useState<string>("United States");
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState<boolean>(false);
 
+  // ── Multi-Language Translation State ──
+  const [language, setLanguage] = useState<LanguageCode>("en");
+  const [isLangModalOpen, setIsLangModalOpen] = useState(false);
+  const t = useMemo(() => getTranslation(language), [language]);
+
+  const handleSelectLang = (code: LanguageCode) => {
+    setLanguage(code);
+    localStorage.setItem("touristmatram_lang", code);
+    const langObj = SUPPORTED_LANGUAGES.find(l => l.code === code);
+    if (typeof document !== "undefined") {
+      document.documentElement.dir = langObj?.dir || "ltr";
+    }
+  };
+
   const handleInitiateSelection = (cityName: string, fallbackHero?: string) => {
     const clean = cityName.trim();
     if (!clean) return;
@@ -596,6 +616,14 @@ export default function Home() {
     }
     if (savedCountry) {
       setForeignCountry(savedCountry);
+    }
+    const savedLang = localStorage.getItem("touristmatram_lang") as LanguageCode | null;
+    if (savedLang && SUPPORTED_LANGUAGES.some(l => l.code === savedLang)) {
+      setLanguage(savedLang);
+      const langObj = SUPPORTED_LANGUAGES.find(l => l.code === savedLang);
+      if (typeof document !== "undefined") {
+        document.documentElement.dir = langObj?.dir || "ltr";
+      }
     }
   }, []);
 
@@ -1191,13 +1219,13 @@ export default function Home() {
                   className={`nav-tab ${activeTab === tab ? "active" : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
-                  {tab === "agents" && "🤖 Concierge"}
-                  {tab === "price" && "💰 Fair Price"}
-                  {tab === "safety" && "🛡 Safety"}
+                  {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : `🗺 ${t.navDiscover}`)}
+                  {tab === "agents" && `🤖 ${t.navConcierge}`}
+                  {tab === "price" && `💰 ${t.navPrice}`}
+                  {tab === "safety" && `🛡 ${t.navSafety}`}
                   {tab === "records" && (
                     <span>
-                      🔗 Certified Records
+                      🔗 {t.navRecords}
                       {savedRecords.length > 0 && (
                         <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
                           {savedRecords.length}
@@ -1210,8 +1238,18 @@ export default function Home() {
             ) : null}
           </div>
 
-          {/* Right: Traveler Status & Wallet */}
-          <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Right: Language, Traveler Status & Wallet */}
+          <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Language Selector Button */}
+            <button
+              className="nav-lang-btn"
+              onClick={() => setIsLangModalOpen(true)}
+              title={t.selectLanguage}
+            >
+              <Globe size={13} color="var(--yellow)" />
+              <span>{SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || "English"}</span>
+            </button>
+
             {travelerType === "indian" ? (
               <button
                 className="nav-traveler-pill indian"
@@ -1219,8 +1257,8 @@ export default function Home() {
                 title="Click to switch between Indian Citizen and Foreign Traveler"
               >
                 <span>🇮🇳</span>
-                <span className="nav-traveler-label">Indian Citizen</span>
-                <span className="nav-traveler-switch">Change</span>
+                <span className="nav-traveler-label">{t.indianCitizen}</span>
+                <span className="nav-traveler-switch">{t.change}</span>
               </button>
             ) : travelerType === "foreign" ? (
               <button
@@ -1229,8 +1267,8 @@ export default function Home() {
                 title="Click to view Visa requirements or change country"
               >
                 <span>🌐</span>
-                <span className="nav-traveler-label">Visitor ({foreignCountry})</span>
-                <span className="nav-traveler-visa-badge">Visa Guide</span>
+                <span className="nav-traveler-label">{foreignCountry}</span>
+                <span className="nav-traveler-visa-badge">{t.visaGuide}</span>
               </button>
             ) : (
               <button
@@ -1238,7 +1276,7 @@ export default function Home() {
                 onClick={() => setIsPersonaModalOpen(true)}
               >
                 <span>🇮🇳 / 🌐</span>
-                <span className="nav-traveler-label">Select Citizen Status</span>
+                <span className="nav-traveler-label">Citizen Status</span>
               </button>
             )}
             <WalletMultiButton />
@@ -1255,11 +1293,11 @@ export default function Home() {
               className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
-              {tab === "agents" && "🤖 Concierge"}
-              {tab === "price" && "💰 Price"}
-              {tab === "safety" && "🛡 Safety"}
-              {tab === "records" && `🔗 Certificates (${savedRecords.length})`}
+              {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : `🗺 ${t.navDiscover}`)}
+              {tab === "agents" && `🤖 ${t.navConcierge}`}
+              {tab === "price" && `💰 ${t.navPrice}`}
+              {tab === "safety" && `🛡 ${t.navSafety}`}
+              {tab === "records" && `🔗 ${t.navRecords} (${savedRecords.length})`}
             </button>
           ))}
         </div>
@@ -1285,7 +1323,7 @@ export default function Home() {
                   }}
                 >
                   <ArrowLeft size={16} />
-                  <span>Back to All Destinations</span>
+                  <span>{t.backToDestinations}</span>
                 </button>
                 <div className="customizer-verified-badge">
                   <ShieldCheck size={14} />
@@ -1324,11 +1362,11 @@ export default function Home() {
                 </div>
                 <div className="stepper-steps-row">
                   {[
-                    { num: 1, label: "Top Sights", icon: <Star size={12} /> },
-                    { num: 2, label: "Budget & Currency", icon: <DollarSign size={12} /> },
-                    { num: 3, label: "Transit Pass", icon: <Train size={12} /> },
-                    { num: 4, label: "Crowd & Pace", icon: <Users size={12} /> },
-                    { num: 5, label: "Verified Itinerary", icon: <Sparkles size={12} /> },
+                    { num: 1, label: t.step1, icon: <Star size={12} /> },
+                    { num: 2, label: t.step2, icon: <DollarSign size={12} /> },
+                    { num: 3, label: t.step3, icon: <Train size={12} /> },
+                    { num: 4, label: t.step4, icon: <Users size={12} /> },
+                    { num: 5, label: t.step5, icon: <Sparkles size={12} /> },
                   ].map(s => (
                     <button
                       key={s.num}
@@ -1354,7 +1392,7 @@ export default function Home() {
                 <div className="wizard-panel">
                   <div className="wizard-header">
                     <span className="wizard-step-label">Step 1 of 4 · Destination Curation</span>
-                    <h2 className="wizard-title">Select Iconic Sights in {plannerCity.name}</h2>
+                    <h2 className="wizard-title">{t.selectSights} {plannerCity.name}</h2>
                     <p className="wizard-subtitle">
                       Choose which landmarks you want to visit. We will arrange them into an optimal daily route avoiding peak lines and rush hours.
                     </p>
@@ -1835,7 +1873,7 @@ export default function Home() {
                       onClick={generateTailoredPlan}
                     >
                       <Sparkles size={16} />
-                      <span>Generate My Tailored Plan ✨</span>
+                      <span>{t.generatePlanBtn}</span>
                     </button>
                   </div>
                 </div>
@@ -2009,9 +2047,9 @@ export default function Home() {
                         disabled={customCommitLoading}
                       >
                         {customCommitLoading ? (
-                          <><Loader2 size={16} className="animate-spin" /><span>Certifying Agreement & Locking Price...</span></>
+                          <><Loader2 size={16} className="animate-spin" /><span>{t.certifyingProgress}</span></>
                         ) : (
-                          <><Lock size={15} /><span>Lock & Certify Travel Agreement</span></>
+                          <><Lock size={15} /><span>{t.lockAgreementBtn}</span></>
                         )}
                       </button>
 
@@ -2051,7 +2089,7 @@ export default function Home() {
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                       >
-                        <span>Explore Another City</span>
+                        <span>{t.exploreAnother}</span>
                         <ArrowRight size={16} />
                       </button>
                     </div>
@@ -2091,14 +2129,14 @@ export default function Home() {
                         onClick={() => setViewMode("earth")}
                       >
                         <Globe size={14} />
-                        <span>3D Earth</span>
+                        <span>{t.viewEarth}</span>
                       </button>
                       <button
                         className="view-toggle-btn"
                         onClick={() => setViewMode("cards")}
                       >
                         <Sparkles size={14} />
-                        <span>Curated Cards</span>
+                        <span>{t.viewCards}</span>
                       </button>
                     </div>
                   </div>
@@ -2110,7 +2148,7 @@ export default function Home() {
                       <span>Touristमत्रम् Live Planetary Navigation</span>
                     </div>
                     <h1 className="earth-console-title">
-                      Where would you like to explore next?
+                      {t.earthHeading}
                     </h1>
 
                     {/* Traveler Category Context Banner */}
@@ -2137,7 +2175,7 @@ export default function Home() {
                       <Search size={18} color="var(--yellow)" />
                       <input
                         className="earth-search-input"
-                        placeholder="Type any Indian destination — Mysuru, Jaipur, Agra, Goa, Varanasi, Ladakh..."
+                        placeholder={t.heroSearchPlaceholder}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={e => {
@@ -2155,7 +2193,7 @@ export default function Home() {
                         }}
                       >
                         <Compass size={15} />
-                        <span>Locate & Fly 🛰️</span>
+                        <span>{t.locateAndFly}</span>
                       </button>
                     </div>
 
@@ -2210,23 +2248,22 @@ export default function Home() {
                           onClick={() => setViewMode("earth")}
                         >
                           <Globe size={14} />
-                          <span>3D Earth</span>
+                          <span>{t.viewEarth}</span>
                         </button>
                         <button
                           className="view-toggle-btn active"
                           onClick={() => setViewMode("cards")}
                         >
                           <Sparkles size={14} />
-                          <span>Curated Cards</span>
+                          <span>{t.viewCards}</span>
                         </button>
                       </div>
                     </div>
                     <h1 className="hero-title">
-                      Discover Your<br />
-                      <span>Next</span> Journey
+                      {t.heroTitle}
                     </h1>
                     <p className="hero-sub">
-                      Explore India's sacred heritage, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
+                      {t.heroSub}
                     </p>
 
                     {/* Traveler Category Context Banner in Cards View */}
@@ -2253,7 +2290,7 @@ export default function Home() {
                       <div className="hero-search">
                         <Search size={16} color="#7A7A7A" />
                         <input
-                          placeholder="Search any Indian destination — Jaipur, Mysuru, Goa, Agra, Delhi, Ladakh..."
+                          placeholder={t.heroSearchPlaceholder}
                           value={searchQuery}
                           onChange={e => setSearchQuery(e.target.value)}
                           onKeyDown={e => {
@@ -2271,7 +2308,7 @@ export default function Home() {
                           handleInitiateSelection(query);
                         }}
                       >
-                        <span>Explore India</span>
+                        <span>{t.exploreBtn}</span>
                         <ArrowRight size={16} />
                       </button>
                     </div>
@@ -2283,10 +2320,10 @@ export default function Home() {
               <div className="page-section">
                 <div className="section-header">
                   <div>
-                    <div className="section-label">✦ Curated Destinations</div>
-                    <h2 className="section-title">Choose Your City to Customize</h2>
+                    <div className="section-label">✦ {t.navDiscover}</div>
+                    <h2 className="section-title">{t.curatedHeading}</h2>
                     <p className="section-sub">
-                      Click any city below to locate it on the 3D globe and open the interactive trip customizer with live currency exchange, public transit passes, and verifiable travel agreements.
+                      {t.curatedSub}
                     </p>
                   </div>
                   <div className="filter-pills">
@@ -2782,6 +2819,14 @@ export default function Home() {
         onConfirmForeign={handleConfirmForeign}
         currentType={travelerType}
         currentCountry={foreignCountry}
+      />
+
+      {/* Multi-Language Selector Modal */}
+      <LanguageSelectorModal
+        isOpen={isLangModalOpen}
+        onClose={() => setIsLangModalOpen(false)}
+        currentLang={language}
+        onSelectLang={handleSelectLang}
       />
     </>
   );
