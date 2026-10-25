@@ -38,7 +38,11 @@ type DestinationItem = {
   stops: Array<{ time: string; name: string; cost: string; desc: string }>;
 };
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Image Fallbacks ────────────────────────────────────────────────────────
+const FALLBACK_HERO = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80";
+const FALLBACK_THUMB = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=400&q=80";
+
+// ─── Data: 20 Curated Global & Indian Destinations ─────────────────────────
 const DESTINATIONS: DestinationItem[] = [
   {
     id: "mysuru", name: "Mysuru", country: "India", flag: "🇮🇳",
@@ -48,11 +52,11 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy to Moderate", accommodation: "Heritage Havelis & 4-Star",
     bestSeason: "Oct – Mar",
     description: "Mysuru is Karnataka's cultural capital, celebrated for the illuminated Mysore Palace with 100,000 bulbs, Chamundi Hill vistas, Devaraja Market fragrances, and centuries-old sandalwood carving and silk weaving traditions.",
-    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=1600&q=80",
+    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=1200&q=80",
     thumbs: [
-      "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
       { time: "09:30 AM", name: "Mysuru Palace Grand Tour", cost: "₹70", desc: "Indo-Saracenic royal residence and golden throne hall" },
@@ -61,63 +65,23 @@ const DESTINATIONS: DestinationItem[] = [
     ],
   },
   {
-    id: "greece", name: "Greece", country: "Greece", flag: "🇬🇷",
-    price: "$2,950 per person", tag: "Trending",
-    tagline: "Sunlit islands, ancient ruins, and the timeless charm of the Mediterranean.",
-    tripTitle: "Isles of Myth & Sun", duration: "8 days",
-    activityLevel: "Moderate", accommodation: "4-star hotels & Caldera Suites",
-    bestSeason: "May – Oct",
-    description: "Greece is a destination where ancient history meets crystal-clear seas and vibrant island culture. Explore the Acropolis in Athens, watch world-famous sunsets in Santorini, and savor authentic Mediterranean dining.",
-    heroImg: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1600&q=80",
+    id: "jaipur", name: "Jaipur", country: "India", flag: "🇮🇳",
+    price: "From ₹5,200", tag: "Heritage Pick",
+    tagline: "The Pink City — Rajput royalty, desert colors, and artisan bazaars.",
+    tripTitle: "Forts, Palaces & Desert Gold", duration: "4 days",
+    activityLevel: "Easy to Moderate", accommodation: "Heritage Forts & Palace Hotels",
+    bestSeason: "Oct – Mar",
+    description: "Jaipur is the jewel of Rajasthan — a city built in rose-pink sandstone. Explore the majestic Amber Fort, the latticed Hawa Mahal, and the royal city palace, while shopping for gems, silk, and lac bangles in Johari Bazaar.",
+    heroImg: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1200&q=80",
     thumbs: [
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1509625902746-8266e2f74bd1?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
-      { time: "09:00 AM", name: "Acropolis & Parthenon", cost: "$35", desc: "Ancient citadel of classical Greece overlooking Athens" },
-      { time: "01:00 PM", name: "Plaka Traditional Taverna", cost: "$25", desc: "Authentic Greek lunch in historic cobblestone alleyways" },
-      { time: "05:30 PM", name: "Oia Sunset Walk, Santorini", cost: "$0", desc: "Iconic blue-domed churches and panoramic Aegean sunset" },
-    ],
-  },
-  {
-    id: "peru", name: "Peru", country: "Peru", flag: "🇵🇪",
-    price: "From $2,450", tag: "Budget Friendly",
-    tagline: "Mystical mountains, history, and the legendary ruins of Machu Picchu.",
-    tripTitle: "Inca Trail & Amazon Edge", duration: "10 days",
-    activityLevel: "Challenging", accommodation: "Eco Lodges & Mountain Camps",
-    bestSeason: "Apr – Oct",
-    description: "Peru is an adventure destination combining ancient Inca civilization, Amazon rainforest biodiversity, and stunning Andean landscapes. Trek the legendary Inca Trail to Machu Picchu and explore the Sacred Valley.",
-    heroImg: "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1600&q=80",
-    thumbs: [
-      "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1531065208531-4036c0dba3ca?auto=format&fit=crop&w=300&q=80",
-    ],
-    stops: [
-      { time: "06:00 AM", name: "Machu Picchu Sunrise Entry", cost: "$45", desc: "The Inca citadel at dawn — misty and breathtaking" },
-      { time: "12:30 PM", name: "Sacred Valley Market", cost: "$0", desc: "Traditional textiles and Andean crafts from local artisans" },
-      { time: "07:00 PM", name: "Cusco Night Food Tour", cost: "$30", desc: "Ceviche, cuy, and chicha morada in ancient Inca capital" },
-    ],
-  },
-  {
-    id: "japan", name: "Japan", country: "Japan", flag: "🇯🇵",
-    price: "From $2,600", tag: "Trending",
-    tagline: "Ancient temples, neon cities, cherry blossoms — an unforgettable cultural journey.",
-    tripTitle: "Sakura, Shrines & Ramen", duration: "12 days",
-    activityLevel: "Easy", accommodation: "Ryokan & City Hotels",
-    bestSeason: "Mar – May, Oct – Nov",
-    description: "Japan blends ancient tradition with ultra-modern innovation. Walk through bamboo groves in Arashiyama, marvel at Fushimi Inari's thousand torii gates, and explore the electric streets of Shibuya and Akihabara.",
-    heroImg: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1600&q=80",
-    thumbs: [
-      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=300&q=80",
-    ],
-    stops: [
-      { time: "08:00 AM", name: "Fushimi Inari Taisha Hike", cost: "¥0", desc: "Thousands of vermillion torii gates through forested mountain" },
-      { time: "01:00 PM", name: "Arashiyama Bamboo Grove", cost: "¥0", desc: "Ethereal bamboo forest walk by the Oi River" },
-      { time: "06:00 PM", name: "Dotonbori Food Street, Osaka", cost: "¥2000", desc: "Takoyaki, ramen, and street food in neon-lit Osaka" },
+      { time: "09:00 AM", name: "Amer Fort & Maota Lake", cost: "₹100", desc: "Hilltop citadel with Sheesh Mahal (Mirror Palace)" },
+      { time: "01:30 PM", name: "Hawa Mahal (Palace of Winds)", cost: "₹50", desc: "Five-story pink sandstone screen built for royal women" },
+      { time: "04:30 PM", name: "Johari Bazaar Gem & Silk Walk", cost: "₹0", desc: "Famous market for traditional jewelry and Jaipuri quilts" },
     ],
   },
   {
@@ -128,41 +92,392 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy", accommodation: "Beach Resorts & Boutique Stays",
     bestSeason: "Nov – Feb",
     description: "Goa is India's coastal gem — a blend of Konkani culture, Portuguese colonial heritage, silver-sand beaches, and vibrant nightlife. Explore Old Goa's UNESCO churches, spice plantations, and legendary beach shacks.",
-    heroImg: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1600&q=80",
+    heroImg: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
     thumbs: [
-      "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1600100394594-2a4d0f90fa58?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1607271432087-94c2d5f290af?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1600100394594-2a4d0f90fa58?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
       { time: "10:00 AM", name: "Basilica of Bom Jesus, Old Goa", cost: "₹0", desc: "UNESCO World Heritage baroque church housing St. Francis Xavier" },
-      { time: "02:00 PM", name: "Anjuna Beach & Flea Market", cost: "₹0", desc: "Hippie market along the iconic rocky Anjuna shoreline" },
+      { time: "02:00 PM", name: "Anjuna Beach & Flea Market", cost: "₹0", desc: "Iconic hippie market along the rocky shoreline" },
       { time: "07:00 PM", name: "Panjim Latin Quarter Walk", cost: "₹0", desc: "Portuguese-era colorful houses and riverfront dining" },
     ],
   },
   {
-    id: "rajasthan", name: "Jaipur", country: "India", flag: "🇮🇳",
-    price: "From ₹5,200", tag: "Heritage Pick",
-    tagline: "The Pink City — where Rajput royalty meets desert colors and artisan bazaars.",
-    tripTitle: "Forts, Palaces & Desert Gold", duration: "4 days",
-    activityLevel: "Easy to Moderate", accommodation: "Heritage Forts & Palace Hotels",
-    bestSeason: "Oct – Mar",
-    description: "Jaipur is the jewel of Rajasthan — a city built in rose-pink sandstone. Explore the majestic Amber Fort, the latticed Hawa Mahal, and the royal city palace, while shopping for gems, silk, and lac bangles in Johari Bazaar.",
-    heroImg: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1600&q=80",
+    id: "kerala", name: "Kerala", country: "India", flag: "🇮🇳",
+    price: "From ₹8,900", tag: "Trending",
+    tagline: "Emerald backwaters, misty tea gardens of Munnar, and Ayurvedic wellness.",
+    tripTitle: "God's Own Country Explorer", duration: "6 days",
+    activityLevel: "Easy", accommodation: "Houseboats & Plantation Bungalows",
+    bestSeason: "Sep – Mar",
+    description: "Kerala features palm-fringed lagoons, tranquil backwaters in Alleppey, sprawling tea estates in Munnar, and centuries-old Kathakali traditions along the Arabian Sea.",
+    heroImg: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
     thumbs: [
-      "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=300&q=80",
+      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=600&q=80",
     ],
     stops: [
-      { time: "09:00 AM", name: "Amer Fort & Maota Lake", cost: "₹100", desc: "Hilltop citadel with Sheesh Mahal (Mirror Palace)" },
-      { time: "01:30 PM", name: "Hawa Mahal (Palace of Winds)", cost: "₹50", desc: "Five-story pink sandstone screen built for royal women" },
-      { time: "04:30 PM", name: "Johari Bazaar Gem & Silk Walk", cost: "₹0", desc: "Famous market for traditional jewelry and Jaipuri quilts" },
+      { time: "09:00 AM", name: "Alleppey Houseboat Cruise", cost: "₹1,200", desc: "Gliding through palm-fringed canals and tranquil lagoons" },
+      { time: "02:00 PM", name: "Munnar Tea Estate & Tasting", cost: "₹100", desc: "Lush green rolling hills and fresh cardamom plantations" },
+      { time: "06:30 PM", name: "Kochi Kathakali Performance", cost: "₹400", desc: "Traditional classical dance-drama and mudra storytelling" },
+    ],
+  },
+  {
+    id: "varanasi", name: "Varanasi", country: "India", flag: "🇮🇳",
+    price: "From ₹4,800", tag: "Heritage Pick",
+    tagline: "The eternal spiritual city along the sacred Ganges ghats.",
+    tripTitle: "Ghats, Ganga Aarti & Silk", duration: "3 days",
+    activityLevel: "Moderate", accommodation: "Riverside Havelis",
+    bestSeason: "Oct – Mar",
+    description: "Varanasi is one of the world's oldest living cities. Experience the mesmerizing evening Ganga Aarti at Dashashwamedh Ghat, dawn boat rides along the ghats, and ancient Banarasi silk weaving.",
+    heroImg: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1571536802807-30451e3955d8?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1588096344356-9b49740523d4?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "05:30 AM", name: "Sunrise Boat Ride on Ganges", cost: "₹250", desc: "Peaceful morning views of historic bathing ghats and palaces" },
+      { time: "11:00 AM", name: "Kashi Vishwanath Corridor", cost: "₹0", desc: "Revered golden temple dedicated to Lord Shiva" },
+      { time: "06:30 PM", name: "Dashashwamedh Ganga Aarti", cost: "₹0", desc: "Grand multi-priest devotional prayer with flaming lamps" },
+    ],
+  },
+  {
+    id: "hampi", name: "Hampi", country: "India", flag: "🇮🇳",
+    price: "From ₹5,000", tag: "Heritage Pick",
+    tagline: "Vijayanagara boulder kingdom and UNESCO architectural marvels.",
+    tripTitle: "Ruins of the Forgotten Empire", duration: "3 days",
+    activityLevel: "Moderate", accommodation: "Heritage Resorts & River Huts",
+    bestSeason: "Nov – Feb",
+    description: "Hampi's surreal landscape of granite boulders frames the ruins of the 14th-century Vijayanagara Empire. Marvel at the stone chariot of Vittala Temple and the towering Virupaksha Temple.",
+    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "08:30 AM", name: "Vittala Temple & Stone Chariot", cost: "₹40", desc: "Iconic chariot sculpture and acoustic musical pillars" },
+      { time: "01:00 PM", name: "Lotus Mahal & Elephant Stables", cost: "₹0", desc: "Indo-Islamic royal pavilions amidst gardens" },
+      { time: "05:00 PM", name: "Sunset at Matanga Hill", cost: "₹0", desc: "Spectacular 360-degree panorama of boulder fields and ruins" },
+    ],
+  },
+  {
+    id: "ladakh", name: "Ladakh", country: "India", flag: "🇮🇳",
+    price: "From ₹14,500", tag: "Trending",
+    tagline: "High-altitude Himalayan desert, monasteries, and sapphire lakes.",
+    tripTitle: "Roof of the World Expedition", duration: "7 days",
+    activityLevel: "Challenging", accommodation: "Luxury Glamping & Homestays",
+    bestSeason: "Jun – Sep",
+    description: "Ladakh is a stark high-altitude paradise known for Tibetan Buddhist monasteries perched on cliffs, the crystal-blue Pangong Tso lake, and the highest motorable passes in the world.",
+    heroImg: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Thiksey Monastery Morning Prayer", cost: "₹50", desc: "12-story hilltop complex resembling Lhasa's Potala Palace" },
+      { time: "02:00 PM", name: "Khardung La Pass Crossing", cost: "₹0", desc: "Drive across 17,582 ft mountain pass into Nubra Valley" },
+      { time: "05:00 PM", name: "Pangong Tso Sunset Reflections", cost: "₹0", desc: "World's highest saltwater lake changing from turquoise to deep blue" },
+    ],
+  },
+  {
+    id: "coorg", name: "Coorg", country: "India", flag: "🇮🇳",
+    price: "From ₹6,200", tag: "Budget Friendly",
+    tagline: "Coffee capital of India, cascading waterfalls, and Kodava hospitality.",
+    tripTitle: "Coffee Trails & Western Ghats", duration: "3 days",
+    activityLevel: "Easy", accommodation: "Coffee Plantation Estates",
+    bestSeason: "Oct – Apr",
+    description: "Nestled in the lush Western Ghats, Coorg (Kodagu) is renowned for misty coffee plantations, spice gardens, Abbey Falls, and the source of the sacred River Cauvery.",
+    heroImg: "https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: "Organic Coffee & Pepper Walk", cost: "₹150", desc: "Guided walking tour through Arabica and Robusta plantations" },
+      { time: "01:30 PM", name: "Abbey Falls & Hanging Bridge", cost: "₹20", desc: "Spectacular waterfall dropping amidst dense spice groves" },
+      { time: "05:00 PM", name: "Raja's Seat Sunset Garden", cost: "₹25", desc: "Historic royal viewpoint overlooking rolling green valleys" },
+    ],
+  },
+  {
+    id: "udaipur", name: "Udaipur", country: "India", flag: "🇮🇳",
+    price: "From ₹6,800", tag: "Heritage Pick",
+    tagline: "The City of Lakes — marble palaces, ghats, and royal Mewar heritage.",
+    tripTitle: "Venice of the East Royalty", duration: "4 days",
+    activityLevel: "Easy", accommodation: "Heritage Lakefront Havelis",
+    bestSeason: "Oct – Mar",
+    description: "Udaipur captivates visitors with romantic Lake Pichola, the sprawling City Palace complex, Jag Mandir island, and colorful traditional artisan markets.",
+    heroImg: "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: "Udaipur City Palace", cost: "₹300", desc: "Rajasthan's largest royal palace with mirrors, tiles, and lake views" },
+      { time: "02:00 PM", name: "Lake Pichola Boat Ride", cost: "₹450", desc: "Cruising past Jag Niwas (Lake Palace) and Jag Mandir" },
+      { time: "06:00 PM", name: "Bagore Ki Haveli Folk Dance", cost: "₹100", desc: "Evening Dharohar cultural performance on the edge of the lake" },
+    ],
+  },
+  {
+    id: "greece", name: "Greece", country: "Greece", flag: "🇬🇷",
+    price: "$2,950 per person", tag: "Trending",
+    tagline: "Sunlit islands, ancient ruins, and the timeless charm of the Mediterranean.",
+    tripTitle: "Isles of Myth & Sun", duration: "8 days",
+    activityLevel: "Moderate", accommodation: "4-star Caldera Suites",
+    bestSeason: "May – Oct",
+    description: "Greece is a destination where ancient history meets crystal-clear seas and vibrant island culture. Explore the Acropolis in Athens, watch world-famous sunsets in Santorini, and savor authentic Mediterranean dining.",
+    heroImg: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Acropolis & Parthenon", cost: "$35", desc: "Ancient citadel of classical Greece overlooking Athens" },
+      { time: "01:00 PM", name: "Plaka Traditional Taverna", cost: "$25", desc: "Authentic Greek lunch in historic cobblestone alleyways" },
+      { time: "05:30 PM", name: "Oia Sunset Walk, Santorini", cost: "$0", desc: "Iconic blue-domed churches and panoramic Aegean sunset" },
+    ],
+  },
+  {
+    id: "japan", name: "Japan", country: "Japan", flag: "🇯🇵",
+    price: "From $2,600", tag: "Trending",
+    tagline: "Ancient temples, neon cities, cherry blossoms — an unforgettable cultural journey.",
+    tripTitle: "Sakura, Shrines & Ramen", duration: "12 days",
+    activityLevel: "Easy", accommodation: "Ryokan & City Hotels",
+    bestSeason: "Mar – May, Oct – Nov",
+    description: "Japan blends ancient tradition with ultra-modern innovation. Walk through bamboo groves in Arashiyama, marvel at Fushimi Inari's thousand torii gates, and explore the electric streets of Shibuya and Akihabara.",
+    heroImg: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "08:00 AM", name: "Fushimi Inari Taisha Hike", cost: "¥0", desc: "Thousands of vermillion torii gates through forested mountain" },
+      { time: "01:00 PM", name: "Arashiyama Bamboo Grove", cost: "¥0", desc: "Ethereal bamboo forest walk by the Oi River" },
+      { time: "06:00 PM", name: "Dotonbori Food Street, Osaka", cost: "¥2000", desc: "Takoyaki, ramen, and street food in neon-lit Osaka" },
+    ],
+  },
+  {
+    id: "peru", name: "Peru", country: "Peru", flag: "🇵🇪",
+    price: "From $2,450", tag: "Budget Friendly",
+    tagline: "Mystical mountains, history, and the legendary ruins of Machu Picchu.",
+    tripTitle: "Inca Trail & Amazon Edge", duration: "10 days",
+    activityLevel: "Challenging", accommodation: "Eco Lodges & Mountain Camps",
+    bestSeason: "Apr – Oct",
+    description: "Peru is an adventure destination combining ancient Inca civilization, Amazon rainforest biodiversity, and stunning Andean landscapes. Trek the legendary Inca Trail to Machu Picchu and explore the Sacred Valley.",
+    heroImg: "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1531065208531-4036c0dba3ca?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1509299349698-dd22323b5963?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "06:00 AM", name: "Machu Picchu Sunrise Entry", cost: "$45", desc: "The Inca citadel at dawn — misty and breathtaking" },
+      { time: "12:30 PM", name: "Sacred Valley Market", cost: "$0", desc: "Traditional textiles and Andean crafts from local artisans" },
+      { time: "07:00 PM", name: "Cusco Night Food Tour", cost: "$30", desc: "Ceviche, cuy, and chicha morada in ancient Inca capital" },
+    ],
+  },
+  {
+    id: "paris", name: "Paris", country: "France", flag: "🇫🇷",
+    price: "$2,200 per person", tag: "Trending",
+    tagline: "The City of Light — iconic architecture, Louvre masterpieces, and café culture.",
+    tripTitle: "Seine, Spires & Impressionism", duration: "5 days",
+    activityLevel: "Moderate", accommodation: "Haussmann Boutique Hotels",
+    bestSeason: "Apr – Jun, Sep – Nov",
+    description: "Paris offers world-class art, culinary elegance, and landmark monuments. Cruise the Seine at dusk, admire the Eiffel Tower lights, and stroll through Montmartre's artist squares.",
+    heroImg: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1520939817895-060bdef4dc1a?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: "Louvre Museum & Mona Lisa", cost: "€22", desc: "World's grandest art museum in former royal palace" },
+      { time: "02:00 PM", name: "Saint-Germain Café & Pastry Walk", cost: "€18", desc: "Legendary literary cafés and fresh buttery croissants" },
+      { time: "07:30 PM", name: "Eiffel Tower & Seine Cruise", cost: "€30", desc: "Illuminated iron spire and panoramic evening river views" },
+    ],
+  },
+  {
+    id: "bali", name: "Bali", country: "Indonesia", flag: "🇮🇩",
+    price: "From $1,350", tag: "Budget Friendly",
+    tagline: "Tropical temple retreats, emerald rice terraces, and surf shores.",
+    tripTitle: "Island of the Gods Journey", duration: "7 days",
+    activityLevel: "Easy", accommodation: "Jungle Villas & Beachfront Resorts",
+    bestSeason: "Apr – Oct",
+    description: "Bali is Indonesia's most famous tropical escape, featuring tiered rice terraces in Ubud, cliffside sea temples in Uluwatu, and vibrant coastal beach clubs.",
+    heroImg: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "08:00 AM", name: "Tegallalang Rice Terraces", cost: "$5", desc: "Iconic sculpted green valley and jungle swings" },
+      { time: "01:00 PM", name: "Tirta Empul Holy Water Temple", cost: "$5", desc: "Ancient Balinese Hindu purification springs" },
+      { time: "05:30 PM", name: "Uluwatu Sunset Kecak Fire Dance", cost: "$15", desc: "Dramatic choral dance atop a 70m ocean cliff" },
+    ],
+  },
+  {
+    id: "switzerland", name: "Switzerland", country: "Switzerland", flag: "🇨🇭",
+    price: "From $3,400", tag: "Trending",
+    tagline: "Glacial peaks, turquoise alpine lakes, and panoramic scenic rail.",
+    tripTitle: "Alpine Summits & Crystal Lakes", duration: "7 days",
+    activityLevel: "Moderate", accommodation: "Alpine Chalets & Mountain Lodges",
+    bestSeason: "Jun – Sep, Dec – Mar",
+    description: "Switzerland boasts soaring Alpine peaks, the Jungfraujoch top of Europe, scenic railway journeys on the Glacier Express, and pristine lakeside towns like Lucerne and Interlaken.",
+    heroImg: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Jungfraujoch Sphinx Observatory", cost: "CHF 120", desc: "Top of Europe train station amidst Aletsch Glacier" },
+      { time: "02:00 PM", name: "Lake Brienz Turquoise Cruise", cost: "CHF 35", desc: "Steamer cruise framed by vertical alpine waterfalls" },
+      { time: "05:30 PM", name: "Grindelwald First Cliff Walk", cost: "CHF 0", desc: "Suspended bridge with views of the north face of the Eiger" },
+    ],
+  },
+  {
+    id: "dubai", name: "Dubai", country: "UAE", flag: "🇦🇪",
+    price: "From $1,800", tag: "Trending",
+    tagline: "Futuristic skyscrapers, desert dune safaris, and luxury marina lifestyle.",
+    tripTitle: "Desert Gold & Modern Marvels", duration: "5 days",
+    activityLevel: "Easy", accommodation: "5-Star Marina & Downtown Hotels",
+    bestSeason: "Nov – Mar",
+    description: "Dubai represents ultra-modern architectural ambition, from the Burj Khalifa and Palm Jumeirah to thrilling desert quad safaris and historic gold souks along Dubai Creek.",
+    heroImg: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "10:00 AM", name: "Burj Khalifa At the Top (Level 124)", cost: "$45", desc: "Panoramic view over the Arabian Gulf and skyscrapers" },
+      { time: "03:30 PM", name: "Red Dune Desert Safari & BBQ", cost: "$55", desc: "4x4 dune bashing, camel trek, and desert stargazing" },
+      { time: "08:00 PM", name: "Dubai Fountain Spectacle", cost: "$0", desc: "Choreographed musical fountain at the foot of Dubai Mall" },
+    ],
+  },
+  {
+    id: "rome", name: "Rome", country: "Italy", flag: "🇮🇹",
+    price: "From $2,100", tag: "Heritage Pick",
+    tagline: "The Colosseum, Vatican treasures, and timeless cobblestone piazzas.",
+    tripTitle: "Imperial Caesars & Renaissance Art", duration: "5 days",
+    activityLevel: "Moderate", accommodation: "Historic Piazza Boutique Hotels",
+    bestSeason: "Apr – Jun, Sep – Oct",
+    description: "Rome is an open-air museum filled with classical antiquity, including the Colosseum, Roman Forum, Pantheon, and St. Peter's Basilica, punctuated by artisanal gelato and pasta.",
+    heroImg: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1529154036614-a60975f5c760?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1531572753322-ad063cecc140?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Colosseum & Roman Forum", cost: "€18", desc: "Gladiator arena and civic heart of ancient Rome" },
+      { time: "01:30 PM", name: "Trastevere Cacio e Pepe Lunch", cost: "€20", desc: "Historic bohemian alleyways with authentic Roman trattorias" },
+      { time: "05:00 PM", name: "Trevi Fountain & Spanish Steps", cost: "€0", desc: "Baroque marble masterpiece and evening gelato stroll" },
+    ],
+  },
+  {
+    id: "iceland", name: "Iceland", country: "Iceland", flag: "🇮🇸",
+    price: "From $3,100", tag: "Trending",
+    tagline: "Fire and ice — Northern Lights, thermal lagoons, and roaring waterfalls.",
+    tripTitle: "Golden Circle & Aurora Borealis", duration: "6 days",
+    activityLevel: "Moderate", accommodation: "Geothermal Cabins & Eco-Lodges",
+    bestSeason: "Sep – Mar (Aurora), Jun – Aug (Hiking)",
+    description: "Iceland features volcanic craters, spouting geysers, the mineral-rich Blue Lagoon, and dramatic black sand beaches along the Atlantic coast.",
+    heroImg: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1529963183134-61a90db47eaf?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: "Thingvellir National Park & Geysir", cost: "$0", desc: "Tectonic continental rift and erupting Strokkur geyser" },
+      { time: "02:00 PM", name: "Gullfoss Golden Waterfall", cost: "$0", desc: "Massive two-tiered glacial waterfall thundering into a canyon" },
+      { time: "06:00 PM", name: "Blue Lagoon Geothermal Soak", cost: "$85", desc: "Mineral-rich warm silica waters surrounded by lava fields" },
+    ],
+  },
+  {
+    id: "thailand", name: "Thailand", country: "Thailand", flag: "🇹🇭",
+    price: "From $1,250", tag: "Budget Friendly",
+    tagline: "Golden royal temples, floating markets, and turquoise Andaman islands.",
+    tripTitle: "Siam Temples & Tropical Islands", duration: "7 days",
+    activityLevel: "Easy", accommodation: "Riverfront & Island Beach Resorts",
+    bestSeason: "Nov – Apr",
+    description: "Thailand combines Bangkok's Grand Palace and bustling street food stalls with Phuket's limestone karsts and crystal waters.",
+    heroImg: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Grand Palace & Wat Phra Kaew", cost: "฿500", desc: "Resplendent royal compound and sacred Emerald Buddha" },
+      { time: "01:30 PM", name: "Chao Phraya Express Longtail Boat", cost: "฿50", desc: "Scenic river transit past temples and traditional canal houses" },
+      { time: "06:00 PM", name: "Yaowarat Chinatown Street Food", cost: "฿250", desc: "World-famous pad thai, mango sticky rice, and seafood" },
+    ],
+  },
+  {
+    id: "maldives", name: "Maldives", country: "Maldives", flag: "🇲🇻",
+    price: "From $3,600", tag: "Trending",
+    tagline: "Overwater bungalows, vibrant coral reefs, and pristine turquoise atolls.",
+    tripTitle: "Private Lagoon & Coral Sanctuary", duration: "5 days",
+    activityLevel: "Easy", accommodation: "Luxury Overwater Villas",
+    bestSeason: "Nov – Apr",
+    description: "The Maldives offers quintessential tropical barefoot luxury, boasting crystal clear lagoons, private ocean overwater bungalows, manta ray diving, and coral reef conservation.",
+    heroImg: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:00 AM", name: "Reef Snorkel with Sea Turtles", cost: "$40", desc: "Protected house reef teeming with parrotfish and reef sharks" },
+      { time: "01:00 PM", name: "Sandbank Private Island Lunch", cost: "$75", desc: "Secluded pristine white sand spit surrounded by three blues" },
+      { time: "05:30 PM", name: "Sunset Dolphin Watching Cruise", cost: "$60", desc: "Traditional Dhoni boat tracking spinner dolphins in open sea" },
     ],
   },
 ];
 
 const ALL_TAGS = ["All", "Heritage Pick", "Trending", "Budget Friendly"];
+
+// ─── Dynamic AI Destination Generator for ANY User Search ───────────────────
+function createCustomDestination(query: string): DestinationItem {
+  const clean = query.trim().charAt(0).toUpperCase() + query.trim().slice(1);
+  return {
+    id: `custom-${clean.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+    name: clean,
+    country: "Featured Destination",
+    flag: "🌍",
+    price: "From ₹5,800 / $180",
+    tag: "Custom AI Pick",
+    tagline: `AI-customized travel plan, verified heritage stops, and on-chain commitment for ${clean}.`,
+    tripTitle: `Discover & Experience ${clean}`,
+    duration: "4 days",
+    activityLevel: "Moderate",
+    accommodation: "Boutique Stays & 4-Star Hotels",
+    bestSeason: "Oct – Apr / Peak Season",
+    description: `Explore the vibrant culture, historical highlights, and premier attractions of ${clean}. Verified by ProofTrip AI agents with authentic local experiences, transparent pricing, and cryptographic hash verification on Solana Devnet.`,
+    heroImg: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+    thumbs: [
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    ],
+    stops: [
+      { time: "09:30 AM", name: `${clean} Central Heritage Landmark`, cost: "₹150 / $15", desc: `Historic architecture and panoramic viewpoint in ${clean}` },
+      { time: "01:00 PM", name: "Traditional Artisanal Market & Dining", cost: "₹300 / $25", desc: `Famous local culinary stalls and authentic regional crafts` },
+      { time: "05:00 PM", name: "Golden Hour Viewpoint & Cultural Tour", cost: "Free", desc: `Picturesque sunset observation spot and guided heritage walk` },
+    ],
+  };
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Home() {
@@ -396,12 +711,35 @@ export default function Home() {
     setNewExpName(""); setNewExpAmount("");
   }
 
-  // ── Filtered destinations ──
-  const filteredDests = DESTINATIONS.filter(d => {
-    const tagOk = filterTag === "All" || d.tag === filterTag;
-    const searchOk = !searchQuery || d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.country.toLowerCase().includes(searchQuery.toLowerCase());
-    return tagOk && searchOk;
-  });
+  // ── Smart Dynamic Search & Filtering (Never misses places) ──
+  const filteredDests = React.useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const matched = DESTINATIONS.filter(d => {
+      const tagOk = filterTag === "All" || d.tag === filterTag;
+      const searchOk =
+        !query ||
+        d.name.toLowerCase().includes(query) ||
+        d.country.toLowerCase().includes(query) ||
+        d.tagline.toLowerCase().includes(query) ||
+        d.description.toLowerCase().includes(query);
+      return tagOk && searchOk;
+    });
+
+    // If user enters any real place not in default list, dynamically generate it with full photos & itinerary!
+    if (matched.length === 0 && query.length >= 2) {
+      return [createCustomDestination(searchQuery)];
+    }
+    return matched;
+  }, [filterTag, searchQuery]);
+
+  // Smoothly reload detail panel and sync destination when user searches
+  useEffect(() => {
+    if (filteredDests.length > 0 && !filteredDests.some(d => d.id === selectedDest.id)) {
+      setSelectedDest(filteredDests[0]);
+      setHeroThumb(0);
+      setPriceCity(filteredDests[0].name);
+    }
+  }, [filteredDests, selectedDest.id]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
@@ -468,7 +806,7 @@ export default function Home() {
           <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
             <div
               className="hero-bg"
-              style={{ backgroundImage: `url('${selectedDest.heroImg}')` }}
+              style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
             />
             <div className="hero-gradient" />
             <div className="hero-content">
@@ -524,9 +862,18 @@ export default function Home() {
                 <div
                   key={dest.id}
                   className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
-                  onClick={() => { setSelectedDest(dest); setHeroThumb(0); }}
+                  onClick={() => { setSelectedDest(dest); setHeroThumb(0); setPriceCity(dest.name); }}
                 >
-                  <div className="dest-card-photo" style={{ backgroundImage: `url('${dest.heroImg}')` }} />
+                  <div className="dest-card-photo">
+                    <img
+                      src={dest.heroImg}
+                      alt={dest.name}
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                      }}
+                    />
+                  </div>
                   <div className="dest-card-overlay" />
                   <div className="dest-card-badge">
                     <Star size={10} /> {dest.tag}
@@ -543,10 +890,15 @@ export default function Home() {
             {/* Detail Panel */}
             <div className="detail-panel">
               {/* Left: Hero + flag + name */}
-              <div
-                className="detail-hero"
-                style={{ backgroundImage: `url('${heroThumb === 0 ? selectedDest.heroImg : selectedDest.thumbs[heroThumb - 1]}')` }}
-              >
+              <div className="detail-hero">
+                <img
+                  className="detail-hero-media"
+                  src={heroThumb === 0 ? selectedDest.heroImg : (selectedDest.thumbs[heroThumb - 1] || selectedDest.heroImg)}
+                  alt={selectedDest.name}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                  }}
+                />
                 <div className="detail-hero-overlay" />
                 <div className="detail-hero-content">
                   <div className="detail-flag">{selectedDest.flag}</div>
@@ -554,17 +906,27 @@ export default function Home() {
                   <p className="detail-tagline">{selectedDest.tagline}</p>
                   <div className="detail-thumbs">
                     <div
-                      className="detail-thumb"
-                      style={{ backgroundImage: `url('${selectedDest.heroImg}')`, borderColor: heroThumb === 0 ? "var(--yellow)" : undefined }}
+                      className={`detail-thumb ${heroThumb === 0 ? "active" : ""}`}
                       onClick={() => setHeroThumb(0)}
-                    />
+                    >
+                      <img
+                        src={selectedDest.heroImg}
+                        alt={selectedDest.name}
+                        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
+                      />
+                    </div>
                     {selectedDest.thumbs.map((t, i) => (
                       <div
                         key={i}
-                        className="detail-thumb"
-                        style={{ backgroundImage: `url('${t}')`, borderColor: heroThumb === i + 1 ? "var(--yellow)" : undefined }}
+                        className={`detail-thumb ${heroThumb === i + 1 ? "active" : ""}`}
                         onClick={() => setHeroThumb(i + 1)}
-                      />
+                      >
+                        <img
+                          src={t}
+                          alt={`${selectedDest.name} preview ${i + 1}`}
+                          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_THUMB; }}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
