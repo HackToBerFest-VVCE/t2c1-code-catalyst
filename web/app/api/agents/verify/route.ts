@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { Connection, PublicKey } from "@solana/web3.js";
 
-const MPL_AGENT_REGISTRY_PROGRAM = "AGentzDhMq5LoFxYJ5R2J8GNwSCY8BqrEMJmqHfBX9er";
+// Official Metaplex Agent Registry program ID (Devnet & Mainnet)
+export const MPL_AGENT_REGISTRY_PROGRAM = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 
-function deriveIdentityPda(assetPublicKey: PublicKey): PublicKey {
-  const [pda] = PublicKey.findProgramAddressSync(
-    [Buffer.from("agent_identity"), assetPublicKey.toBuffer()],
+export function deriveIdentityPda(assetPublicKey: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("agent_identity", "utf-8"), assetPublicKey.toBuffer()],
     new PublicKey(MPL_AGENT_REGISTRY_PROGRAM)
   );
-  return pda;
 }
 
 export async function GET(request: Request) {
@@ -30,34 +30,53 @@ export async function GET(request: Request) {
   const connection = new Connection(rpc, "confirmed");
 
   try {
-    const identityPda = deriveIdentityPda(assetKey);
+    const [identityPda, bump] = deriveIdentityPda(assetKey);
 
-    // Check whether the asset account itself exists on Devnet
-    const assetAccount = await connection.getAccountInfo(assetKey);
-    if (!assetAccount) {
+    // Fetch the on-chain agent identity PDA account
+    const identityAccount = await connection.getAccountInfo(identityPda);
+
+    if (!identityAccount) {
+      // Check if the underlying asset exists on Devnet
+      const assetAccount = await connection.getAccountInfo(assetKey);
       return NextResponse.json({
         registered: false,
-        reason: "Asset account does not exist on Devnet",
+        reason: assetAccount
+          ? "Asset exists on Devnet, but no Metaplex Agent Identity PDA has been registered for it."
+          : "Asset account does not exist on Solana Devnet.",
+        assetExists: !!assetAccount,
         identityPda: identityPda.toBase58(),
+        bump,
+        programId: MPL_AGENT_REGISTRY_PROGRAM,
       });
     }
 
-    // Check whether the registry PDA exists
-    const identityAccount = await connection.getAccountInfo(identityPda);
-    if (!identityAccount) {
+    // Verify program ownership
+    const isOwner = identityAccount.owner.toBase58() === MPL_AGENT_REGISTRY_PROGRAM;
+    if (!isOwner) {
       return NextResponse.json({
         registered: false,
-        reason: "No agent identity PDA found for this asset on Devnet",
-        assetExists: true,
+        reason: "Account exists but is not owned by the Metaplex Agent Registry program.",
         identityPda: identityPda.toBase58(),
+        actualOwner: identityAccount.owner.toBase58(),
       });
+    }
+
+    // AgentIdentityV1 layout: 8 bytes discriminator + 32 bytes asset pubkey
+    let storedAssetMatches = false;
+    if (identityAccount.data.length >= 40) {
+      const storedAsset = new PublicKey(identityAccount.data.subarray(8, 40));
+      storedAssetMatches = storedAsset.equals(assetKey);
     }
 
     return NextResponse.json({
       registered: true,
       identityPda: identityPda.toBase58(),
       assetPublicKey: asset,
+      bump,
       dataLength: identityAccount.data.length,
+      storedAssetMatches,
+      programId: MPL_AGENT_REGISTRY_PROGRAM,
+      cluster: "solana-devnet",
     });
   } catch (e) {
     return NextResponse.json(

@@ -33,8 +33,8 @@ const SCAM_PATTERNS = [
     weight: 2,
   },
   {
-    pattern: /closed.{0,40}(palace|monument|museum|temple)/i,
-    flag: "Claims a landmark is closed — often used to redirect to alternative shops.",
+    pattern: /(closed|shut).{0,40}(palace|monument|museum|temple)|(palace|monument|museum|temple).{0,40}(closed|shut)/i,
+    flag: "Claims a landmark is closed — often used by touts to redirect tourists to commission shops.",
     weight: 3,
   },
   {
