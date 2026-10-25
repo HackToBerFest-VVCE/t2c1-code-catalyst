@@ -68,6 +68,20 @@ export default function TravelerPersonaModal({
         {step === "persona" && (
           <div className="persona-step-wrap">
             <div className="persona-header">
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+                <img
+                  src="/logo.png"
+                  alt="Touristमत्रम् Logo"
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    border: "1.5px solid rgba(248, 208, 87, 0.4)",
+                    boxShadow: "0 4px 16px rgba(248, 208, 87, 0.25)",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
               <div className="persona-badge">
                 <ShieldCheck size={14} color="var(--yellow)" />
                 <span>Touristमत्रम् · Personalized Travel Protection</span>

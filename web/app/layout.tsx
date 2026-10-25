@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description:
     "Touristमत्रम् — Discover verified travel concierges, plan bespoke cultural itineraries, and secure guaranteed pricing with tamper-proof digital travel certificates.",
   icons: {
-    icon: "/logo.svg",
-    apple: "/logo.svg",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
     title: "Touristमत्रम् — Curated Cultural Travel & Certified Price Protection",

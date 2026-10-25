@@ -1229,44 +1229,18 @@ export default function Home() {
             }}
           >
             <div className="nav-logo-wrap">
-              <svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="tm-border" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#FFE072"/>
-                    <stop offset="50%" stopColor="#F8D057"/>
-                    <stop offset="100%" stopColor="#B8860B"/>
-                  </linearGradient>
-                  <linearGradient id="tm-gold" x1="6" y1="6" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#FFF2A3"/>
-                    <stop offset="40%" stopColor="#F8D057"/>
-                    <stop offset="100%" stopColor="#D99E18"/>
-                  </linearGradient>
-                  <linearGradient id="tm-solana" x1="10" y1="10" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#9945FF"/>
-                    <stop offset="50%" stopColor="#14F195"/>
-                    <stop offset="100%" stopColor="#F8D057"/>
-                  </linearGradient>
-                  <radialGradient id="tm-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="rgba(248, 208, 87, 0.4)"/>
-                    <stop offset="100%" stopColor="rgba(248, 208, 87, 0)"/>
-                  </radialGradient>
-                  <filter id="tm-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#000" floodOpacity="0.5"/>
-                  </filter>
-                </defs>
-                <rect x="1" y="1" width="38" height="38" rx="11" fill="#14161A" stroke="url(#tm-border)" strokeWidth="1.5" filter="url(#tm-shadow)"/>
-                <circle cx="20" cy="20" r="16" fill="url(#tm-glow)"/>
-                <circle cx="20" cy="20" r="11" stroke="rgba(248, 208, 87, 0.25)" strokeWidth="0.75" strokeDasharray="1.5 2.5"/>
-                <line x1="20" y1="5.5" x2="20" y2="8" stroke="url(#tm-gold)" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="20" y1="32" x2="20" y2="34.5" stroke="url(#tm-gold)" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="5.5" y1="20" x2="8" y2="20" stroke="url(#tm-gold)" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="32" y1="20" x2="34.5" y2="20" stroke="url(#tm-gold)" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M20 9L29 27.5L20 23.5L11 27.5L20 9Z" fill="url(#tm-gold)" filter="url(#tm-shadow)"/>
-                <path d="M20 11.5L26.5 25L20 22.2L13.5 25L20 11.5Z" fill="#181A20" opacity="0.15"/>
-                <path d="M20 9L20 23.5L11 27.5L20 9Z" fill="rgba(255, 255, 255, 0.22)"/>
-                <ellipse cx="20" cy="21.5" rx="8" ry="3.5" transform="rotate(-25 20 21.5)" stroke="url(#tm-solana)" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="18 4"/>
-                <circle cx="20" cy="20" r="1.5" fill="#FFF"/>
-              </svg>
+              <img
+                src="/logo.png"
+                alt="Touristमत्रम् Logo"
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 10,
+                  objectFit: "contain",
+                  boxShadow: "0 2px 10px rgba(248, 208, 87, 0.25)",
+                  border: "1px solid rgba(248, 208, 87, 0.35)",
+                }}
+              />
             </div>
             <div className="nav-brand-text">
               <span className="nav-brand-tourist">Tourist</span>
@@ -2931,7 +2905,17 @@ export default function Home() {
       {/* ══ FOOTER ══ */}
       <footer className="site-footer">
         <div className="footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/logo.svg" alt="Touristमत्रम् Logo" style={{ width: 28, height: 28 }} />
+          <img
+            src="/logo.png"
+            alt="Touristमत्रम् Logo"
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              objectFit: "contain",
+              border: "1px solid rgba(248, 208, 87, 0.35)",
+            }}
+          />
           <span style={{ fontSize: 18, fontWeight: 900 }}>
             Tourist<span style={{ color: "var(--yellow)" }}>मत्रम्</span>
           </span>
