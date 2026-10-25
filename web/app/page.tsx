@@ -322,7 +322,14 @@ export default function Home() {
       setSavedRecords(updated);
       localStorage.setItem("prooftrip_records", JSON.stringify(updated));
     } catch (e: any) {
-      setCommitError("Demo commit failed: " + e.message);
+      const msg = e.message || String(e);
+      if (msg.includes("airdrop") || msg.includes("Internal error") || msg.includes("429")) {
+        setCommitError(
+          "Solana Devnet faucet rate-limit reached: The public Solana faucet (api.devnet.solana.com) is currently throttled by the network. To complete the transaction on-chain, please connect Phantom (set to Devnet) with test SOL from faucet.solana.com."
+        );
+      } else {
+        setCommitError("Devnet transaction: " + msg);
+      }
     } finally {
       setDemoSigning(false);
     }
