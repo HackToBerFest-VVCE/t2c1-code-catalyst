@@ -61,89 +61,6 @@ function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector
   return new THREE.Vector3(x, y, z);
 }
 
-// Procedural high-resolution satellite Earth texture generator
-function createEarthCanvas(): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = 2048;
-  canvas.height = 1024;
-  const ctx = canvas.getContext("2d")!;
-
-  // Deep obsidian oceanic base
-  const oceanGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  oceanGrad.addColorStop(0, "#060A12");
-  oceanGrad.addColorStop(0.5, "#0A101C");
-  oceanGrad.addColorStop(1, "#060A12");
-  ctx.fillStyle = oceanGrad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Subtle latitude & longitude navigation grid
-  ctx.strokeStyle = "rgba(248, 208, 87, 0.08)";
-  ctx.lineWidth = 1;
-  for (let x = 0; x <= canvas.width; x += 64) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
-  }
-  for (let y = 0; y <= canvas.height; y += 64) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-  }
-
-  // Draw landmass silhouettes with golden continent edges
-  function mapX(lon: number) { return ((lon + 180) / 360) * canvas.width; }
-  function mapY(lat: number) { return ((90 - lat) / 180) * canvas.height; }
-
-  const landmasses = [
-    // Europe & Africa
-    [[-10, 36], [10, 38], [25, 42], [35, 30], [50, 15], [45, 0], [40, -15], [30, -34], [18, -34], [12, -5], [-17, 14], [-5, 36]],
-    // Asia & India
-    [[35, 30], [50, 40], [70, 42], [90, 50], [120, 50], [140, 40], [125, 20], [105, 10], [90, 20], [80, 8], [70, 22], [55, 25], [35, 30]],
-    // Americas
-    [[-125, 50], [-70, 50], [-75, 25], [-85, 10], [-80, 0], [-60, -20], [-40, -10], [-55, -45], [-75, -45], [-80, -5], [-105, 20], [-125, 35]],
-    // Australia
-    [[115, -20], [130, -12], [145, -18], [150, -35], [135, -35], [115, -30], [115, -20]],
-  ];
-
-  ctx.fillStyle = "rgba(20, 30, 45, 0.95)";
-  ctx.strokeStyle = "rgba(248, 208, 87, 0.35)";
-  ctx.lineWidth = 2;
-
-  landmasses.forEach(points => {
-    ctx.beginPath();
-    points.forEach(([lon, lat], idx) => {
-      const x = mapX(lon);
-      const y = mapY(lat);
-      if (idx === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  });
-
-  // Glowing city cluster sparks across major hubs
-  const cityClusters = [
-    [77, 28], [76, 12], [75, 26], [74, 15], [2, 48], [139, 35], [55, 25], [8, 46], [12, 41], [115, -8], [23, 37], [73, 3],
-  ];
-  cityClusters.forEach(([lon, lat]) => {
-    const cx = mapX(lon);
-    const cy = mapY(lat);
-    const rad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 18);
-    rad.addColorStop(0, "rgba(255, 240, 160, 0.9)");
-    rad.addColorStop(0.4, "rgba(248, 208, 87, 0.5)");
-    rad.addColorStop(1, "rgba(248, 208, 87, 0)");
-    ctx.fillStyle = rad;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 18, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  return canvas;
-}
-
 interface EarthGlobeProps {
   onSelectCity: (cityName: string) => void;
   locatingCity: string | null;
@@ -204,14 +121,14 @@ export default function EarthGlobe({
     camera.position.z = 2.8;
 
     // Ambient & Directional Sun Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambientLight = new THREE.AmbientLight(0x556677, 1.3);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff5d0, 1.8);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x14f195, 0.7);
+    const rimLight = new THREE.DirectionalLight(0x4da6ff, 1.1);
     rimLight.position.set(-5, -2, -4);
     scene.add(rimLight);
 
@@ -233,21 +150,41 @@ export default function EarthGlobe({
     const earthGroup = new THREE.Group();
     scene.add(earthGroup);
 
-    // Earth Mesh
-    const earthCanvas = createEarthCanvas();
-    const earthTexture = new THREE.CanvasTexture(earthCanvas);
-    const earthGeo = new THREE.SphereGeometry(1, 64, 64);
+    // Photorealistic NASA Blue Marble / Satellite Earth Textures
+    const textureLoader = new THREE.TextureLoader();
+    const earthDayMap = textureLoader.load("/images/earth/earth-day.jpg");
+    earthDayMap.colorSpace = THREE.SRGBColorSpace;
+    const earthNormalMap = textureLoader.load("/images/earth/earth-normal.jpg");
+    const earthSpecularMap = textureLoader.load("/images/earth/earth-specular.jpg");
+    const earthCloudsMap = textureLoader.load("/images/earth/earth-clouds.png");
+
+    // Earth Mesh with High Segment Geometry (96x96 for perfect smoothness)
+    const earthGeo = new THREE.SphereGeometry(1, 96, 96);
     const earthMat = new THREE.MeshPhongMaterial({
-      map: earthTexture,
-      bumpScale: 0.05,
-      shininess: 15,
-      specular: new THREE.Color(0x334455),
+      map: earthDayMap,
+      normalMap: earthNormalMap,
+      normalScale: new THREE.Vector2(0.85, 0.85),
+      specularMap: earthSpecularMap,
+      specular: new THREE.Color(0x223344),
+      shininess: 25,
     });
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     earthGroup.add(earthMesh);
 
-    // Atmospheric Glow Halo
-    const atmosphereGeo = new THREE.SphereGeometry(1.025, 48, 48);
+    // Realistic Floating Cloud Layer
+    const cloudsGeo = new THREE.SphereGeometry(1.009, 96, 96);
+    const cloudsMat = new THREE.MeshPhongMaterial({
+      map: earthCloudsMap,
+      transparent: true,
+      opacity: 0.42,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+    const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+    earthGroup.add(cloudsMesh);
+
+    // Google Earth Celestial Atmosphere Glow Halo
+    const atmosphereGeo = new THREE.SphereGeometry(1.035, 64, 64);
     const atmosphereMat = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -259,8 +196,8 @@ export default function EarthGlobe({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
-          gl_FragColor = vec4(0.97, 0.82, 0.34, 1.0) * intensity * 0.75 + vec4(0.08, 0.94, 0.58, 1.0) * intensity * 0.35;
+          float intensity = pow(0.70 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+          gl_FragColor = vec4(0.35, 0.72, 1.0, 1.0) * intensity * 1.3;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -363,6 +300,7 @@ export default function EarthGlobe({
       scene,
       camera,
       earthGroup,
+      cloudsMesh,
       pinObjects,
       flightArcs,
       isDragging: false,
@@ -384,6 +322,11 @@ export default function EarthGlobe({
     function animate() {
       state.animFrameId = requestAnimationFrame(animate);
       time += 0.015;
+
+      // Gentle cloud drift
+      if (state.cloudsMesh) {
+        state.cloudsMesh.rotation.y += 0.00025;
+      }
 
       // Handle Fly-To Zoom Camera Sequence
       if (state.isFlying && state.targetQuaternion) {

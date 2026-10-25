@@ -2846,3 +2846,33 @@ img {
   background: var(--dark-elevated);
   border-color: var(--yellow);
 }
+
+/* ── Floating Experience Rating Widget (from img 4) ── */
+.floating-experience-rating {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  animation: floatIn 0.3s ease-out;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .floating-experience-rating {
+    bottom: 75px;
+    right: 14px;
+    left: 14px;
+    display: flex;
+    justify-content: center;
+  }
+}

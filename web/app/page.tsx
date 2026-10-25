@@ -57,6 +57,7 @@ import {
 import LanguageSelectorModal from "../components/LanguageSelectorModal";
 import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
+import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
 import {
   downloadOfflinePassFile,
   printOfflinePass,
@@ -601,7 +602,7 @@ export default function Home() {
   const handleSelectIndian = () => {
     setTravelerType("indian");
     setSelectedCurrency("INR");
-    localStorage.setItem("touristmatram_traveler_type", "indian");
+    try { sessionStorage.setItem("touristmatram_traveler_type", "indian"); } catch {}
     setIsPersonaModalOpen(false);
   };
 
@@ -609,34 +610,25 @@ export default function Home() {
     setTravelerType("foreign");
     setForeignCountry(country);
     setSelectedCurrency("USD");
-    localStorage.setItem("touristmatram_traveler_type", "foreign");
-    localStorage.setItem("touristmatram_foreign_country", country);
+    try {
+      sessionStorage.setItem("touristmatram_traveler_type", "foreign");
+      sessionStorage.setItem("touristmatram_foreign_country", country);
+    } catch {}
     setIsPersonaModalOpen(false);
   };
 
   useEffect(() => {
     setMounted(true);
-    const savedType = localStorage.getItem("touristmatram_traveler_type") as "indian" | "foreign" | null;
-    const savedCountry = localStorage.getItem("touristmatram_foreign_country");
-    if (savedType) {
-      setTravelerType(savedType);
-      if (savedType === "indian") {
-        setSelectedCurrency("INR");
-      }
-    } else {
-      setIsPersonaModalOpen(true);
-    }
-    if (savedCountry) {
-      setForeignCountry(savedCountry);
-    }
-    const savedLang = localStorage.getItem("touristmatram_lang") as LanguageCode | null;
-    if (savedLang && SUPPORTED_LANGUAGES.some(l => l.code === savedLang)) {
-      setLanguage(savedLang);
-      const langObj = SUPPORTED_LANGUAGES.find(l => l.code === savedLang);
-      if (typeof document !== "undefined") {
-        document.documentElement.dir = langObj?.dir || "ltr";
-      }
-    }
+    // Start fresh on each session / server restart - forgot previous session data
+    try {
+      localStorage.removeItem("prooftrip_records");
+      localStorage.removeItem("touristmatram_traveler_type");
+      localStorage.removeItem("touristmatram_foreign_country");
+      sessionStorage.clear();
+    } catch {}
+    setSavedRecords([]);
+    setTravelerType(null);
+    setIsPersonaModalOpen(true);
   }, []);
 
   // Load live exchange rates
@@ -875,7 +867,7 @@ export default function Home() {
         };
         const updated = [newRec, ...savedRecords];
         setSavedRecords(updated);
-        try { localStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
+        try { sessionStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
       } else {
         await new Promise(r => setTimeout(r, 850));
         const certTx = `CERT-${hashHex.slice(0, 8).toUpperCase()}-${hashHex.slice(8, 16).toUpperCase()}`;
@@ -888,7 +880,7 @@ export default function Home() {
         };
         const updated = [newRec, ...savedRecords];
         setSavedRecords(updated);
-        try { localStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
+        try { sessionStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
       }
     } catch (err: any) {
       console.error("Custom commit error:", err);
@@ -1009,14 +1001,6 @@ export default function Home() {
   const [verifyHashInput, setVerifyHashInput] = useState("");
   const [verifyStatus, setVerifyStatus] = useState("");
 
-  // ── Load saved records from localStorage ──
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("prooftrip_records");
-      if (stored) setSavedRecords(JSON.parse(stored));
-    } catch { /* ignore */ }
-  }, []);
-
   // Tabs are unlocked once user selects a place or fills the form
   const hasActivePlan = Boolean(plannerCity !== null || customCommitTx !== null || savedRecords.length > 0);
 
@@ -1098,7 +1082,7 @@ export default function Home() {
         const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
         const updated = [rec, ...savedRecords].slice(0, 10);
         setSavedRecords(updated);
-        localStorage.setItem("prooftrip_records", JSON.stringify(updated));
+        sessionStorage.setItem("prooftrip_records", JSON.stringify(updated));
       } catch (e: any) {
         setCommitError(e.message || "Transaction failed");
       } finally {
@@ -1145,7 +1129,7 @@ export default function Home() {
       const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
       const updated = [rec, ...savedRecords].slice(0, 10);
       setSavedRecords(updated);
-      localStorage.setItem("prooftrip_records", JSON.stringify(updated));
+      sessionStorage.setItem("prooftrip_records", JSON.stringify(updated));
     } catch (e: any) {
       try {
         const itineraryText = `${selectedDest.tripTitle} | ${selectedDest.name} | ${selectedDest.duration} | stops:${selectedDest.stops.map(s => s.name).join(",")}`;
@@ -1160,7 +1144,7 @@ export default function Home() {
         };
         const updated = [rec, ...savedRecords].slice(0, 10);
         setSavedRecords(updated);
-        localStorage.setItem("prooftrip_records", JSON.stringify(updated));
+        sessionStorage.setItem("prooftrip_records", JSON.stringify(updated));
         setCommitError("");
       } catch {
         setCommitError("Verification error: " + (e.message || String(e)));
@@ -1333,30 +1317,6 @@ export default function Home() {
               <Globe size={13} color="var(--yellow)" />
               <span>{SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || "English"}</span>
             </button>
-
-            {/* Quick Remote & Gmail Dispatch Buttons when Active Plan exists */}
-            {hasActivePlan && (
-              <>
-                <button
-                  className="nav-lang-btn"
-                  onClick={() => setIsOfflineModalOpen(true)}
-                  title="Download offline remote pass (zero internet required)"
-                  style={{ borderColor: "rgba(88, 166, 255, 0.4)", background: "rgba(31, 111, 235, 0.12)" }}
-                >
-                  <WifiOff size={13} color="#58A6FF" />
-                  <span style={{ color: "#FFF" }}>Offline Pass</span>
-                </button>
-                <button
-                  className="nav-lang-btn"
-                  onClick={() => setIsEmailModalOpen(true)}
-                  title="Send itinerary to Gmail"
-                  style={{ borderColor: "rgba(234, 67, 53, 0.4)", background: "rgba(234, 67, 53, 0.12)" }}
-                >
-                  <Mail size={13} color="#FF7B72" />
-                  <span style={{ color: "#FFF" }}>Send to Gmail</span>
-                </button>
-              </>
-            )}
 
             {travelerType === "indian" ? (
               <button
@@ -2248,6 +2208,11 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* ── Experience Rating Card (img 4) ── */}
+                    <div style={{ display: "flex", justifyContent: "center", margin: "28px 0 16px 0" }}>
+                      <ExperienceRatingWidget showDismiss={false} />
+                    </div>
+
                     <div className="wizard-footer-nav">
                       <button
                         className="btn-dark"
@@ -2289,14 +2254,7 @@ export default function Home() {
                   </div>
 
                   {/* Top Bar with Mode Switcher */}
-                  <div className="earth-top-bar">
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div className="customizer-verified-badge" style={{ background: "rgba(10,14,22,0.85)", backdropFilter: "blur(12px)", border: "1px solid rgba(248,208,87,0.35)", padding: "8px 16px" }}>
-                        <Compass size={14} color="var(--yellow)" />
-                        <span style={{ color: "#FFF", fontWeight: 700 }}>Google Earth 3D Planetary Explorer</span>
-                      </div>
-                    </div>
-
+                  <div className="earth-top-bar" style={{ justifyContent: "flex-end" }}>
                     <div className="view-mode-toggle">
                       <button
                         className="view-toggle-btn active"
@@ -2984,6 +2942,11 @@ export default function Home() {
         </div>
         <div>© 2026 Touristमत्रम्. All rights reserved.</div>
       </footer>
+
+      {/* Floating Experience Rating Card (img 4) */}
+      <div className="floating-experience-rating">
+        <ExperienceRatingWidget />
+      </div>
 
       {/* Traveler Persona & Official Visa Advisor Modal */}
       <TravelerPersonaModal
