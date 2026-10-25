@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="10" y1="10" x2="70" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFE779" />
+      <stop offset="100%" stop-color="#F8D057" />
+    </linearGradient>
+    <linearGradient id="solanaRing" x1="0" y1="80" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9945FF" />
+      <stop offset="50%" stop-color="#14F195" />
+      <stop offset="100%" stop-color="#00C2FF" />
+    </linearGradient>
+    <filter id="shieldGlow">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Outer Ring -->
+  <circle cx="40" cy="40" r="36" stroke="url(#solanaRing)" stroke-width="2" stroke-dasharray="4 3" opacity="0.8" />
+  
+  <!-- Hex Shield Background -->
+  <path d="M40 16 L62 26 V44 C62 57 52.5 67 40 71 C27.5 67 18 57 18 44 V26 L40 16 Z" 
+        fill="#181920" stroke="url(#shieldGrad)" stroke-width="2" />
+
+  <!-- Inner Checkmark with glow -->
+  <path d="M30 42 L37 49 L51 33" 
+        stroke="#14F195" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#shieldGlow)" />
+</svg>

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="ticketBg" x1="0" y1="0" x2="600" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#191B22" />
+      <stop offset="60%" stop-color="#121318" />
+      <stop offset="100%" stop-color="#0B0C10" />
+    </linearGradient>
+
+    <!-- Solana Gradient -->
+    <linearGradient id="tktSolana" x1="0" y1="0" x2="600" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9945FF" />
+      <stop offset="50%" stop-color="#14F195" />
+      <stop offset="100%" stop-color="#00C2FF" />
+    </linearGradient>
+
+    <!-- Gold Gradient -->
+    <linearGradient id="tktGold" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFE779" />
+      <stop offset="100%" stop-color="#F8D057" />
+    </linearGradient>
+
+    <filter id="neonGlow">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Pass Card Base with Border -->
+  <rect x="10" y="10" width="580" height="300" rx="20" fill="url(#ticketBg)" stroke="#2B2D38" stroke-width="1.5" />
+  <rect x="10" y="10" width="580" height="300" rx="20" fill="none" stroke="url(#tktSolana)" stroke-width="1.5" stroke-opacity="0.4" />
+
+  <!-- Top Accent Bar -->
+  <path d="M10 30 C10 18.954 18.954 10 30 10 L570 10 C581.046 10 590 18.954 590 30 V34 H10 Z" fill="url(#tktSolana)" />
+
+  <!-- Left Main Ticket Area -->
+  <g transform="translate(36, 45)">
+    <!-- Brand Header -->
+    <text x="0" y="24" font-family="'DM Sans', sans-serif" font-size="22" font-weight="900" fill="#FFFFFF" letter-spacing="-0.02em">
+      Proof<tspan fill="#F8D057">Trip</tspan>
+    </text>
+    <text x="110" y="23" font-family="'DM Sans', sans-serif" font-size="10" font-weight="700" fill="#14F195" letter-spacing="0.1em">
+      ● ON-CHAIN VERIFIED
+    </text>
+
+    <!-- Route / Destination Display -->
+    <g transform="translate(0, 48)">
+      <text x="0" y="14" font-family="'DM Sans', sans-serif" font-size="11" font-weight="600" fill="#7A7A7A" letter-spacing="0.1em">
+        DESTINATION / ITINERARY
+      </text>
+      <text x="0" y="44" font-family="'DM Sans', sans-serif" font-size="28" font-weight="800" fill="#FFFFFF">
+        MYSURU <tspan fill="#F8D057" font-weight="400">·</tspan> INDIA
+      </text>
+      <text x="0" y="65" font-family="'DM Sans', sans-serif" font-size="12" font-weight="500" fill="#A3A3A3">
+        Royal Heritage, Chamundi Hill &amp; Silk Route
+      </text>
+    </g>
+
+    <!-- Metadata Grid -->
+    <g transform="translate(0, 142)">
+      <!-- Col 1 -->
+      <text x="0" y="12" font-family="'DM Sans', sans-serif" font-size="10" font-weight="600" fill="#7A7A7A">AGENT ASSET ID</text>
+      <text x="0" y="28" font-family="monospace" font-size="12" font-weight="700" fill="#F8D057">1DRE...b2807</text>
+
+      <!-- Col 2 -->
+      <text x="130" y="12" font-family="'DM Sans', sans-serif" font-size="10" font-weight="600" fill="#7A7A7A">PROGRAM</text>
+      <text x="130" y="28" font-family="monospace" font-size="12" font-weight="700" fill="#FFFFFF">A7yU...VSzN</text>
+
+      <!-- Col 3 -->
+      <text x="240" y="12" font-family="'DM Sans', sans-serif" font-size="10" font-weight="600" fill="#7A7A7A">STATUS</text>
+      <text x="240" y="28" font-family="'DM Sans', sans-serif" font-size="12" font-weight="800" fill="#14F195">COMMITTED</text>
+    </g>
+
+    <!-- Cryptographic Hash Strip -->
+    <g transform="translate(0, 204)">
+      <rect x="0" y="0" width="340" height="30" rx="6" fill="#121319" stroke="#262833" stroke-width="1" />
+      <text x="10" y="19" font-family="monospace" font-size="10.5" fill="#7A7A7A">
+        SHA256: <tspan fill="#14F195">e3b0c44298fc1c149afbf4c8996fb92427ae41e4...</tspan>
+      </text>
+    </g>
+  </g>
+
+  <!-- Dashed Tear Line / Perforation -->
+  <line x1="420" y1="20" x2="420" y2="300" stroke="#333745" stroke-width="2" stroke-dasharray="6 6" />
+  <!-- Cutout notches -->
+  <circle cx="420" cy="10" r="10" fill="#111111" />
+  <circle cx="420" cy="310" r="10" fill="#111111" />
+
+  <!-- Right Ticket Stub -->
+  <g transform="translate(442, 50)">
+    <!-- QR Code Mockup -->
+    <rect x="14" y="10" width="100" height="100" rx="10" fill="#FFFFFF" />
+    <!-- QR Corner squares -->
+    <rect x="22" y="18" width="28" height="28" fill="#111111" rx="4" />
+    <rect x="26" y="22" width="20" height="20" fill="#FFFFFF" rx="2" />
+    <rect x="30" y="26" width="12" height="12" fill="#111111" rx="1" />
+
+    <rect x="78" y="18" width="28" height="28" fill="#111111" rx="4" />
+    <rect x="82" y="22" width="20" height="20" fill="#FFFFFF" rx="2" />
+    <rect x="86" y="26" width="12" height="12" fill="#111111" rx="1" />
+
+    <rect x="22" y="74" width="28" height="28" fill="#111111" rx="4" />
+    <rect x="26" y="78" width="20" height="20" fill="#FFFFFF" rx="2" />
+    <rect x="30" y="82" width="12" height="12" fill="#111111" rx="1" />
+
+    <!-- QR Data Matrix bits -->
+    <rect x="58" y="22" width="8" height="8" fill="#111" />
+    <rect x="58" y="38" width="8" height="16" fill="#111" />
+    <rect x="74" y="58" width="16" height="8" fill="#111" />
+    <rect x="66" y="74" width="8" height="8" fill="#111" />
+    <rect x="90" y="74" width="16" height="8" fill="#111" />
+    <rect x="78" y="90" width="8" height="12" fill="#111" />
+    <rect x="58" y="94" width="10" height="8" fill="#111" />
+
+    <!-- Stamp Text -->
+    <text x="64" y="140" text-anchor="middle" font-family="'DM Sans', sans-serif" font-size="11" font-weight="800" fill="#FFFFFF">
+      DEVNET PASS
+    </text>
+    <text x="64" y="156" text-anchor="middle" font-family="'DM Sans', sans-serif" font-size="9" font-weight="600" fill="#F8D057">
+      IMMUTABLE RECORD
+    </text>
+
+    <!-- Solana Mini Logo -->
+    <g transform="translate(36, 175) scale(0.7)">
+      <path d="M4.5 1.5 L18 1.5 L14.5 5 L1 5 Z" fill="url(#tktSolana)" />
+      <path d="M1 8 L14.5 8 L18 11.5 L4.5 11.5 Z" fill="url(#tktSolana)" />
+      <path d="M4.5 14.5 L18 14.5 L14.5 18 L1 18 Z" fill="url(#tktSolana)" />
+    </g>
+    <text x="64" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#7A7A7A">
+      #DEV-7701
+    </text>
+  </g>
+</svg>

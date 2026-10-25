@@ -17,6 +17,19 @@ const WalletMultiButton = dynamic(
     ),
   }
 );
+
+// Client-only dynamic import of 3D Google Earth Globe
+const EarthGlobe = dynamic(() => import("../components/EarthGlobe"), {
+  ssr: false,
+  loading: () => (
+    <div className="earth-loading-state">
+      <Loader2 className="animate-spin" size={36} color="var(--yellow)" />
+      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)", marginTop: 12 }}>
+        Initializing Google Earth 3D Planetary Viewport...
+      </div>
+    </div>
+  ),
+});
 import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
 import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { tourismIdl } from "../lib/tourism-idl";
@@ -559,6 +572,33 @@ export default function Home() {
   const [customCommitTx, setCustomCommitTx] = useState<string | null>(null);
   const [customCommitLoading, setCustomCommitLoading] = useState(false);
   const [customCommitError, setCustomCommitError] = useState("");
+
+  // ── Google Earth 3D Exploration & Locator State ──
+  const [viewMode, setViewMode] = useState<"earth" | "cards">("earth");
+  const [locatingCity, setLocatingCity] = useState<string | null>(null);
+
+  const handleInitiateSelection = (cityName: string, fallbackHero?: string) => {
+    const clean = cityName.trim();
+    if (!clean) return;
+    if (viewMode === "earth") {
+      const earthEl = document.getElementById("earth-viewport-section");
+      if (earthEl && window.scrollY > 200) {
+        earthEl.scrollIntoView({ behavior: "smooth" });
+      }
+      setLocatingCity(clean);
+    } else {
+      setLocatingCity(clean);
+      setViewMode("earth");
+    }
+  };
+
+  const handleFlyComplete = () => {
+    if (locatingCity) {
+      const city = locatingCity;
+      setLocatingCity(null);
+      handleSelectDestination(city);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -2000,53 +2040,175 @@ export default function Home() {
             /* DISCOVERY CATALOG (Select any city to customize)          */
             /* ══════════════════════════════════════════════════════════ */
             <>
-              {/* Hero */}
-              <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
-                <div
-                  className="hero-bg"
-                  style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
-                />
-                <div className="hero-gradient" />
-                <div className="hero-content">
-                  <div className="hero-eyebrow">
-                    <Sparkles size={13} />
-                    <span>Verified Travel Concierge · Guaranteed Price Integrity</span>
+              {/* Google Earth 3D Planetary Explorer or Classic Cards View */}
+              {viewMode === "earth" ? (
+                <section id="earth-viewport-section" className="earth-hero-dome" style={{ paddingTop: "var(--nav-h)" }}>
+                  {/* WebGL 3D Interactive Earth Canvas */}
+                  <div className="earth-viewport-container">
+                    <EarthGlobe
+                      locatingCity={locatingCity}
+                      onSelectCity={(city) => handleInitiateSelection(city)}
+                      onFlyComplete={handleFlyComplete}
+                    />
                   </div>
-                  <h1 className="hero-title">
-                    Discover Your<br />
-                    <span>Next</span> Journey
-                  </h1>
-                  <p className="hero-sub">
-                    Explore curated destinations, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
-                  </p>
-                  <div className="hero-actions">
-                    <div className="hero-search">
-                      <Search size={16} color="#7A7A7A" />
+
+                  {/* Top Bar with Mode Switcher */}
+                  <div className="earth-top-bar">
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div className="customizer-verified-badge" style={{ background: "rgba(10,14,22,0.85)", backdropFilter: "blur(12px)", border: "1px solid rgba(248,208,87,0.35)", padding: "8px 16px" }}>
+                        <Compass size={14} color="var(--yellow)" />
+                        <span style={{ color: "#FFF", fontWeight: 700 }}>Google Earth 3D Planetary Explorer</span>
+                      </div>
+                    </div>
+
+                    <div className="view-mode-toggle">
+                      <button
+                        className="view-toggle-btn active"
+                        onClick={() => setViewMode("earth")}
+                      >
+                        <Globe size={14} />
+                        <span>3D Earth</span>
+                      </button>
+                      <button
+                        className="view-toggle-btn"
+                        onClick={() => setViewMode("cards")}
+                      >
+                        <Sparkles size={14} />
+                        <span>Curated Cards</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Floating Search & Location Console */}
+                  <div className="earth-floating-console">
+                    <div className="earth-console-eyebrow">
+                      <Sparkles size={12} />
+                      <span>Touristमत्रम् Live Planetary Navigation</span>
+                    </div>
+                    <h1 className="earth-console-title">
+                      Where would you like to explore next?
+                    </h1>
+
+                    <div className="earth-search-row">
+                      <Search size={18} color="var(--yellow)" />
                       <input
-                        placeholder="Search any destination — Paris, Mysuru, Tokyo, Dubai..."
+                        className="earth-search-input"
+                        placeholder="Type any city — Paris, Mysuru, Tokyo, Dubai, Rome, Bali, Switzerland..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={e => {
                           if (e.key === "Enter") {
                             const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                            handleSelectDestination(query);
+                            handleInitiateSelection(query);
                           }
                         }}
                       />
+                      <button
+                        className="btn-locate-earth"
+                        onClick={() => {
+                          const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                          handleInitiateSelection(query);
+                        }}
+                      >
+                        <Compass size={15} />
+                        <span>Locate & Fly 🛰️</span>
+                      </button>
                     </div>
-                    <button
-                      className="btn-hero-yellow"
-                      onClick={() => {
-                        const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                        handleSelectDestination(query);
-                      }}
-                    >
-                      <span>Explore the World</span>
-                      <ArrowRight size={16} />
-                    </button>
+
+                    {/* Quick-Pick Orbital City Chips */}
+                    <div className="earth-quick-chips">
+                      {[
+                        { name: "Mysuru", flag: "🇮🇳" },
+                        { name: "Jaipur", flag: "🇮🇳" },
+                        { name: "Paris", flag: "🇫🇷" },
+                        { name: "Tokyo", flag: "🇯🇵" },
+                        { name: "Dubai", flag: "🇦🇪" },
+                        { name: "Goa", flag: "🇮🇳" },
+                        { name: "Switzerland", flag: "🇨🇭" },
+                        { name: "Bali", flag: "🇮🇩" },
+                        { name: "Rome", flag: "🇮🇹" },
+                        { name: "Varanasi", flag: "🇮🇳" },
+                        { name: "Maldives", flag: "🇲🇻" },
+                      ].map(chip => (
+                        <button
+                          key={chip.name}
+                          className="earth-quick-chip"
+                          onClick={() => handleInitiateSelection(chip.name)}
+                        >
+                          <span>{chip.flag}</span>
+                          <span>{chip.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              ) : (
+                /* Classic Photo Hero when in Cards view */
+                <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
+                  <div
+                    className="hero-bg"
+                    style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
+                  />
+                  <div className="hero-gradient" />
+                  <div className="hero-content">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                      <div className="hero-eyebrow" style={{ margin: 0 }}>
+                        <Sparkles size={13} />
+                        <span>Verified Travel Concierge · Guaranteed Price Integrity</span>
+                      </div>
+                      <div className="view-mode-toggle">
+                        <button
+                          className="view-toggle-btn"
+                          onClick={() => setViewMode("earth")}
+                        >
+                          <Globe size={14} />
+                          <span>3D Earth</span>
+                        </button>
+                        <button
+                          className="view-toggle-btn active"
+                          onClick={() => setViewMode("cards")}
+                        >
+                          <Sparkles size={14} />
+                          <span>Curated Cards</span>
+                        </button>
+                      </div>
+                    </div>
+                    <h1 className="hero-title">
+                      Discover Your<br />
+                      <span>Next</span> Journey
+                    </h1>
+                    <p className="hero-sub">
+                      Explore curated destinations, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
+                    </p>
+                    <div className="hero-actions">
+                      <div className="hero-search">
+                        <Search size={16} color="#7A7A7A" />
+                        <input
+                          placeholder="Search any destination — Paris, Mysuru, Tokyo, Dubai..."
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                              handleInitiateSelection(query);
+                            }
+                          }}
+                        />
+                      </div>
+                      <button
+                        className="btn-hero-yellow"
+                        onClick={() => {
+                          const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                          handleInitiateSelection(query);
+                        }}
+                      >
+                        <span>Explore the World</span>
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
 
               {/* Destination cards */}
               <div className="page-section">
@@ -2055,7 +2217,7 @@ export default function Home() {
                     <div className="section-label">✦ Curated Destinations</div>
                     <h2 className="section-title">Choose Your City to Customize</h2>
                     <p className="section-sub">
-                      Click any city below to open the interactive trip customizer with live currency exchange, public transit passes, and verifiable travel agreements.
+                      Click any city below to locate it on the 3D globe and open the interactive trip customizer with live currency exchange, public transit passes, and verifiable travel agreements.
                     </p>
                   </div>
                   <div className="filter-pills">
@@ -2074,7 +2236,7 @@ export default function Home() {
                     <div
                       key={dest.id}
                       className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
-                      onClick={() => handleSelectDestination(dest.name, dest.heroImg)}
+                      onClick={() => handleInitiateSelection(dest.name, dest.heroImg)}
                     >
                       <div className="dest-card-photo">
                         <img
