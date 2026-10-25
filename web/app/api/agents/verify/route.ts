@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 // Official Metaplex Agent Registry program ID (Devnet & Mainnet)
-export const MPL_AGENT_REGISTRY_PROGRAM = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
+const MPL_AGENT_REGISTRY_PROGRAM = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 
-export function deriveIdentityPda(assetPublicKey: PublicKey): [PublicKey, number] {
+function deriveIdentityPda(assetPublicKey: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [Buffer.from("agent_identity", "utf-8"), assetPublicKey.toBuffer()],
     new PublicKey(MPL_AGENT_REGISTRY_PROGRAM)
