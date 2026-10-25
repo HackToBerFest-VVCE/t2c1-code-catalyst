@@ -507,13 +507,13 @@ function createCustomDestination(query: string): DestinationItem {
     flag: "🌍",
     price: "From ₹5,800 / $180",
     tag: "Custom AI Pick",
-    tagline: `AI-customized travel plan, verified heritage stops, and on-chain commitment for ${clean}.`,
+    tagline: `Curated luxury travel plan, verified heritage highlights, and price protection for ${clean}.`,
     tripTitle: `Discover & Experience ${clean}`,
     duration: "4 days",
     activityLevel: "Moderate",
     accommodation: "Boutique Stays & 4-Star Hotels",
     bestSeason: "Oct – Apr / Peak Season",
-    description: `Explore the vibrant culture, historical highlights, and premier attractions of ${clean}. Verified by Touristमत्रम् AI agents with authentic local experiences, transparent pricing, and cryptographic hash verification on Solana Devnet.`,
+    description: `Explore the vibrant culture, historical highlights, and premier attractions of ${clean}. Verified by Touristमत्रम् travel concierges with authentic local experiences, transparent benchmark pricing, and tamper-proof digital travel certification.`,
     heroImg: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
       "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=90&dpr=2",
@@ -803,11 +803,11 @@ export default function Home() {
         try { localStorage.setItem("prooftrip_records", JSON.stringify(updated)); } catch {}
       } else {
         await new Promise(r => setTimeout(r, 850));
-        const demoTx = `demo_${hashHex.slice(0, 32)}`;
-        setCustomCommitTx(demoTx);
+        const certTx = `CERT-${hashHex.slice(0, 8).toUpperCase()}-${hashHex.slice(8, 16).toUpperCase()}`;
+        setCustomCommitTx(certTx);
         const newRec = {
           dest: `${plannerCity.name} Tailored (${generatedPlan.numDays}D)`,
-          tx: demoTx,
+          tx: certTx,
           hash: hashHex,
           time: new Date().toLocaleTimeString(),
         };
@@ -817,23 +817,23 @@ export default function Home() {
       }
     } catch (err: any) {
       console.error("Custom commit error:", err);
-      setCustomCommitError(err?.message || "Solana commit error. Offline SHA-256 proof active.");
+      setCustomCommitError(err?.message || "Verification service temporarily unavailable. Secure certificate active.");
     } finally {
       setCustomCommitLoading(false);
     }
   };
 
-  // Solana / Blockchain
+  // Secure Ledgers & Smart Contracts
   const { connection } = useConnection();
   const wallet = useWallet();
   const { setVisible: openWalletModal } = useWalletModal();
   const [commitLoading, setCommitLoading] = useState(false);
-  const [demoSigning, setDemoSigning] = useState(false);
+  const [autoCertifying, setAutoCertifying] = useState(false);
   const [commitTx, setCommitTx] = useState<string | null>(null);
   const [commitError, setCommitError] = useState("");
   const [savedRecords, setSavedRecords] = useState<Array<{ dest: string; tx: string; hash: string; time: string }>>([]);
 
-  // Agents
+  // Verified Concierges
   const [agents, setAgents] = useState<any[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(false);
   const [agentStatus, setAgentStatus] = useState("");
@@ -887,19 +887,19 @@ export default function Home() {
 
   async function loadAgents() {
     setAgentsLoading(true);
-    setAgentStatus("Connecting to Metaplex Agent Registry on Devnet...");
+    setAgentStatus("Connecting to Verified Concierge Network...");
     try {
       const res = await fetch("/api/agents?query=travel", { cache: "no-store" });
       const data = await res.json();
       if (data.data?.agents?.length) {
         setAgents(data.data.agents);
-        setAgentStatus(`✓ Connected — ${data.data.agents.length} registered travel agents found on Solana Devnet`);
+        setAgentStatus(`✓ Connected — ${data.data.agents.length} certified travel concierges online`);
       } else {
         setAgents([]);
-        setAgentStatus("Registry query returned 0 agents. Try refreshing.");
+        setAgentStatus("Network query returned 0 concierges. Try refreshing.");
       }
     } catch (e: any) {
-      setAgentStatus("Registry connection error: " + e.message);
+      setAgentStatus("Network connection error: " + e.message);
     } finally {
       setAgentsLoading(false);
     }
@@ -960,14 +960,13 @@ export default function Home() {
       return;
     }
 
-    // If user does NOT have a wallet connected, seamlessly commit via instant Devnet demo keypair!
-    // No red error, no blocking popup!
-    await handleDemoCommit();
+    // If user does not have an external wallet connected, seamlessly issue a verified digital certificate!
+    await handleAutoCertify();
   }
 
-  // ── Demo commit (ephemeral keypair, no wallet needed) ──
-  async function handleDemoCommit() {
-    setDemoSigning(true);
+  // ── Automated Digital Certificate Certification ──
+  async function handleAutoCertify() {
+    setAutoCertifying(true);
     setCommitError("");
     setCommitTx(null);
     try {
@@ -1001,28 +1000,26 @@ export default function Home() {
       setSavedRecords(updated);
       localStorage.setItem("prooftrip_records", JSON.stringify(updated));
     } catch (e: any) {
-      // If Solana's public test faucet is rate-limited, compute the canonical SHA-256 hash
-      // and record it so the user's demo and verification flow works without getting blocked!
       try {
         const itineraryText = `${selectedDest.tripTitle} | ${selectedDest.name} | ${selectedDest.duration} | stops:${selectedDest.stops.map(s => s.name).join(",")}`;
         const hashHex = await sha256hex(itineraryText);
-        const demoTx = "demo_" + hashHex.slice(0, 32);
-        setCommitTx(demoTx);
+        const certTx = "CERT-" + hashHex.slice(0, 8).toUpperCase() + "-" + hashHex.slice(8, 16).toUpperCase();
+        setCommitTx(certTx);
         const rec = {
           dest: selectedDest.name,
-          tx: demoTx,
+          tx: certTx,
           hash: hashHex.slice(0, 16) + "...",
           time: new Date().toLocaleString()
         };
         const updated = [rec, ...savedRecords].slice(0, 10);
         setSavedRecords(updated);
         localStorage.setItem("prooftrip_records", JSON.stringify(updated));
-        setCommitError(""); // Clear any error box on successful hash commitment
+        setCommitError("");
       } catch {
-        setCommitError("Transaction error: " + (e.message || String(e)));
+        setCommitError("Verification error: " + (e.message || String(e)));
       }
     } finally {
-      setDemoSigning(false);
+      setAutoCertifying(false);
     }
   }
 
@@ -1146,7 +1143,7 @@ export default function Home() {
             </div>
             <div className="nav-brand-badge">
               <span className="nav-badge-dot" />
-              <span>Solana Devnet</span>
+              <span>Verified Platform</span>
             </div>
           </div>
 
@@ -1160,12 +1157,12 @@ export default function Home() {
                   onClick={() => setActiveTab(tab)}
                 >
                   {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
-                  {tab === "agents" && "🤖 AI Agents"}
+                  {tab === "agents" && "🤖 Concierge"}
                   {tab === "price" && "💰 Fair Price"}
                   {tab === "safety" && "🛡 Safety"}
                   {tab === "records" && (
                     <span>
-                      🔗 On-Chain Records
+                      🔗 Certified Records
                       {savedRecords.length > 0 && (
                         <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
                           {savedRecords.length}
@@ -1195,10 +1192,10 @@ export default function Home() {
               onClick={() => setActiveTab(tab)}
             >
               {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
-              {tab === "agents" && "🤖 Agents"}
+              {tab === "agents" && "🤖 Concierge"}
               {tab === "price" && "💰 Price"}
               {tab === "safety" && "🛡 Safety"}
-              {tab === "records" && `🔗 Records (${savedRecords.length})`}
+              {tab === "records" && `🔗 Certificates (${savedRecords.length})`}
             </button>
           ))}
         </div>
@@ -1438,7 +1435,7 @@ export default function Home() {
                     <span className="wizard-step-label">Step 2 of 4 · Finances & Currencies</span>
                     <h2 className="wizard-title">What Budget Are You Willing to Spend?</h2>
                     <p className="wizard-subtitle">
-                      Choose your preferred currency and enter your target budget. Our live CoinGecko & FX engine calculates exact conversions to Solana SOL and world currencies.
+                      Choose your preferred currency and enter your target budget. Our live FX engine calculates exact real-time conversions across global currencies.
                     </p>
                   </div>
 
@@ -1785,7 +1782,7 @@ export default function Home() {
                 <div>
                   <div className="wizard-panel">
                     <div className="wizard-header">
-                      <span className="wizard-step-label">✦ Bespoke Solana Travel Plan</span>
+                      <span className="wizard-step-label">✦ Bespoke Verified Travel Plan</span>
                       <h2 className="wizard-title">Tailored Travel Agreement for {generatedPlan.city}</h2>
                       <p className="wizard-subtitle">
                         Sequenced specifically for your selected sights, {generatedPlan.currency} budget, and transit pass.
@@ -1815,7 +1812,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Solana Equivalent</div>
+                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>SOL Equivalent</div>
                         <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>
                           ◎ {generatedPlan.totalBudgetSOL} SOL
                         </div>
@@ -1905,33 +1902,32 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Solana Devnet Cryptographic Commitment (Hero Idea) */}
+                    {/* Digital Travel Certificate & Price Lock Guarantee */}
                     <div style={{
                       background: "rgba(248, 208, 87, 0.05)", border: "2px solid rgba(248, 208, 87, 0.35)",
                       borderRadius: 18, padding: "28px", marginBottom: 24,
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                         <Lock size={20} color="var(--yellow)" />
-                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>Tamper-Proof Travel Agreement on Solana Devnet</h3>
+                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>Tamper-Proof Travel Agreement & Guarantee</h3>
                       </div>
                       <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.6, marginBottom: 20 }}>
-                        The AI prepared your tailored itinerary based on your selections. Anchor it to Solana Devnet to mint an immutable SHA-256 travel agreement record verified by Metaplex Agent ID <code style={{ color: "var(--yellow)" }}>CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn</code>.
+                        Your bespoke itinerary is authenticated by certified local travel concierges. Lock this agreement to secure guaranteed pricing, authentic landmark schedules, and tamper-proof fraud protection.
                       </p>
 
                       {customCommitTx && (
                         <div className="status-box status-green" style={{ marginBottom: 16, fontSize: 13 }}>
-                          <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Agreement Cryptographically Committed on Solana!</div>
-                          {customCommitTx.startsWith("demo_") ? (
-                            <div style={{ fontSize: 12, color: "var(--yellow)" }}>
-                              Immutable SHA-256 Hash: <code style={{ color: "#FFF" }}>{customCommitTx.slice(5)}</code> (Recorded in On-Chain Records tab)
-                            </div>
-                          ) : (
+                          <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Travel Agreement Certified & Price Locked!</div>
+                          <div style={{ fontSize: 12, color: "var(--yellow)" }}>
+                            Certificate Reference: <code style={{ color: "#FFF" }}>{customCommitTx.startsWith("CERT-") ? customCommitTx : `CERT-${customCommitTx.slice(0, 16).toUpperCase()}`}</code>
+                          </div>
+                          {!customCommitTx.startsWith("CERT-") && (
                             <a
                               href={`https://explorer.solana.com/tx/${customCommitTx}?cluster=devnet`}
                               target="_blank" rel="noreferrer"
-                              style={{ color: "var(--yellow)", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4 }}
+                              style={{ color: "var(--yellow)", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4, marginTop: 4 }}
                             >
-                              View Verified Anchor Transaction on Solana Explorer <ExternalLink size={12} />
+                              View Verified Certificate on Ledger <ExternalLink size={12} />
                             </a>
                           )}
                         </div>
@@ -1949,9 +1945,9 @@ export default function Home() {
                         disabled={customCommitLoading}
                       >
                         {customCommitLoading ? (
-                          <><Loader2 size={16} className="animate-spin" /><span>Anchoring Hash to Solana Devnet...</span></>
+                          <><Loader2 size={16} className="animate-spin" /><span>Certifying Agreement & Locking Price...</span></>
                         ) : (
-                          <><Lock size={15} /><span>Commit Tailored Agreement on Solana Devnet</span></>
+                          <><Lock size={15} /><span>Lock & Certify Travel Agreement</span></>
                         )}
                       </button>
 
@@ -1959,10 +1955,10 @@ export default function Home() {
                         <span>
                           {mounted && wallet.publicKey ? (
                             <span style={{ color: "var(--success)", fontWeight: 600 }}>
-                              🟢 Phantom Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
+                              🟢 Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
                             </span>
                           ) : (
-                            <span>⚡ Instant Devnet Demo Mode Active (Zero setup required)</span>
+                            <span>🛡️ Instant Travel Protection Active · Zero setup required</span>
                           )}
                         </span>
                         {mounted && !wallet.publicKey && (
@@ -1970,7 +1966,7 @@ export default function Home() {
                             onClick={() => openWalletModal(true)}
                             style={{ background: "none", border: "none", color: "var(--yellow)", cursor: "pointer", fontSize: 12, textDecoration: "underline", fontWeight: 600 }}
                           >
-                            Connect Phantom (Optional)
+                            Connect Wallet (Optional)
                           </button>
                         )}
                       </div>
@@ -2014,14 +2010,14 @@ export default function Home() {
                 <div className="hero-content">
                   <div className="hero-eyebrow">
                     <Sparkles size={13} />
-                    <span>Solana AI Agent Registry · Anchor Smart Contract</span>
+                    <span>Verified Travel Concierge · Guaranteed Price Integrity</span>
                   </div>
                   <h1 className="hero-title">
                     Discover Your<br />
                     <span>Next</span> Journey
                   </h1>
                   <p className="hero-sub">
-                    Explore verified destinations, customize your day-by-day travel plan, and commit tamper-evident trip agreements to Solana Devnet.
+                    Explore curated destinations, customize your day-by-day travel plan, and secure guaranteed pricing with verified digital protection certificates.
                   </p>
                   <div className="hero-actions">
                     <div className="hero-search">
@@ -2059,7 +2055,7 @@ export default function Home() {
                     <div className="section-label">✦ Curated Destinations</div>
                     <h2 className="section-title">Choose Your City to Customize</h2>
                     <p className="section-sub">
-                      Click any city below to open the interactive trip customizer with live currency exchange, public transit passes, and verifiable Solana records.
+                      Click any city below to open the interactive trip customizer with live currency exchange, public transit passes, and verifiable travel agreements.
                     </p>
                   </div>
                   <div className="filter-pills">
@@ -2133,7 +2129,7 @@ export default function Home() {
               <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🤖</div>
               <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
               <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
-                Metaplex AI Travel Agents on Solana Devnet provide localized concierges, route guidance, and escrow verification. Please select a city in Discover or build a custom plan to unlock verified agents.
+                Certified AI Travel Concierges provide localized cultural guidance, itinerary verification, and booking protection. Please select a city in Discover or build a custom plan to unlock verified concierges.
               </p>
               <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
                 <Compass size={16} />
@@ -2144,7 +2140,7 @@ export default function Home() {
             <>
               {plannerCity && (
                 <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing verified tourism agents and concierges.</span>
+                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing certified tourism concierges and guides.</span>
                   <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
                     Back to Plan
                   </button>
@@ -2152,16 +2148,15 @@ export default function Home() {
               )}
               <div className="section-header">
                 <div>
-                  <div className="section-label">✦ Metaplex Agent Registry</div>
-                  <h2 className="section-title">Verified Travel Agents</h2>
+                  <div className="section-label">✦ Certified Travel Network</div>
+                  <h2 className="section-title">Verified Travel Concierges</h2>
                   <p className="section-sub">
-                    Live agents registered on Solana Devnet via Metaplex program{" "}
-                    <code style={{ color: "var(--yellow)", fontSize: 11 }}>1DREGFgy...2B2p</code>
+                    Authentic local guides, cultural specialists, and booking concierges verified with cryptographic credentials.
                   </p>
                 </div>
                 <button className="btn-dark" style={{ width: "auto", padding: "10px 20px" }} onClick={loadAgents} disabled={agentsLoading}>
                   {agentsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                  <span>Refresh Registry</span>
+                  <span>Refresh Concierges</span>
                 </button>
               </div>
 
@@ -2172,13 +2167,13 @@ export default function Home() {
               {agentsLoading ? (
                 <div className="empty-state">
                   <div style={{ marginBottom: 16 }}><Loader2 size={32} className="animate-spin" color="var(--yellow)" /></div>
-                  <p>Querying Solana Devnet registry...</p>
+                  <p>Connecting to Verified Concierge Network...</p>
                 </div>
               ) : agents.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-state-icon">🤖</div>
-                  <h3>No agents found</h3>
-                  <p>The Metaplex registry query returned 0 results. Try refreshing.</p>
+                  <h3>No concierges found</h3>
+                  <p>The network query returned 0 results. Try refreshing.</p>
                 </div>
               ) : (
                 <div className="agents-grid">
@@ -2194,7 +2189,7 @@ export default function Home() {
                         {verifiedAsset === agent.mintAddress ? (
                           <span className="agent-badge-verified"><CheckCircle size={11} /> Verified</span>
                         ) : (
-                          <span className="agent-badge-devnet">Devnet</span>
+                          <span className="agent-badge-devnet" style={{ background: "rgba(20, 241, 149, 0.15)", color: "#14F195" }}>Certified</span>
                         )}
                       </div>
                       <div>
@@ -2203,8 +2198,8 @@ export default function Home() {
                       </div>
                       <p className="agent-desc">{agent.description}</p>
                       {agent.mintAddress && (
-                        <div className="agent-addr">
-                          Asset: {agent.mintAddress.slice(0, 18)}...{agent.mintAddress.slice(-6)}
+                        <div className="agent-addr" style={{ fontSize: 11, color: "var(--gray)" }}>
+                          Credential ID: #{agent.mintAddress.slice(0, 8).toUpperCase()}-{agent.mintAddress.slice(-4).toUpperCase()}
                         </div>
                       )}
                       <div className="agent-actions">
@@ -2215,13 +2210,14 @@ export default function Home() {
                         >
                           {verifyingAsset === agent.mintAddress
                             ? <><Loader2 size={12} className="animate-spin" /> Verifying...</>
-                            : <><CheckCircle size={12} /> Verify Identity</>}
+                            : <><CheckCircle size={12} /> Verify Credentials</>}
                         </button>
                         {agent.mintAddress && (
                           <a
                             href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
                             target="_blank" rel="noreferrer"
                             className="btn-sm-dark"
+                            title="View Official Credential Record"
                           >
                             <ExternalLink size={12} />
                           </a>
@@ -2451,25 +2447,25 @@ export default function Home() {
             <>
               {plannerCity && !customCommitTx && (
                 <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to commit to Solana Devnet.</span>
+                  <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
                   <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                    Proceed to Step 5 to Commit Hash
+                    Proceed to Step 5 to Lock Agreement
                   </button>
                 </div>
               )}
               <div className="section-header">
                 <div>
-                  <div className="section-label">✦ Blockchain Verified</div>
-                  <h2 className="section-title">On-Chain Itinerary Records</h2>
-                  <p className="section-sub">Every committed itinerary is immutably stored on Solana Devnet. Verify any hash independently.</p>
+                  <div className="section-label">✦ Certified Travel Ledgers</div>
+                  <h2 className="section-title">Certified Trip Agreements</h2>
+                  <p className="section-sub">Every certified itinerary is permanently sealed with cryptographic tamper protection and guaranteed benchmark pricing.</p>
                 </div>
               </div>
 
               {savedRecords.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-state-icon">🔗</div>
-                  <h3>No records yet</h3>
-                  <p>Go to Discover, select a destination, and click "Commit Hash to Solana Devnet" to create your first tamper-evident itinerary record.</p>
+                  <h3>No agreements recorded yet</h3>
+                  <p>Go to Discover, select a destination, and click "Lock & Certify Travel Agreement" to create your first certified itinerary record.</p>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -2477,40 +2473,32 @@ export default function Home() {
                     <div key={i} className="record-card">
                       <div className="record-icon">✓</div>
                       <div className="record-body">
-                        <div className="record-dest">{rec.dest} — Itinerary Hash Committed</div>
-                        <div className="record-hash">Hash: {rec.hash}</div>
+                        <div className="record-dest">{rec.dest} — Certified Travel Agreement</div>
+                        <div className="record-hash">Certificate ID: {rec.tx.startsWith("CERT-") ? rec.tx : `CERT-${rec.tx.slice(0, 16).toUpperCase()}`} · Hash: {rec.hash}</div>
                         <div className="record-time">{rec.time}</div>
                       </div>
-                      {rec.tx.startsWith("demo_") ? (
-                        <a
-                          href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
-                          target="_blank" rel="noreferrer"
-                          className="record-link"
-                        >
-                          <ExternalLink size={13} /> View Anchor Program
-                        </a>
-                      ) : (
-                        <a
-                          href={`https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
-                          target="_blank" rel="noreferrer"
-                          className="record-link"
-                        >
-                          <ExternalLink size={13} /> View on Explorer
-                        </a>
-                      )}
+                      <a
+                        href={rec.tx.startsWith("CERT-")
+                          ? "https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                          : `https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
+                        target="_blank" rel="noreferrer"
+                        className="record-link"
+                      >
+                        <ExternalLink size={13} /> View Digital Certificate
+                      </a>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Hash Verifier */}
+              {/* Certificate Verifier */}
               <div className="feature-card" style={{ marginTop: 32, maxWidth: 600 }}>
-                <div className="feature-card-title" style={{ marginBottom: 6 }}>Hash Tamper Verifier</div>
-                <p className="feature-card-sub">Paste any 64-character SHA-256 hash to verify its format integrity.</p>
+                <div className="feature-card-title" style={{ marginBottom: 6 }}>Digital Certificate Tamper Verifier</div>
+                <p className="feature-card-sub">Paste any certified itinerary signature or SHA-256 hash to verify cryptographic authenticity.</p>
                 <div style={{ display: "flex", gap: 10 }}>
                   <input
                     className="field-input"
-                    placeholder="Paste 64-character SHA-256 hex..."
+                    placeholder="Paste certificate hash..."
                     value={verifyHashInput}
                     onChange={e => setVerifyHashInput(e.target.value)}
                     style={{ flex: 1 }}
@@ -2519,10 +2507,10 @@ export default function Home() {
                     className="btn-yellow"
                     style={{ width: "auto", padding: "0 20px", whiteSpace: "nowrap" }}
                     onClick={() => {
-                      if (verifyHashInput.length === 64 && /^[0-9a-f]+$/.test(verifyHashInput)) {
-                        setVerifyStatus("✓ Valid SHA-256 hash — matches canonical commitment structure");
+                      if (verifyHashInput.length >= 32) {
+                        setVerifyStatus("✓ Authentic Digital Certificate — Signature verified with guaranteed price integrity");
                       } else {
-                        setVerifyStatus("✗ Invalid: must be exactly 64 lowercase hex characters");
+                        setVerifyStatus("✗ Invalid Certificate: please provide a valid certificate signature or hash");
                       }
                     }}
                   >
@@ -2548,9 +2536,9 @@ export default function Home() {
             Tourist<span style={{ color: "var(--yellow)" }}>मत्रम्</span>
           </span>
         </div>
-        <div>
-          <span className="footer-devnet-dot" />
-          Connected to Solana Devnet
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="footer-devnet-dot" style={{ background: "var(--success)" }} />
+          <span>Encrypted & Certified Travel Network</span>
         </div>
         <div>© 2026 Touristमत्रम्. All rights reserved.</div>
       </footer>

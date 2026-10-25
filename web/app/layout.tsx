@@ -3,16 +3,16 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Touristमत्रम् — Tourism AI & Verified Travel on Solana",
+  title: "Touristमत्रम् — Curated Cultural Travel & Certified Price Protection",
   description:
-    "Touristमत्रम् — Discover verified travel agents on Solana, plan curated itineraries, and commit tamper-evident travel agreements on Devnet.",
+    "Touristमत्रम् — Discover verified travel concierges, plan bespoke cultural itineraries, and secure guaranteed pricing with tamper-proof digital travel certificates.",
   icons: {
     icon: "/logo.svg",
     apple: "/logo.svg",
   },
   openGraph: {
-    title: "Touristमत्रम् — Tourism AI on Solana",
-    description: "Discover verified travel agents on Solana and commit tamper-evident trip records on Devnet.",
+    title: "Touristमत्रम् — Curated Cultural Travel & Certified Price Protection",
+    description: "Discover verified travel concierges, plan bespoke cultural itineraries, and secure guaranteed pricing with tamper-proof digital travel certificates.",
     images: [{ url: "/images/hero-banner.jpg", width: 1200, height: 630 }],
   },
 };

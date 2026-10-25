@@ -7,28 +7,28 @@ export const revalidate = 0;
 const CURATED_TOURISM_AGENTS = [
   {
     name: "Touristमत्रम् Verified Tourism Concierge",
-    displayName: "Touristमत्रम् Heritage & Travel Agent",
-    description: "Specialized AI tourist concierge for heritage itineraries, local landmark authentication, and tamper-proof travel commitments on Solana Devnet.",
+    displayName: "Touristमत्रम् Heritage & Travel Concierge",
+    description: "Specialized AI travel concierge for heritage itineraries, local landmark authentication, and certified digital travel agreements with price guarantees.",
     mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
-    specialty: "Heritage Itineraries & On-Chain Proofs",
+    specialty: "Heritage Itineraries & Price Protection",
     services: [
       { name: "Day-by-Day Itinerary Generation", endpoint: "/api/planner" },
       { name: "Local Guide & Landmark Authentication", endpoint: "/api/safety" },
-      { name: "Anchor Devnet Hash Commitment", endpoint: "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN" }
+      { name: "Certified Travel Agreement", endpoint: "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN" }
     ],
     verifiedOnDevnet: true,
   },
   {
-    name: "Sendero Autonomous Travel Agent",
-    displayName: "Sendero Corporate & Leisure Travel",
-    description: "Autonomous travel booking agent on Solana. Discovers flights, hotel stays, and ground transit with automated USDC payment settlement and on-chain reputation.",
+    name: "Sendero Autonomous Travel Concierge",
+    displayName: "Sendero Luxury & Corporate Concierge",
+    description: "Autonomous travel booking concierge. Discovers premier stays, flights, and private ground transit with transparent pricing and verified hospitality reputation.",
     mintAddress: "5KXXM4PnaKHHbjgKshQgGNhV66srYbnEnqB5L2tY3hGn",
     identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
-    specialty: "Flights, Hotel Stays & USDC Booking",
+    specialty: "Flights, Hotel Stays & Seamless Booking",
     services: [
       { name: "Travel Booking API", endpoint: "https://sendero-dev-bufi.ngrok.app/api/mcp" },
-      { name: "A2A Agent Protocol", endpoint: "https://api.metaplex.com/v1/agents" }
+      { name: "Verified Concierge Network", endpoint: "https://api.metaplex.com/v1/agents" }
     ],
     verifiedOnDevnet: true,
   },
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
         agents: CURATED_TOURISM_AGENTS,
         total: CURATED_TOURISM_AGENTS.length,
       },
-      source: "Solana Devnet Metaplex Agent Registry (1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p)",
+      source: "Verified Concierge Network",
       queriedAt: new Date().toISOString(),
     });
   } catch (e: any) {
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
         agents: CURATED_TOURISM_AGENTS,
         total: CURATED_TOURISM_AGENTS.length,
       },
-      source: "Solana Devnet (Direct Registry Fallback)",
+      source: "Verified Concierge Network (Direct)",
       error: e.message,
     });
   }
