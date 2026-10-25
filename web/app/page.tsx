@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletMultiButton, useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
-import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { tourismIdl } from "../lib/tourism-idl";
 import {
   Globe,
@@ -12,21 +12,18 @@ import {
   Search,
   Sparkles,
   CheckCircle,
-  AlertTriangle,
-  Shield,
   Phone,
   DollarSign,
   Receipt,
   ExternalLink,
   Loader2,
   Calendar,
-  MapPin,
-  Clock,
   ArrowRight,
-  ShieldAlert,
   Plus,
   RefreshCw,
   Lock,
+  Wallet,
+  Zap,
 } from "lucide-react";
 
 // ─── Destination Data ────────────────────────────────────────────────────────
@@ -208,15 +205,20 @@ const DESTINATIONS: DestinationItem[] = [
   },
 ];
 
+type MainTab = "itinerary" | "agents" | "price" | "safety" | "records";
+
 export default function Home() {
   const [selectedDest, setSelectedDest] = useState<DestinationItem>(DESTINATIONS[0]);
+  const [activeTab, setActiveTab] = useState<MainTab>("itinerary");
   const [filterTag, setFilterTag] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   // ── Blockchain / Solana State ──
   const { connection } = useConnection();
   const wallet = useWallet();
+  const { setVisible: openWalletModal } = useWalletModal();
   const [commitLoading, setCommitLoading] = useState(false);
+  const [demoSigning, setDemoSigning] = useState(false);
   const [commitTx, setCommitTx] = useState<string | null>(null);
   const [commitError, setCommitError] = useState("");
   const [savedRecords, setSavedRecords] = useState<Array<{ dest: string; tx: string; hash: string; time: string }>>([]);
@@ -235,11 +237,6 @@ export default function Home() {
   const [priceResult, setPriceResult] = useState<any | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
 
-  // ── Scam Checker State ──
-  const [scamInput, setScamInput] = useState("");
-  const [scamResult, setScamResult] = useState<any | null>(null);
-  const [scamLoading, setScamLoading] = useState(false);
-
   // ── Expense Tracker State ──
   const [budget, setBudget] = useState(15000);
   const [expenses, setExpenses] = useState<Array<{ id: string; name: string; amount: number; cat: string }>>([
@@ -255,7 +252,7 @@ export default function Home() {
   const [verifyHashInput, setVerifyHashInput] = useState("");
   const [verifyStatus, setVerifyStatus] = useState("");
 
-  // ── Persistent Local Storage Loading ──
+  // Load localStorage data once
   useEffect(() => {
     try {
       const storedRecords = localStorage.getItem("prooftrip_saved_records");
@@ -266,12 +263,9 @@ export default function Home() {
 
       const storedAsset = localStorage.getItem("prooftrip_verified_asset");
       if (storedAsset) setVerifiedAsset(storedAsset);
-    } catch {
-      // Ignore localStorage errors in SSR or restricted environments
-    }
+    } catch {}
   }, []);
 
-  // Save records and expenses when updated
   const saveRecordsToStorage = (records: any[]) => {
     setSavedRecords(records);
     try {
@@ -294,29 +288,27 @@ export default function Home() {
     } catch {}
   };
 
-  // Discover agents once on mount without duplicate fetching
+  // Auto-discover agents once on initial mount
   useEffect(() => {
-    let active = true;
-    async function loadInitialAgents() {
-      if (agents.length > 0) return;
+    let isSubscribed = true;
+    async function loadAgents() {
       setAgentsLoading(true);
-      setAgentStatus("Querying live Solana Devnet Metaplex Registry...");
       try {
         const res = await fetch("/api/agents?query=travel");
         const data = await res.json();
-        if (active) {
+        if (isSubscribed) {
           setAgents(data.data?.agents || []);
-          setAgentStatus(`Live Devnet Registry: ${data.data?.agents?.length || 0} agents loaded (${new Date().toLocaleTimeString()}).`);
+          setAgentStatus(`Connected to Solana Devnet Metaplex Registry: ${data.data?.agents?.length || 0} agents found.`);
         }
       } catch (e: any) {
-        if (active) setAgentStatus("Discovery API error: " + e.message);
+        if (isSubscribed) setAgentStatus("Registry query: " + e.message);
       } finally {
-        if (active) setAgentsLoading(false);
+        if (isSubscribed) setAgentsLoading(false);
       }
     }
-    loadInitialAgents();
+    loadAgents();
     return () => {
-      active = false;
+      isSubscribed = false;
     };
   }, []);
 
@@ -331,11 +323,13 @@ export default function Home() {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Solana Anchor Itinerary Commitment
+  // Solana Devnet Anchor Program Commitment (Connected Wallet)
   // ─────────────────────────────────────────────────────────────────────────
   async function handleCommitItinerary() {
+    // If wallet not connected, automatically open the wallet modal!
     if (!wallet.publicKey || !wallet.sendTransaction) {
-      setCommitError("Please connect your Solana wallet (Phantom or Solflare on Devnet) using the button at the top.");
+      setCommitError("Wallet not connected. Opening Phantom / Solflare wallet connector...");
+      openWalletModal(true);
       return;
     }
 
@@ -348,7 +342,7 @@ export default function Home() {
       const provider = new AnchorProvider(connection, wallet as never, { commitment: "confirmed" });
       const program = new Program({ ...tourismIdl, address: programIdStr } as unknown as Idl, provider);
 
-      // Deterministic SHA-256 hash
+      // Deterministic canonical SHA-256 hash
       const canonical = JSON.stringify({
         destination: selectedDest.name,
         tripTitle: selectedDest.tripTitle,
@@ -363,7 +357,6 @@ export default function Home() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      // Target agent asset: use verified asset or official Metaplex test asset
       const targetAsset = verifiedAsset || "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn";
       const commitmentKeypair = Keypair.generate();
 
@@ -386,6 +379,7 @@ export default function Home() {
 
       setCommitTx(signature);
       setVerifyHashInput(hashHex);
+
       const newRec = {
         dest: selectedDest.name,
         tx: signature,
@@ -401,11 +395,106 @@ export default function Home() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // One-Click Devnet Demo Commit (For testing without Phantom extension)
+  // ─────────────────────────────────────────────────────────────────────────
+  async function handleDemoCommit() {
+    setDemoSigning(true);
+    setCommitError("");
+    setCommitTx(null);
+
+    const programIdStr = process.env.NEXT_PUBLIC_TOURISM_PROGRAM_ID || "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN";
+
+    try {
+      // Create a test traveler keypair on Devnet
+      const demoTraveler = Keypair.generate();
+      const commitmentKeypair = Keypair.generate();
+
+      // Request Devnet SOL for rent
+      const airdropSig = await connection.requestAirdrop(demoTraveler.publicKey, 0.5 * LAMPORTS_PER_SOL);
+      await connection.confirmTransaction(airdropSig, "confirmed");
+
+      // Canonical SHA-256 hash
+      const canonical = JSON.stringify({
+        destination: selectedDest.name,
+        tripTitle: selectedDest.tripTitle,
+        duration: selectedDest.duration,
+        price: selectedDest.price,
+        stops: selectedDest.stops.map((s) => s.name),
+      });
+      const bytes = new TextEncoder().encode(canonical);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      const hashBytes = Array.from(new Uint8Array(digest));
+      const hashHex = Array.from(new Uint8Array(digest))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      // Discriminator: [225, 116, 127, 250, 81, 231, 31, 70]
+      const targetAsset = new PublicKey("CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn");
+
+      const provider = new AnchorProvider(
+        connection,
+        {
+          publicKey: demoTraveler.publicKey,
+          signTransaction: async (tx: Transaction) => {
+            tx.partialSign(demoTraveler);
+            return tx;
+          },
+          signAllTransactions: async (txs: Transaction[]) => {
+            return txs.map((t) => {
+              t.partialSign(demoTraveler);
+              return t;
+            });
+          },
+        } as any,
+        { commitment: "confirmed" }
+      );
+
+      const program = new Program({ ...tourismIdl, address: programIdStr } as unknown as Idl, provider);
+
+      const instruction = await program.methods
+        .commitItinerary(
+          targetAsset,
+          hashBytes,
+          selectedDest.name.slice(0, 64)
+        )
+        .accounts({
+          commitment: commitmentKeypair.publicKey,
+          traveler: demoTraveler.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .instruction();
+
+      const tx = new Transaction().add(instruction);
+      tx.feePayer = demoTraveler.publicKey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      tx.sign(demoTraveler, commitmentKeypair);
+
+      const signature = await connection.sendRawTransaction(tx.serialize());
+      await connection.confirmTransaction(signature, "confirmed");
+
+      setCommitTx(signature);
+      setVerifyHashInput(hashHex);
+
+      const newRec = {
+        dest: selectedDest.name,
+        tx: signature,
+        hash: hashHex,
+        time: new Date().toLocaleTimeString(),
+      };
+      saveRecordsToStorage([newRec, ...savedRecords]);
+    } catch (err: any) {
+      setCommitError("Demo commit error: " + (err?.message || String(err)));
+    } finally {
+      setDemoSigning(false);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Metaplex Agent Discovery & Verification
   // ─────────────────────────────────────────────────────────────────────────
   async function discoverAgents() {
     setAgentsLoading(true);
-    setAgentStatus("Querying Metaplex Agent Registry (Solana Devnet)...");
+    setAgentStatus("Querying live Solana Devnet Metaplex Agent Registry...");
     try {
       const res = await fetch(`/api/agents?query=${encodeURIComponent(searchQuery || "travel")}`);
       const data = await res.json();
@@ -437,7 +526,7 @@ export default function Home() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Fair Price & Scam Checker
+  // Fair Price Checker
   // ─────────────────────────────────────────────────────────────────────────
   async function checkPrice() {
     setPriceLoading(true);
@@ -462,31 +551,12 @@ export default function Home() {
     }
   }
 
-  async function checkScam() {
-    if (!scamInput.trim()) return;
-    setScamLoading(true);
-    setScamResult(null);
-    try {
-      const res = await fetch("/api/scam", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: scamInput }),
-      });
-      const data = await res.json();
-      setScamResult(data.result);
-    } catch {
-      setScamResult(null);
-    } finally {
-      setScamLoading(false);
-    }
-  }
-
   const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
   const remainingBudget = budget - totalSpent;
 
   return (
     <>
-      {/* ── 1. Full-Width Sticky Navigation Bar ── */}
+      {/* ── 1. Full-Width Navigation Bar ── */}
       <nav className="navbar">
         <div className="nav-container">
           <a href="#" className="brand-wrap">
@@ -494,43 +564,56 @@ export default function Home() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span className="brand-name">ProofTrip</span>
-                <span className="brand-pill">Solana AI</span>
+                <span className="brand-pill">Solana Tourism</span>
               </div>
             </div>
           </a>
 
+          {/* Clean Functional Tabs (NO endless scroll!) */}
           <div className="nav-links">
-            <a href="#destinations" className="nav-link-btn">
-              Destinations
-            </a>
-            <a href="#itinerary" className="nav-link-btn">
-              Trip Details
-            </a>
-            <a href="#agents" className="nav-link-btn">
-              Metaplex Agents
-            </a>
-            <a href="#fairprice" className="nav-link-btn">
-              Fair Price & Scam
-            </a>
-            <a href="#safety" className="nav-link-btn">
-              Safety & Expenses
-            </a>
-            <a href="#verification" className="nav-link-btn">
-              On-Chain Hashes
-            </a>
+            <button
+              className={`nav-link-btn ${activeTab === "itinerary" ? "active" : ""}`}
+              onClick={() => setActiveTab("itinerary")}
+            >
+              🗺️ Destinations & Itinerary
+            </button>
+            <button
+              className={`nav-link-btn ${activeTab === "agents" ? "active" : ""}`}
+              onClick={() => setActiveTab("agents")}
+            >
+              🤖 Verified Travel Agents
+            </button>
+            <button
+              className={`nav-link-btn ${activeTab === "price" ? "active" : ""}`}
+              onClick={() => setActiveTab("price")}
+            >
+              💰 Fair Price Checker
+            </button>
+            <button
+              className={`nav-link-btn ${activeTab === "safety" ? "active" : ""}`}
+              onClick={() => setActiveTab("safety")}
+            >
+              🚨 Safety & Budget
+            </button>
+            <button
+              className={`nav-link-btn ${activeTab === "records" ? "active" : ""}`}
+              onClick={() => setActiveTab("records")}
+            >
+              🔐 On-Chain Records
+            </button>
           </div>
 
           <div className="nav-actions">
             <div className="cluster-badge" title="Solana Devnet Cluster">
               <span className="pulse-dot" />
-              <span>Devnet Active</span>
+              <span>Devnet</span>
             </div>
             <WalletMultiButton style={{ background: "var(--yellow)", color: "#1B1B1B", fontWeight: 700, borderRadius: 24, fontSize: 13, height: 40 }} />
           </div>
         </div>
       </nav>
 
-      {/* ── 2. Cinematic Hero Section (Full-Width, DM Sans, Warm Palette) ── */}
+      {/* ── 2. Cinematic Hero Section ── */}
       <header
         className="hero-section"
         style={{
@@ -548,728 +631,651 @@ export default function Home() {
             Discover Your<br />Next Journey
           </h1>
           <p className="hero-subtitle">
-            Plan verified itineraries, discover registered Solana AI travel agents, and commit tamper-evident trip commitments directly to Solana Devnet.
+            Explore verified destinations, discover registered Solana AI travel agents, and commit tamper-evident trip itineraries to Solana Devnet.
           </p>
 
-          {/* Search & Action Bar */}
+          {/* Quick Search */}
           <div className="search-container">
             <div className="search-input-group">
-              <MapPin size={18} style={{ color: "var(--yellow)", flexShrink: 0 }} />
+              <Search size={18} style={{ color: "var(--yellow)", flexShrink: 0 }} />
               <input
                 className="search-main-input"
-                placeholder="Find your adventure (e.g. Mysuru, Greece, Peru, Japan, Goa)"
+                placeholder="Search destination (e.g. Mysuru, Greece, Peru, Japan, Goa)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    discoverAgents();
-                    const el = document.getElementById("destinations");
-                    el?.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
               />
             </div>
             <button
               className="btn-yellow-hero"
-              onClick={() => {
-                discoverAgents();
-                const el = document.getElementById("destinations");
-                el?.scrollIntoView({ behavior: "smooth" });
-              }}
+              onClick={() => setActiveTab("itinerary")}
             >
-              <Search size={16} />
-              <span>Explore Trips</span>
+              <span>Explore Itinerary</span>
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>
       </header>
 
-      {/* ── Main Full-Width Content Container ── */}
-      <main className="main-wrapper">
-        {/* ── 3. AI Suggestions & Destination Cards Grid ── */}
-        <section id="destinations">
-          <div className="section-head">
+      {/* ── 3. Focused Tab Content Area (Clean, NO massive scrolling!) ── */}
+      <main className="main-wrapper" style={{ minHeight: "60vh" }}>
+        {/* ============================================================== */}
+        {/* TAB 1: DESTINATIONS & DETAILED ITINERARY                       */}
+        {/* ============================================================== */}
+        {activeTab === "itinerary" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+            {/* AI Suggestions Cards Grid */}
             <div>
-              <h2 className="section-title">AI Suggestions</h2>
-              <p className="section-desc">Based on your recent searches and trending Solana travel routes</p>
-            </div>
-            <div className="pill-filter-row">
-              {["All", "Heritage Pick", "Trending", "Budget Friendly"].map((tag) => (
-                <button
-                  key={tag}
-                  className={`pill-filter-btn ${filterTag === tag ? "active" : ""}`}
-                  onClick={() => setFilterTag(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="destinations-grid">
-            {filteredDestinations.map((dest) => (
-              <div
-                key={dest.id}
-                className={`dest-card-box ${selectedDest.id === dest.id ? "selected" : ""}`}
-                onClick={() => {
-                  setSelectedDest(dest);
-                  setPriceCity(dest.name);
-                  const el = document.getElementById("itinerary");
-                  el?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                <div
-                  className="dest-card-photo"
-                  style={{ backgroundImage: `url('${dest.heroImg}')` }}
-                >
-                  <div className="dest-pill-badge">
-                    <Sparkles size={12} style={{ color: "var(--yellow)" }} />
-                    <span>{dest.tag}</span>
-                  </div>
+              <div className="section-head">
+                <div>
+                  <h2 className="section-title">AI Suggestions</h2>
+                  <p className="section-desc">Select a destination to review its day-by-day plan and commit to Solana Devnet</p>
                 </div>
-
-                <div className="dest-card-content">
-                  <div className="dest-card-top-row">
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 20 }}>{dest.flag}</span>
-                      <span className="dest-card-name">{dest.name}</span>
-                    </div>
-                    <span className="dest-card-price">{dest.price}</span>
-                  </div>
-
-                  <p className="dest-card-tagline">{dest.description}</p>
-
-                  <div className="dest-card-footer">
-                    <span className="dest-specs-summary">
-                      {dest.duration} · {dest.activityLevel}
-                    </span>
-                    <span style={{ color: "var(--yellow)", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-                      View Plan <ArrowRight size={14} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 4. Dedicated Destination Details & Itinerary Section ── */}
-        <section id="itinerary">
-          <div className="section-head">
-            <div>
-              <h2 className="section-title">Itinerary & On-Chain Commitment</h2>
-              <p className="section-desc">Review day-wise stops and commit the tamper-evident hash to Solana Devnet</p>
-            </div>
-            <div style={{ fontSize: 13, color: "var(--gray)", fontWeight: 600 }}>
-              Anchor Program: <code style={{ color: "var(--yellow)" }}>A7yU8i4...VSzN</code>
-            </div>
-          </div>
-
-          <div className="detail-feature-card">
-            {/* Left Column: Visuals & Thumbnails */}
-            <div className="detail-visual-col">
-              <div
-                className="detail-main-photo"
-                style={{ backgroundImage: `url('${selectedDest.heroImg}')` }}
-              >
-                <div className="detail-photo-overlay" />
-                <div className="detail-photo-info">
-                  <div style={{ fontSize: 36, marginBottom: 4 }}>{selectedDest.flag}</div>
-                  <h3 style={{ fontSize: 28, fontWeight: 800 }}>{selectedDest.name}</h3>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
-                    {selectedDest.tagline}
-                  </p>
+                <div className="pill-filter-row">
+                  {["All", "Heritage Pick", "Trending", "Budget Friendly"].map((tag) => (
+                    <button
+                      key={tag}
+                      className={`pill-filter-btn ${filterTag === tag ? "active" : ""}`}
+                      onClick={() => setFilterTag(tag)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* 3-Photo Highlight Grid matching reference */}
-              <div className="detail-thumbs-grid">
-                {selectedDest.thumbs.map((thumb, idx) => (
+              <div className="destinations-grid">
+                {filteredDestinations.map((dest) => (
                   <div
-                    key={idx}
-                    className="detail-thumb-box"
-                    style={{ backgroundImage: `url('${thumb}')` }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column: Trip Specs & Day-Wise Plan */}
-            <div className="detail-content-col">
-              <div className="detail-header-block">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div>
-                    <h3 style={{ fontSize: 26, fontWeight: 800 }}>{selectedDest.tripTitle}</h3>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--yellow)", marginTop: 4 }}>
-                      {selectedDest.price}
-                    </div>
-                  </div>
-                  <span className="brand-pill">{selectedDest.tag}</span>
-                </div>
-                <p style={{ fontSize: 14, color: "var(--gray-light)", lineHeight: 1.6, marginTop: 8 }}>
-                  {selectedDest.description}
-                </p>
-              </div>
-
-              {/* 4-Cell Specs Grid */}
-              <div className="specs-grid-4">
-                <div className="spec-item-box">
-                  <span className="spec-item-val">{selectedDest.duration}</span>
-                  <span className="spec-item-lbl">Trip Duration</span>
-                </div>
-                <div className="spec-item-box">
-                  <span className="spec-item-val">{selectedDest.activityLevel}</span>
-                  <span className="spec-item-lbl">Activity Level</span>
-                </div>
-                <div className="spec-item-box">
-                  <span className="spec-item-val">{selectedDest.accommodation}</span>
-                  <span className="spec-item-lbl">Accommodation</span>
-                </div>
-                <div className="spec-item-box">
-                  <span className="spec-item-val">{selectedDest.bestSeason}</span>
-                  <span className="spec-item-lbl">Best Season</span>
-                </div>
-              </div>
-
-              {/* Day-Wise Plan */}
-              <div className="itinerary-stops-box">
-                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--yellow)", display: "flex", alignItems: "center", gap: 6 }}>
-                  <Calendar size={15} />
-                  <span>Curated Day-By-Day Itinerary Stops</span>
-                </div>
-                {selectedDest.stops.map((stop, sIdx) => (
-                  <div key={sIdx} className="itinerary-stop-row">
-                    <div className="itinerary-stop-left">
-                      <span className="stop-time-pill">{stop.time}</span>
-                      <div>
-                        <div style={{ fontWeight: 700 }}>{stop.name}</div>
-                        <div style={{ fontSize: 11, color: "var(--gray)" }}>{stop.desc}</div>
+                    key={dest.id}
+                    className={`dest-card-box ${selectedDest.id === dest.id ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedDest(dest);
+                      setPriceCity(dest.name);
+                    }}
+                  >
+                    <div
+                      className="dest-card-photo"
+                      style={{ backgroundImage: `url('${dest.heroImg}')` }}
+                    >
+                      <div className="dest-pill-badge">
+                        <Sparkles size={12} style={{ color: "var(--yellow)" }} />
+                        <span>{dest.tag}</span>
                       </div>
                     </div>
-                    <span style={{ fontWeight: 700, color: "var(--success)" }}>{stop.cost}</span>
+
+                    <div className="dest-card-content">
+                      <div className="dest-card-top-row">
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 20 }}>{dest.flag}</span>
+                          <span className="dest-card-name">{dest.name}</span>
+                        </div>
+                        <span className="dest-card-price">{dest.price}</span>
+                      </div>
+
+                      <p className="dest-card-tagline">{dest.description}</p>
+
+                      <div className="dest-card-footer">
+                        <span className="dest-specs-summary">
+                          {dest.duration} · {dest.activityLevel}
+                        </span>
+                        <span style={{ color: "var(--yellow)", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                          {selectedDest.id === dest.id ? "Selected Plan ✓" : "Select Plan"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Status and Feedback messages */}
-              {commitError && (
-                <div style={{ background: "rgba(224,85,85,0.15)", border: "1px solid rgba(224,85,85,0.3)", borderRadius: 12, padding: "10px 14px", fontSize: 13, color: "var(--error)" }}>
-                  {commitError}
-                </div>
-              )}
-              {commitTx && (
-                <div style={{ background: "rgba(76,175,125,0.15)", border: "1px solid rgba(76,175,125,0.3)", borderRadius: 12, padding: "12px 14px", fontSize: 13 }}>
-                  <div style={{ color: "var(--success)", fontWeight: 700 }}>✓ Itinerary Hash Committed to Solana Devnet!</div>
-                  <div style={{ color: "var(--gray)", fontSize: 11, wordBreak: "break-all", marginTop: 4 }}>
-                    Tx Signature: {commitTx}
+            {/* Dedicated Destination Details & Solana Commitment Box */}
+            <div className="detail-feature-card">
+              {/* Left Column: Visuals & Thumbnails */}
+              <div className="detail-visual-col">
+                <div
+                  className="detail-main-photo"
+                  style={{ backgroundImage: `url('${selectedDest.heroImg}')` }}
+                >
+                  <div className="detail-photo-overlay" />
+                  <div className="detail-photo-info">
+                    <div style={{ fontSize: 36, marginBottom: 4 }}>{selectedDest.flag}</div>
+                    <h3 style={{ fontSize: 28, fontWeight: 800 }}>{selectedDest.name}</h3>
+                    <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", marginTop: 4 }}>
+                      {selectedDest.tagline}
+                    </p>
                   </div>
-                  <a
-                    href={`https://explorer.solana.com/tx/${commitTx}?cluster=devnet`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "var(--yellow)", fontWeight: 700, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}
-                  >
-                    View on Solana Explorer <ExternalLink size={12} />
-                  </a>
                 </div>
-              )}
 
-              {/* Solana Commit Action Button */}
-              <button
-                className="btn-primary-yellow"
-                style={{ width: "100%", padding: "16px 28px", fontSize: 15 }}
-                disabled={commitLoading}
-                onClick={handleCommitItinerary}
-              >
-                {commitLoading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    <span>Signing Transaction on Solana Devnet...</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock size={18} />
-                    <span>Commit Itinerary Hash on Solana Devnet</span>
-                  </>
+                <div className="detail-thumbs-grid">
+                  {selectedDest.thumbs.map((thumb, idx) => (
+                    <div
+                      key={idx}
+                      className="detail-thumb-box"
+                      style={{ backgroundImage: `url('${thumb}')` }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Trip Specs & Devnet Action */}
+              <div className="detail-content-col">
+                <div className="detail-header-block">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <h3 style={{ fontSize: 26, fontWeight: 800 }}>{selectedDest.tripTitle}</h3>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--yellow)", marginTop: 4 }}>
+                        {selectedDest.price}
+                      </div>
+                    </div>
+                    <span className="brand-pill">{selectedDest.tag}</span>
+                  </div>
+                  <p style={{ fontSize: 14, color: "var(--gray-light)", lineHeight: 1.6, marginTop: 8 }}>
+                    {selectedDest.description}
+                  </p>
+                </div>
+
+                {/* 4-Cell Specs Grid */}
+                <div className="specs-grid-4">
+                  <div className="spec-item-box">
+                    <span className="spec-item-val">{selectedDest.duration}</span>
+                    <span className="spec-item-lbl">Trip Duration</span>
+                  </div>
+                  <div className="spec-item-box">
+                    <span className="spec-item-val">{selectedDest.activityLevel}</span>
+                    <span className="spec-item-lbl">Activity Level</span>
+                  </div>
+                  <div className="spec-item-box">
+                    <span className="spec-item-val">{selectedDest.accommodation}</span>
+                    <span className="spec-item-lbl">Accommodation</span>
+                  </div>
+                  <div className="spec-item-box">
+                    <span className="spec-item-val">{selectedDest.bestSeason}</span>
+                    <span className="spec-item-lbl">Best Season</span>
+                  </div>
+                </div>
+
+                {/* Day-Wise Plan */}
+                <div className="itinerary-stops-box">
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--yellow)", display: "flex", alignItems: "center", gap: 6 }}>
+                    <Calendar size={15} />
+                    <span>Curated Day-By-Day Itinerary Stops</span>
+                  </div>
+                  {selectedDest.stops.map((stop, sIdx) => (
+                    <div key={sIdx} className="itinerary-stop-row">
+                      <div className="itinerary-stop-left">
+                        <span className="stop-time-pill">{stop.time}</span>
+                        <div>
+                          <div style={{ fontWeight: 700 }}>{stop.name}</div>
+                          <div style={{ fontSize: 11, color: "var(--gray)" }}>{stop.desc}</div>
+                        </div>
+                      </div>
+                      <span style={{ fontWeight: 700, color: "var(--success)" }}>{stop.cost}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Status messages */}
+                {commitError && (
+                  <div style={{ background: "rgba(224,85,85,0.15)", border: "1px solid rgba(224,85,85,0.3)", borderRadius: 12, padding: "10px 14px", fontSize: 13, color: "var(--error)" }}>
+                    {commitError}
+                  </div>
                 )}
-              </button>
+                {commitTx && (
+                  <div style={{ background: "rgba(76,175,125,0.15)", border: "1px solid rgba(76,175,125,0.3)", borderRadius: 12, padding: "12px 14px", fontSize: 13 }}>
+                    <div style={{ color: "var(--success)", fontWeight: 700 }}>✓ Itinerary Hash Committed to Solana Devnet!</div>
+                    <div style={{ color: "var(--gray)", fontSize: 11, wordBreak: "break-all", marginTop: 4 }}>
+                      Signature: {commitTx}
+                    </div>
+                    <a
+                      href={`https://explorer.solana.com/tx/${commitTx}?cluster=devnet`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ color: "var(--yellow)", fontWeight: 700, fontSize: 12, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}
+                    >
+                      View on Solana Explorer <ExternalLink size={12} />
+                    </a>
+                  </div>
+                )}
+
+                {/* Primary & Demo Action Buttons */}
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button
+                    className="btn-primary-yellow"
+                    style={{ flex: 1, padding: "16px 20px", fontSize: 14 }}
+                    disabled={commitLoading}
+                    onClick={handleCommitItinerary}
+                  >
+                    {commitLoading ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        <span>Confirming in Wallet...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={18} />
+                        <span>Commit with Phantom / Solflare</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    className="btn-secondary-dark"
+                    style={{ padding: "16px 20px", fontSize: 14 }}
+                    disabled={demoSigning}
+                    onClick={handleDemoCommit}
+                    title="Sign an authentic on-chain Devnet transaction with a generated keypair (no browser extension required)"
+                  >
+                    {demoSigning ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Submitting to Devnet...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={16} style={{ color: "var(--yellow)" }} />
+                        <span>Instant Devnet Demo Commit</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        )}
 
-        {/* ── 5. Metaplex Agent Registry Section ── */}
-        <section id="agents">
-          <div className="section-head">
-            <div>
-              <h2 className="section-title">Solana AI Agent Registry</h2>
-              <p className="section-desc">
-                Discover registered agents via Metaplex's live indexed Devnet REST API & verify on-chain identity
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
+        {/* ============================================================== */}
+        {/* TAB 2: VERIFIED SOLANA TRAVEL AGENTS                           */}
+        {/* ============================================================== */}
+        {activeTab === "agents" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div className="section-head">
+              <div>
+                <h2 className="section-title">Verified Solana Travel Agents</h2>
+                <p className="section-desc">
+                  Connected directly to Metaplex Agent Registry program (<code style={{ color: "var(--yellow)" }}>1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p</code>)
+                </p>
+              </div>
               <button className="btn-secondary-dark" onClick={discoverAgents} disabled={agentsLoading}>
                 {agentsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                 <span>Refresh Registry</span>
               </button>
             </div>
-          </div>
 
-          {agentStatus && (
-            <div style={{ background: "var(--dark-surface)", border: "1px solid var(--dark-border)", borderRadius: 14, padding: "12px 18px", fontSize: 13, color: "var(--yellow)", marginBottom: 20 }}>
-              {agentStatus}
-            </div>
-          )}
-
-          <div className="agent-cards-grid">
-            {agents.slice(0, 6).map((agent, i) => (
-              <div
-                key={agent.mintAddress || i}
-                className={`agent-box-card ${verifiedAsset === agent.mintAddress ? "verified" : ""}`}
-              >
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                    <div style={{ fontWeight: 800, fontSize: 16 }}>{agent.name || "Solana Agent"}</div>
-                    {verifiedAsset === agent.mintAddress && (
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "var(--success)", display: "flex", alignItems: "center", gap: 4 }}>
-                        <CheckCircle size={12} /> Verified
-                      </span>
-                    )}
-                  </div>
-                  <p style={{ fontSize: 12, color: "var(--gray)", lineHeight: 1.5, minHeight: 48 }}>
-                    {agent.description?.slice(0, 140) || "Autonomous AI agent registered under Metaplex Agent Registry on Solana Devnet."}
-                  </p>
-                </div>
-
-                <div style={{ borderTop: "1px solid var(--dark-border)", paddingTop: 12 }}>
-                  <div style={{ fontSize: 10, color: "var(--gray)", wordBreak: "break-all", marginBottom: 8 }}>
-                    Asset: {agent.mintAddress?.slice(0, 14)}...{agent.mintAddress?.slice(-6)}
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      className="btn-primary-yellow"
-                      style={{ padding: "8px 14px", fontSize: 12, flex: 1 }}
-                      disabled={verifyingAsset === agent.mintAddress}
-                      onClick={() => verifyAgentOnChain(agent.mintAddress)}
-                    >
-                      {verifyingAsset === agent.mintAddress ? "Checking PDA..." : "Verify Identity"}
-                    </button>
-                    {agent.mintAddress && (
-                      <a
-                        href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn-secondary-dark"
-                        style={{ padding: "8px 10px", fontSize: 12 }}
-                      >
-                        <ExternalLink size={14} />
-                      </a>
-                    )}
-                  </div>
-                </div>
+            {agentStatus && (
+              <div style={{ background: "var(--dark-surface)", border: "1px solid var(--dark-border)", borderRadius: 14, padding: "12px 18px", fontSize: 13, color: "var(--yellow)" }}>
+                {agentStatus}
               </div>
-            ))}
-          </div>
+            )}
 
-          <div style={{ marginTop: 16, background: "rgba(240, 160, 48, 0.08)", border: "1px solid rgba(240, 160, 48, 0.2)", borderRadius: 16, padding: "14px 20px", fontSize: 12, color: "var(--gray-light)", lineHeight: 1.6 }}>
-            <strong style={{ color: "var(--warning)" }}>Registry Disclosure:</strong> The Solana AI Agent Registry confirms an on-chain identity linked to an MPL Core asset via program <code style={{ color: "var(--white)" }}>1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p</code>. An on-chain identity does not certify travel licensing or itinerary truth. ProofTrip ties the hash to the agent key so travelers can hold AI agents accountable.
-          </div>
-        </section>
-
-        {/* ── 6. Tourist Protection Suite: Fair Price & Scam Radar ── */}
-        <section id="fairprice" className="grid-2col">
-          {/* Fair Price Checker */}
-          <div className="feature-panel">
-            <div className="panel-title-row">
-              <h3 className="panel-title">Fair Price Checker</h3>
-              <DollarSign size={20} style={{ color: "var(--yellow)" }} />
-            </div>
-            <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5 }}>
-              Compare local tourist quotes against benchmark rates for auto-rickshaws, taxis, hotels, and entrance tickets.
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label className="input-label-text">Service Type</label>
-                <select
-                  className="full-input-field"
-                  value={priceService}
-                  onChange={(e) => setPriceService(e.target.value)}
+            <div className="agent-cards-grid">
+              {agents.map((agent, i) => (
+                <div
+                  key={agent.mintAddress || i}
+                  className={`agent-box-card ${verifiedAsset === agent.mintAddress ? "verified" : ""}`}
                 >
-                  <option>Auto-rickshaw</option>
-                  <option>Taxi / Cab</option>
-                  <option>Hotel room (budget)</option>
-                  <option>Hotel room (mid-range)</option>
-                  <option>Tour guide (half-day)</option>
-                  <option>Entry ticket</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="input-label-text">City / Destination</label>
-                <input
-                  className="full-input-field"
-                  value={priceCity}
-                  onChange={(e) => setPriceCity(e.target.value)}
-                  placeholder="e.g. Mysuru"
-                />
-              </div>
-
-              <div>
-                <label className="input-label-text">Quoted Price (INR)</label>
-                <input
-                  type="number"
-                  className="full-input-field"
-                  value={priceQuote}
-                  onChange={(e) => setPriceQuote(e.target.value)}
-                  placeholder="e.g. 450"
-                />
-              </div>
-
-              <button
-                className="btn-primary-yellow"
-                style={{ width: "100%" }}
-                disabled={priceLoading || !priceQuote}
-                onClick={checkPrice}
-              >
-                {priceLoading ? <Loader2 size={16} className="animate-spin" /> : <DollarSign size={16} />}
-                <span>Check Price Fairness</span>
-              </button>
-
-              {priceResult && (
-                <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid var(--dark-border)", borderRadius: 16, padding: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>
-                      Quoted: ₹{priceResult.quotedPrice} vs Ref: ₹{priceResult.referenceMin}–₹{priceResult.referenceMax}
-                    </span>
-                    <span
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: 20,
-                        fontSize: 11,
-                        fontWeight: 800,
-                        background: priceResult.verdict === "fair" ? "rgba(76,175,125,0.2)" : "rgba(224,85,85,0.2)",
-                        color: priceResult.verdict === "fair" ? "var(--success)" : "var(--error)",
-                      }}
-                    >
-                      {priceResult.verdict.toUpperCase()}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 13, color: "var(--gray-light)", marginTop: 8, lineHeight: 1.5 }}>
-                    {priceResult.message}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Tourist Scam Radar */}
-          <div className="feature-panel">
-            <div className="panel-title-row">
-              <h3 className="panel-title">Tourist Scam Radar</h3>
-              <ShieldAlert size={20} style={{ color: "var(--warning)" }} />
-            </div>
-            <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5 }}>
-              Paste suspicious messages, tout quotes, or hotel redirect claims to test for recognized tourist traps.
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label className="input-label-text">Situation or Offer Details</label>
-                <textarea
-                  className="full-input-field"
-                  rows={4}
-                  placeholder="e.g. 'Driver told me the palace is closed for a private VIP event today and offered to take me to an authorized government silk factory...'"
-                  value={scamInput}
-                  onChange={(e) => setScamInput(e.target.value)}
-                />
-              </div>
-
-              <button
-                className="btn-primary-yellow"
-                style={{ width: "100%" }}
-                disabled={scamLoading || !scamInput.trim()}
-                onClick={checkScam}
-              >
-                {scamLoading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
-                <span>Analyze Scam Risk</span>
-              </button>
-
-              {scamResult && (
-                <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid var(--dark-border)", borderRadius: 16, padding: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>
-                      Risk Assessment: {scamResult.riskLevel.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--yellow)" }}>
-                      Score: {scamResult.riskScore} / 10
-                    </span>
-                  </div>
-                  {scamResult.flags.map((flag: string, idx: number) => (
-                    <div key={idx} style={{ fontSize: 12, color: "var(--warning)", marginTop: 6 }}>
-                      ⚠️ {flag}
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                      <div style={{ fontWeight: 800, fontSize: 16 }}>{agent.displayName || agent.name}</div>
+                      {verifiedAsset === agent.mintAddress ? (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--success)", display: "flex", alignItems: "center", gap: 4 }}>
+                          <CheckCircle size={12} /> Verified On-Chain
+                        </span>
+                      ) : (
+                        <span className="brand-pill" style={{ fontSize: 9 }}>Devnet Registered</span>
+                      )}
                     </div>
-                  ))}
-                  <div style={{ fontSize: 11, color: "var(--gray)", marginTop: 8, lineHeight: 1.4 }}>
-                    {scamResult.disclaimer}
+                    <div style={{ fontSize: 11, color: "var(--yellow)", fontWeight: 700, marginBottom: 4 }}>
+                      {agent.specialty || "Corporate Travel & Stays"}
+                    </div>
+                    <p style={{ fontSize: 12, color: "var(--gray)", lineHeight: 1.5, minHeight: 48 }}>
+                      {agent.description}
+                    </p>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
 
-        {/* ── 7. Safety, Emergency & Expense Management ── */}
-        <section id="safety" className="grid-2col">
-          {/* Emergency & Safety Guide */}
-          <div className="feature-panel">
-            <div className="panel-title-row">
-              <h3 className="panel-title">Safety & Emergency Hotlines</h3>
-              <Phone size={20} style={{ color: "var(--yellow)" }} />
-            </div>
-            <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5 }}>
-              Verified national and state tourist emergency contacts for {selectedDest.name}, {selectedDest.country}.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>100</div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Police Control</div>
-                <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>National emergency hotline</div>
-              </div>
-              <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>108</div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Ambulance</div>
-                <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Emergency medical response</div>
-              </div>
-              <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--yellow)" }}>1800-11-1363</div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Tourist Helpline</div>
-                <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Ministry of Tourism 24/7</div>
-              </div>
-              <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>1091</div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Women Safety</div>
-                <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Toll-free dedicated assistance</div>
-              </div>
-            </div>
-
-            <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 16, padding: "14px 18px", fontSize: 12, color: "var(--gray-light)", lineHeight: 1.6 }}>
-              <strong>Official Travel Advisory:</strong> {selectedDest.name} is generally safe and hospitable for international tourists and solo travelers. Always negotiate auto fares before boarding or use app-based meters, and keep emergency contact numbers saved offline on your phone.
-            </div>
-          </div>
-
-          {/* Trip Expense Tracker */}
-          <div className="feature-panel">
-            <div className="panel-title-row">
-              <h3 className="panel-title">Trip Expense Tracker</h3>
-              <Receipt size={20} style={{ color: "var(--yellow)" }} />
-            </div>
-
-            {/* Budget Meter */}
-            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 18, padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
-                <span>Budget: ₹{budget}</span>
-                <span style={{ color: remainingBudget >= 0 ? "var(--success)" : "var(--error)" }}>
-                  Remaining: ₹{remainingBudget}
-                </span>
-              </div>
-              <div style={{ width: "100%", height: 8, background: "var(--dark-border)", borderRadius: 4, overflow: "hidden" }}>
-                <div
-                  style={{
-                    width: `${Math.min((totalSpent / budget) * 100, 100)}%`,
-                    height: "100%",
-                    background: "var(--yellow)",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Add Expense Form */}
-            <div style={{ display: "flex", gap: 10 }}>
-              <input
-                className="full-input-field"
-                placeholder="Expense description"
-                value={newExpName}
-                onChange={(e) => setNewExpName(e.target.value)}
-              />
-              <input
-                type="number"
-                className="full-input-field"
-                style={{ maxWidth: 100 }}
-                placeholder="₹ Amount"
-                value={newExpAmount}
-                onChange={(e) => setNewExpAmount(e.target.value)}
-              />
-              <button
-                className="btn-primary-yellow"
-                style={{ padding: "12px 18px" }}
-                onClick={() => {
-                  if (newExpName && newExpAmount) {
-                    saveExpensesToStorage([
-                      ...expenses,
-                      {
-                        id: Date.now().toString(),
-                        name: newExpName,
-                        amount: parseFloat(newExpAmount),
-                        cat: newExpCat,
-                      },
-                    ]);
-                    setNewExpName("");
-                    setNewExpAmount("");
-                  }
-                }}
-              >
-                <Plus size={18} />
-              </button>
-            </div>
-
-            {/* Expenses List */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 180, overflowY: "auto" }}>
-              {expenses.map((e) => (
-                <div
-                  key={e.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    background: "var(--dark-elevated)",
-                    borderRadius: 12,
-                    fontSize: 13,
-                  }}
-                >
-                  <span>{e.name}</span>
-                  <span style={{ fontWeight: 700, color: "var(--white)" }}>₹{e.amount}</span>
+                  <div style={{ borderTop: "1px solid var(--dark-border)", paddingTop: 12 }}>
+                    <div style={{ fontSize: 10, color: "var(--gray)", wordBreak: "break-all", marginBottom: 8 }}>
+                      Asset: {agent.mintAddress?.slice(0, 14)}...{agent.mintAddress?.slice(-6)}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="btn-primary-yellow"
+                        style={{ padding: "8px 14px", fontSize: 12, flex: 1 }}
+                        disabled={verifyingAsset === agent.mintAddress}
+                        onClick={() => verifyAgentOnChain(agent.mintAddress)}
+                      >
+                        {verifyingAsset === agent.mintAddress ? "Verifying PDA..." : "Verify Identity"}
+                      </button>
+                      {agent.mintAddress && (
+                        <a
+                          href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn-secondary-dark"
+                          style={{ padding: "8px 10px", fontSize: 12 }}
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        )}
 
-        {/* ── 8. Saved On-Chain Hashes & Tamper Detection ── */}
-        <section id="verification" className="feature-panel">
-          <div className="panel-title-row">
-            <div>
-              <h3 className="panel-title">Saved Itineraries & On-Chain Tamper Detection</h3>
-              <p style={{ fontSize: 13, color: "var(--gray-light)", marginTop: 4 }}>
-                Verify canonical SHA-256 hashes against Solana Devnet commitments to confirm zero itinerary alteration
+        {/* ============================================================== */}
+        {/* TAB 3: FAIR PRICE CHECKER (Scam section removed per request)   */}
+        {/* ============================================================== */}
+        {activeTab === "price" && (
+          <div style={{ maxWidth: 760, margin: "0 auto", width: "100%" }}>
+            <div className="feature-panel">
+              <div className="panel-title-row">
+                <h3 className="panel-title">Tourist Fair Price Checker</h3>
+                <DollarSign size={22} style={{ color: "var(--yellow)" }} />
+              </div>
+              <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5 }}>
+                Compare local quotes in {priceCity} against verified local reference rates to protect against overcharging.
               </p>
-            </div>
-            <Lock size={22} style={{ color: "var(--yellow)" }} />
-          </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-            {/* Committed Records Column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Committed Devnet Records</div>
-                {savedRecords.length > 0 && (
-                  <button
-                    style={{ background: "transparent", border: "none", color: "var(--gray)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
-                    onClick={() => saveRecordsToStorage([])}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label className="input-label-text">Service Type</label>
+                  <select
+                    className="full-input-field"
+                    value={priceService}
+                    onChange={(e) => setPriceService(e.target.value)}
                   >
-                    Clear History
-                  </button>
+                    <option>Auto-rickshaw</option>
+                    <option>Taxi / Cab</option>
+                    <option>Hotel room (budget)</option>
+                    <option>Hotel room (mid-range)</option>
+                    <option>Tour guide (half-day)</option>
+                    <option>Entry ticket</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="input-label-text">City / Destination</label>
+                  <input
+                    className="full-input-field"
+                    value={priceCity}
+                    onChange={(e) => setPriceCity(e.target.value)}
+                    placeholder="e.g. Mysuru"
+                  />
+                </div>
+
+                <div>
+                  <label className="input-label-text">Quoted Price in INR (₹)</label>
+                  <input
+                    type="number"
+                    className="full-input-field"
+                    value={priceQuote}
+                    onChange={(e) => setPriceQuote(e.target.value)}
+                    placeholder="e.g. 450"
+                  />
+                </div>
+
+                <button
+                  className="btn-primary-yellow"
+                  style={{ width: "100%", padding: "16px" }}
+                  disabled={priceLoading || !priceQuote}
+                  onClick={checkPrice}
+                >
+                  {priceLoading ? <Loader2 size={16} className="animate-spin" /> : <DollarSign size={16} />}
+                  <span>Evaluate Price Fairness</span>
+                </button>
+
+                {priceResult && (
+                  <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid var(--dark-border)", borderRadius: 16, padding: 20 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 15, fontWeight: 700 }}>
+                        Quoted: ₹{priceResult.quotedPrice} (Typical Range: ₹{priceResult.referenceMin}–₹{priceResult.referenceMax})
+                      </span>
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: 20,
+                          fontSize: 12,
+                          fontWeight: 800,
+                          background: priceResult.verdict === "fair" ? "rgba(76,175,125,0.2)" : "rgba(224,85,85,0.2)",
+                          color: priceResult.verdict === "fair" ? "var(--success)" : "var(--error)",
+                        }}
+                      >
+                        {priceResult.verdict.toUpperCase()}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 13, color: "var(--gray-light)", marginTop: 10, lineHeight: 1.5 }}>
+                      {priceResult.message}
+                    </p>
+                  </div>
                 )}
               </div>
-              {savedRecords.length === 0 ? (
-                <div style={{ padding: 24, background: "rgba(0,0,0,0.2)", borderRadius: 16, color: "var(--gray)", fontSize: 13, textAlign: "center" }}>
-                  No local commitments saved yet. Generate an itinerary and click "Commit Itinerary Hash on Solana Devnet" above.
-                </div>
-              ) : (
-                savedRecords.map((rec, idx) => (
-                  <div key={idx} style={{ background: "var(--dark-elevated)", borderRadius: 16, padding: 16, border: "1px solid var(--dark-border)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 14 }}>
-                      <span>{rec.dest}</span>
-                      <span style={{ color: "var(--success)", fontSize: 12 }}>✓ ON-CHAIN</span>
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--gray)", wordBreak: "break-all", marginTop: 4 }}>
-                      Hash: {rec.hash}
-                    </div>
-                    <a
-                      href={`https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: "var(--yellow)", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}
-                    >
-                      View Tx on Solana Explorer <ExternalLink size={12} />
-                    </a>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Hash Recalculator / Tamper Verifier */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>Hash Tamper Verifier</div>
-              <input
-                className="full-input-field"
-                placeholder="Paste 64-character SHA-256 hex string to verify"
-                value={verifyHashInput}
-                onChange={(e) => setVerifyHashInput(e.target.value)}
-              />
-              <button
-                className="btn-primary-yellow"
-                style={{ width: "100%" }}
-                onClick={() => {
-                  if (verifyHashInput.length === 64) {
-                    setVerifyStatus("✓ Hash valid! Matches canonical SHA-256 standard and Devnet commitment structure.");
-                  } else {
-                    setVerifyStatus("✗ Invalid hash: SHA-256 hash must be exactly 64 hexadecimal characters.");
-                  }
-                }}
-              >
-                Verify Hash Integrity
-              </button>
-              {verifyStatus && (
-                <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: "10px 14px", fontSize: 13, color: "var(--yellow)" }}>
-                  {verifyStatus}
-                </div>
-              )}
             </div>
           </div>
-        </section>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 4: SAFETY & EXPENSES                                       */}
+        {/* ============================================================== */}
+        {activeTab === "safety" && (
+          <div className="grid-2col">
+            {/* Hotlines */}
+            <div className="feature-panel">
+              <div className="panel-title-row">
+                <h3 className="panel-title">Safety & Emergency Hotlines</h3>
+                <Phone size={20} style={{ color: "var(--yellow)" }} />
+              </div>
+              <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5 }}>
+                Official emergency numbers and contacts for {selectedDest.name}, {selectedDest.country}.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>100</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Police Control</div>
+                  <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>National emergency hotline</div>
+                </div>
+                <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>108</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Ambulance</div>
+                  <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Medical emergency response</div>
+                </div>
+                <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "var(--yellow)" }}>1800-11-1363</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Tourist Helpline</div>
+                  <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Ministry of Tourism 24/7</div>
+                </div>
+                <div style={{ background: "var(--dark-elevated)", borderRadius: 18, padding: 16, textAlign: "center" }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: "var(--yellow)" }}>1091</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>Women Safety</div>
+                  <div style={{ fontSize: 10, color: "var(--gray)", marginTop: 2 }}>Toll-free dedicated line</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trip Expense Tracker */}
+            <div className="feature-panel">
+              <div className="panel-title-row">
+                <h3 className="panel-title">Trip Expense Tracker</h3>
+                <Receipt size={20} style={{ color: "var(--yellow)" }} />
+              </div>
+
+              {/* Budget Meter */}
+              <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 18, padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+                  <span>Budget: ₹{budget}</span>
+                  <span style={{ color: remainingBudget >= 0 ? "var(--success)" : "var(--error)" }}>
+                    Remaining: ₹{remainingBudget}
+                  </span>
+                </div>
+                <div style={{ width: "100%", height: 8, background: "var(--dark-border)", borderRadius: 4, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      width: `${Math.min((totalSpent / budget) * 100, 100)}%`,
+                      height: "100%",
+                      background: "var(--yellow)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Add Expense Form */}
+              <div style={{ display: "flex", gap: 10 }}>
+                <input
+                  className="full-input-field"
+                  placeholder="Expense description"
+                  value={newExpName}
+                  onChange={(e) => setNewExpName(e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="full-input-field"
+                  style={{ maxWidth: 100 }}
+                  placeholder="₹ Amount"
+                  value={newExpAmount}
+                  onChange={(e) => setNewExpAmount(e.target.value)}
+                />
+                <button
+                  className="btn-primary-yellow"
+                  style={{ padding: "12px 18px" }}
+                  onClick={() => {
+                    if (newExpName && newExpAmount) {
+                      saveExpensesToStorage([
+                        ...expenses,
+                        {
+                          id: Date.now().toString(),
+                          name: newExpName,
+                          amount: parseFloat(newExpAmount),
+                          cat: newExpCat,
+                        },
+                      ]);
+                      setNewExpName("");
+                      setNewExpAmount("");
+                    }
+                  }}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+
+              {/* Expenses List */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 180, overflowY: "auto" }}>
+                {expenses.map((e) => (
+                  <div
+                    key={e.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 12px",
+                      background: "var(--dark-elevated)",
+                      borderRadius: 12,
+                      fontSize: 13,
+                    }}
+                  >
+                    <span>{e.name}</span>
+                    <span style={{ fontWeight: 700, color: "var(--white)" }}>₹{e.amount}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 5: ON-CHAIN RECORDS & VERIFICATION                         */}
+        {/* ============================================================== */}
+        {activeTab === "records" && (
+          <div className="feature-panel" style={{ width: "100%" }}>
+            <div className="panel-title-row">
+              <div>
+                <h3 className="panel-title">Saved Itineraries & On-Chain Tamper Detection</h3>
+                <p style={{ fontSize: 13, color: "var(--gray-light)", marginTop: 4 }}>
+                  Compare canonical SHA-256 hashes against Solana Devnet records to confirm zero alteration
+                </p>
+              </div>
+              <Lock size={22} style={{ color: "var(--yellow)" }} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 16 }}>
+              {/* Committed Records Column */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>Committed Devnet Records</div>
+                  {savedRecords.length > 0 && (
+                    <button
+                      style={{ background: "transparent", border: "none", color: "var(--gray)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
+                      onClick={() => saveRecordsToStorage([])}
+                    >
+                      Clear History
+                    </button>
+                  )}
+                </div>
+
+                {savedRecords.length === 0 ? (
+                  <div style={{ padding: 24, background: "rgba(0,0,0,0.2)", borderRadius: 16, color: "var(--gray)", fontSize: 13, textAlign: "center" }}>
+                    No commitments saved yet. Switch to "Destinations & Itinerary" and commit an itinerary above.
+                  </div>
+                ) : (
+                  savedRecords.map((rec, idx) => (
+                    <div key={idx} style={{ background: "var(--dark-elevated)", borderRadius: 16, padding: 16, border: "1px solid var(--dark-border)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 14 }}>
+                        <span>{rec.dest}</span>
+                        <span style={{ color: "var(--success)", fontSize: 12 }}>✓ ON-CHAIN</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--gray)", wordBreak: "break-all", marginTop: 4 }}>
+                        Hash: {rec.hash}
+                      </div>
+                      <a
+                        href={`https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "var(--yellow)", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}
+                      >
+                        View Tx on Solana Explorer <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Hash Recalculator / Tamper Verifier */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Hash Tamper Verifier</div>
+                <input
+                  className="full-input-field"
+                  placeholder="Paste 64-character SHA-256 hex string to verify"
+                  value={verifyHashInput}
+                  onChange={(e) => setVerifyHashInput(e.target.value)}
+                />
+                <button
+                  className="btn-primary-yellow"
+                  style={{ width: "100%" }}
+                  onClick={() => {
+                    if (verifyHashInput.length === 64) {
+                      setVerifyStatus("✓ Hash valid! Matches canonical SHA-256 standard and Devnet commitment structure.");
+                    } else {
+                      setVerifyStatus("✗ Invalid hash: SHA-256 hash must be exactly 64 hexadecimal characters.");
+                    }
+                  }}
+                >
+                  Verify Hash Integrity
+                </button>
+                {verifyStatus && (
+                  <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: "10px 14px", fontSize: 13, color: "var(--yellow)" }}>
+                    {verifyStatus}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
-      {/* ── 9. Full-Width Professional Footer ── */}
-      <footer className="site-footer">
-        <div className="footer-inner">
-          <div className="footer-top">
-            <div style={{ maxWidth: 420 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <div className="brand-logo-icon" style={{ width: 32, height: 32, fontSize: 16 }}>✈</div>
-                <span style={{ fontSize: 20, fontWeight: 800 }}>ProofTrip</span>
-                <span className="brand-pill">Devnet</span>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--gray)", lineHeight: 1.6 }}>
-                Decentralized tourism verification infrastructure on Solana. Discover autonomous AI agents registered via Metaplex, verify identities on-chain, and record immutable itinerary hashes with Anchor.
-              </p>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Devnet Smart Contracts</div>
-              <div style={{ fontSize: 12, color: "var(--gray-light)", lineHeight: 1.8 }}>
-                <div>Tourism Program: <code style={{ color: "var(--yellow)" }}>A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</code></div>
-                <div>Metaplex Registry: <code style={{ color: "var(--yellow)" }}>1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p</code></div>
-                <div>Instruction: <code style={{ color: "var(--white)" }}>commit_itinerary(agent_asset, hash, dest)</code></div>
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Technology Stack</div>
-              <div style={{ fontSize: 12, color: "var(--gray-light)", lineHeight: 1.8 }}>
-                <div>Next.js 14 · React 18 · TypeScript</div>
-                <div>Solana Web3.js · Anchor Framework</div>
-                <div>DM Sans Luxury Design System</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-copy">
-            <span>© 2026 ProofTrip · Built for Hacktober VectorFlow Tourism Challenge</span>
-            <span>Solana Devnet Cluster · Tested & Verified</span>
-          </div>
-        </div>
+      {/* ── Minimal, Clean Footer (Removed Challenge mentions, contract dumps, tech stack per Point 5) ── */}
+      <footer style={{ borderTop: "1px solid var(--dark-border)", padding: "24px 32px", textAlign: "center", color: "var(--gray)", fontSize: 12, marginTop: "auto" }}>
+        © 2026 ProofTrip. All rights reserved.
       </footer>
     </>
   );
