@@ -25,10 +25,12 @@ import {
   ExternalLink, Loader2, ArrowRight, ArrowLeft, Plus, RefreshCw, Lock,
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
-  Calendar, RotateCcw, ClipboardList, Ticket,
+  Calendar, RotateCcw, ClipboardList, Ticket, Compass,
 } from "lucide-react";
 import {
   getCuratedCityData,
+  getCityHelplines,
+  getCityReferenceRates,
   type CuratedCity,
   type CityAttraction,
 } from "../lib/curated-city-data";
@@ -600,6 +602,43 @@ export default function Home() {
     setBudgetAmount(inNew);
   };
 
+  // Select destination and open curated customizer flow
+  const handleSelectDestination = (cityName: string, fallbackHero?: string) => {
+    const clean = cityName.trim();
+    if (!clean) return;
+    const match = DESTINATIONS.find(d => d.name.toLowerCase() === clean.toLowerCase());
+    const cityData = getCuratedCityData(clean, fallbackHero || match?.heroImg);
+    setPlannerCity(cityData);
+    setPriceCity(cityData.name);
+    setPlannerStep(1);
+    const initialAttractionIds = cityData.attractions.slice(0, 3).map(a => a.id);
+    setSelectedAttractionIds(initialAttractionIds);
+    setSelectedTransitMode(cityData.transit.recommendedPass);
+    const initialUSD = cityData.avgDailyBudgetUSD * cityData.durationDays;
+    const convertedBudget = convertAmount(initialUSD, selectedCurrency);
+    setBudgetAmount(convertedBudget);
+    setBudget(convertedBudget);
+    setBudgetTier("comfort");
+
+    // Pre-populate expenses with transit pass and iconic attraction tickets
+    const initialExpenses = [
+      { id: "transit", name: cityData.transit.recommendedPass, amount: Math.round(cityData.transit.passPriceUSD * (selectedCurrency === "INR" ? 95 : 1)), cat: "Transport" },
+      ...cityData.attractions.slice(0, 2).map((a, idx) => ({
+        id: `attr-${idx}`,
+        name: a.name,
+        amount: Math.round(a.costUSD * (selectedCurrency === "INR" ? 95 : 1)),
+        cat: "Activity",
+      })),
+    ];
+    setExpenses(initialExpenses);
+
+    setGeneratedPlan(null);
+    setCustomCommitTx(null);
+    setCustomCommitError("");
+    setActiveTab("discover");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // Generate Tailored Itinerary based strictly on chosen attractions, budget & crowd vibe
   const generateTailoredPlan = () => {
     if (!plannerCity) return;
@@ -830,6 +869,16 @@ export default function Home() {
       if (stored) setSavedRecords(JSON.parse(stored));
     } catch { /* ignore */ }
   }, []);
+
+  // Tabs are unlocked once user selects a place or fills the form
+  const hasActivePlan = Boolean(plannerCity !== null || customCommitTx !== null || savedRecords.length > 0);
+
+  // Fallback active tab to discover if active plan resets
+  useEffect(() => {
+    if (!hasActivePlan && activeTab !== "discover") {
+      setActiveTab("discover");
+    }
+  }, [hasActivePlan, activeTab]);
 
   // ── Load agents on mount ──
   useEffect(() => {
@@ -1101,21 +1150,32 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop Tabs */}
+          {/* Desktop Tabs - Empty until user selects a place or fills the form */}
           <div className="nav-tabs">
-            {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
-              <button
-                key={tab}
-                className={`nav-tab ${activeTab === tab ? "active" : ""}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab === "discover" && "🗺 Discover"}
-                {tab === "agents" && "🤖 AI Agents"}
-                {tab === "price" && "💰 Fair Price"}
-                {tab === "safety" && "🛡 Safety"}
-                {tab === "records" && "🔗 On-Chain Records"}
-              </button>
-            ))}
+            {hasActivePlan ? (
+              (["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
+                <button
+                  key={tab}
+                  className={`nav-tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
+                  {tab === "agents" && "🤖 AI Agents"}
+                  {tab === "price" && "💰 Fair Price"}
+                  {tab === "safety" && "🛡 Safety"}
+                  {tab === "records" && (
+                    <span>
+                      🔗 On-Chain Records
+                      {savedRecords.length > 0 && (
+                        <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
+                          {savedRecords.length}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </button>
+              ))
+            ) : null}
           </div>
 
           {/* Right: Wallet */}
@@ -1125,22 +1185,24 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Mobile Tabs (scrollable) */}
-      <div className="mobile-tabs" style={{ paddingTop: "calc(var(--nav-h) + 0px)" }}>
-        {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
-          <button
-            key={tab}
-            className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab === "discover" && "🗺 Discover"}
-            {tab === "agents" && "🤖 Agents"}
-            {tab === "price" && "💰 Price"}
-            {tab === "safety" && "🛡 Safety"}
-            {tab === "records" && "🔗 Records"}
-          </button>
-        ))}
-      </div>
+      {/* Mobile Tabs (scrollable) - Empty until user selects a place or fills the form */}
+      {hasActivePlan && (
+        <div className="mobile-tabs" style={{ paddingTop: "calc(var(--nav-h) + 0px)" }}>
+          {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
+            <button
+              key={tab}
+              className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : "🗺 Discover")}
+              {tab === "agents" && "🤖 Agents"}
+              {tab === "price" && "💰 Price"}
+              {tab === "safety" && "🛡 Safety"}
+              {tab === "records" && `🔗 Records (${savedRecords.length})`}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: DISCOVER                                                 */}
@@ -1968,9 +2030,21 @@ export default function Home() {
                         placeholder="Search any destination — Paris, Mysuru, Tokyo, Dubai..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                            handleSelectDestination(query);
+                          }
+                        }}
                       />
                     </div>
-                    <button className="btn-hero-yellow">
+                    <button
+                      className="btn-hero-yellow"
+                      onClick={() => {
+                        const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                        handleSelectDestination(query);
+                      }}
+                    >
                       <span>Explore the World</span>
                       <ArrowRight size={16} />
                     </button>
@@ -2004,20 +2078,7 @@ export default function Home() {
                     <div
                       key={dest.id}
                       className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
-                      onClick={() => {
-                        const cityData = getCuratedCityData(dest.name, dest.heroImg);
-                        setPlannerCity(cityData);
-                        setPlannerStep(1);
-                        setSelectedAttractionIds(cityData.attractions.slice(0, 3).map(a => a.id));
-                        setSelectedTransitMode(cityData.transit.recommendedPass);
-                        const initialUSD = cityData.avgDailyBudgetUSD * cityData.durationDays;
-                        setBudgetAmount(convertAmount(initialUSD, selectedCurrency));
-                        setBudgetTier("comfort");
-                        setGeneratedPlan(null);
-                        setCustomCommitTx(null);
-                        setCustomCommitError("");
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
+                      onClick={() => handleSelectDestination(dest.name, dest.heroImg)}
                     >
                       <div className="dest-card-photo">
                         <img
@@ -2067,86 +2128,110 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "agents" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Metaplex Agent Registry</div>
-              <h2 className="section-title">Verified Travel Agents</h2>
-              <p className="section-sub">
-                Live agents registered on Solana Devnet via Metaplex program{" "}
-                <code style={{ color: "var(--yellow)", fontSize: 11 }}>1DREGFgy...2B2p</code>
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🤖</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Metaplex AI Travel Agents on Solana Devnet provide localized concierges, route guidance, and escrow verification. Please select a city in Discover or build a custom plan to unlock verified agents.
               </p>
-            </div>
-            <button className="btn-dark" style={{ width: "auto", padding: "10px 20px" }} onClick={loadAgents} disabled={agentsLoading}>
-              {agentsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-              <span>Refresh Registry</span>
-            </button>
-          </div>
-
-          {agentStatus && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24 }}>{agentStatus}</div>
-          )}
-
-          {agentsLoading ? (
-            <div className="empty-state">
-              <div style={{ marginBottom: 16 }}><Loader2 size={32} className="animate-spin" color="var(--yellow)" /></div>
-              <p>Querying Solana Devnet registry...</p>
-            </div>
-          ) : agents.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-state-icon">🤖</div>
-              <h3>No agents found</h3>
-              <p>The Metaplex registry query returned 0 results. Try refreshing.</p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
+              </button>
             </div>
           ) : (
-            <div className="agents-grid">
-              {agents.map((agent, i) => (
-                <div
-                  key={agent.mintAddress || i}
-                  className={`agent-card ${verifiedAsset === agent.mintAddress ? "verified-card" : ""}`}
-                >
-                  <div className="agent-card-top">
-                    <div className="agent-icon">
-                      {agent.verifiedOnDevnet ? "✅" : "🌐"}
-                    </div>
-                    {verifiedAsset === agent.mintAddress ? (
-                      <span className="agent-badge-verified"><CheckCircle size={11} /> Verified</span>
-                    ) : (
-                      <span className="agent-badge-devnet">Devnet</span>
-                    )}
-                  </div>
-                  <div>
-                    <div className="agent-name">{agent.displayName || agent.name}</div>
-                    <div className="agent-specialty">{agent.specialty || "Travel & Tourism"}</div>
-                  </div>
-                  <p className="agent-desc">{agent.description}</p>
-                  {agent.mintAddress && (
-                    <div className="agent-addr">
-                      Asset: {agent.mintAddress.slice(0, 18)}...{agent.mintAddress.slice(-6)}
-                    </div>
-                  )}
-                  <div className="agent-actions">
-                    <button
-                      className="btn-sm-yellow"
-                      disabled={verifyingAsset === agent.mintAddress}
-                      onClick={() => verifyAgentOnChain(agent.mintAddress)}
-                    >
-                      {verifyingAsset === agent.mintAddress
-                        ? <><Loader2 size={12} className="animate-spin" /> Verifying...</>
-                        : <><CheckCircle size={12} /> Verify Identity</>}
-                    </button>
-                    {agent.mintAddress && (
-                      <a
-                        href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
-                        target="_blank" rel="noreferrer"
-                        className="btn-sm-dark"
-                      >
-                        <ExternalLink size={12} />
-                      </a>
-                    )}
-                  </div>
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing verified tourism agents and concierges.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+              <div className="section-header">
+                <div>
+                  <div className="section-label">✦ Metaplex Agent Registry</div>
+                  <h2 className="section-title">Verified Travel Agents</h2>
+                  <p className="section-sub">
+                    Live agents registered on Solana Devnet via Metaplex program{" "}
+                    <code style={{ color: "var(--yellow)", fontSize: 11 }}>1DREGFgy...2B2p</code>
+                  </p>
+                </div>
+                <button className="btn-dark" style={{ width: "auto", padding: "10px 20px" }} onClick={loadAgents} disabled={agentsLoading}>
+                  {agentsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                  <span>Refresh Registry</span>
+                </button>
+              </div>
+
+              {agentStatus && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24 }}>{agentStatus}</div>
+              )}
+
+              {agentsLoading ? (
+                <div className="empty-state">
+                  <div style={{ marginBottom: 16 }}><Loader2 size={32} className="animate-spin" color="var(--yellow)" /></div>
+                  <p>Querying Solana Devnet registry...</p>
+                </div>
+              ) : agents.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">🤖</div>
+                  <h3>No agents found</h3>
+                  <p>The Metaplex registry query returned 0 results. Try refreshing.</p>
+                </div>
+              ) : (
+                <div className="agents-grid">
+                  {agents.map((agent, i) => (
+                    <div
+                      key={agent.mintAddress || i}
+                      className={`agent-card ${verifiedAsset === agent.mintAddress ? "verified-card" : ""}`}
+                    >
+                      <div className="agent-card-top">
+                        <div className="agent-icon">
+                          {agent.verifiedOnDevnet ? "✅" : "🌐"}
+                        </div>
+                        {verifiedAsset === agent.mintAddress ? (
+                          <span className="agent-badge-verified"><CheckCircle size={11} /> Verified</span>
+                        ) : (
+                          <span className="agent-badge-devnet">Devnet</span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="agent-name">{agent.displayName || agent.name}</div>
+                        <div className="agent-specialty">{agent.specialty || "Travel & Tourism"}</div>
+                      </div>
+                      <p className="agent-desc">{agent.description}</p>
+                      {agent.mintAddress && (
+                        <div className="agent-addr">
+                          Asset: {agent.mintAddress.slice(0, 18)}...{agent.mintAddress.slice(-6)}
+                        </div>
+                      )}
+                      <div className="agent-actions">
+                        <button
+                          className="btn-sm-yellow"
+                          disabled={verifyingAsset === agent.mintAddress}
+                          onClick={() => verifyAgentOnChain(agent.mintAddress)}
+                        >
+                          {verifyingAsset === agent.mintAddress
+                            ? <><Loader2 size={12} className="animate-spin" /> Verifying...</>
+                            : <><CheckCircle size={12} /> Verify Identity</>}
+                        </button>
+                        {agent.mintAddress && (
+                          <a
+                            href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
+                            target="_blank" rel="noreferrer"
+                            className="btn-sm-dark"
+                          >
+                            <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -2156,69 +2241,88 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "price" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Price Protection</div>
-              <h2 className="section-title">Fair Price Checker</h2>
-              <p className="section-sub">Compare local quotes against verified reference rates to protect against overcharging</p>
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>💰</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Fair Price Protection compares real quotes against verified municipal benchmarks and transit rates for your destination. Pick a destination or customize your trip in Discover to unlock price checking.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
+              </button>
             </div>
-          </div>
-          <div className="two-col-grid">
-            <div className="feature-card">
-              <div className="feature-card-icon"><DollarSign size={20} /></div>
-              <div className="feature-card-title">Check Price Fairness</div>
-              <p className="feature-card-sub">Enter what you were quoted and we'll compare it against typical local rates.</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <div className="field-label">Service Type</div>
-                  <select className="field-input" value={priceService} onChange={e => setPriceService(e.target.value)}>
-                    <option>Auto-rickshaw</option>
-                    <option>Taxi / Cab</option>
-                    <option>Hotel room (budget)</option>
-                    <option>Hotel room (mid-range)</option>
-                    <option>Tour guide (half-day)</option>
-                    <option>Entry ticket</option>
-                  </select>
-                </div>
-                <div>
-                  <div className="field-label">City / Destination</div>
-                  <input className="field-input" value={priceCity} onChange={e => setPriceCity(e.target.value)} placeholder="e.g. Mysuru" />
-                </div>
-                <div>
-                  <div className="field-label">Your Quote (₹ / $)</div>
-                  <input className="field-input" type="number" value={priceQuote} onChange={e => setPriceQuote(e.target.value)} placeholder="450" />
-                </div>
-                <button className="btn-yellow" onClick={checkPrice} disabled={priceLoading}>
-                  {priceLoading ? <><Loader2 size={15} className="animate-spin" /><span>Checking...</span></> : <><DollarSign size={15} /><span>Check Price</span></>}
-                </button>
-              </div>
-              {priceResult && !priceResult.error && (
-                <div className={`status-box ${priceResult.verdict === "Fair" ? "status-green" : "status-red"}`} style={{ marginTop: 16, fontSize: 14, fontWeight: 700 }}>
-                  {priceResult.verdict === "Fair" ? "✓ Fair Price" : "⚠ Possibly Overpriced"} — Reference: {priceResult.reference} | Your quote: {priceResult.quote}
+          ) : (
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Benchmarked against verified 2024–2025 municipal rates.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
+                  </button>
                 </div>
               )}
-            </div>
-            <div className="feature-card">
-              <div className="feature-card-icon"><Receipt size={20} /></div>
-              <div className="feature-card-title">Reference Rate Guide</div>
-              <p className="feature-card-sub">Typical rates in Indian tourism cities (2024 estimates).</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  { service: "Auto-rickshaw (short hop)", rate: "₹50–120" },
-                  { service: "City taxi (10km)", rate: "₹150–280" },
-                  { service: "Tour guide (half-day)", rate: "₹400–800" },
-                  { service: "Hotel room (budget)", rate: "₹800–1,500" },
-                  { service: "Hotel room (mid-range)", rate: "₹2,000–4,500" },
-                  { service: "Monument entry ticket", rate: "₹30–200" },
-                ].map((r, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--dark-border)", fontSize: 13 }}>
-                    <span style={{ color: "var(--gray-light)" }}>{r.service}</span>
-                    <span style={{ color: "var(--yellow)", fontWeight: 700 }}>{r.rate}</span>
-                  </div>
-                ))}
+              <div className="section-header">
+                <div>
+                  <div className="section-label">✦ Price Protection</div>
+                  <h2 className="section-title">Fair Price Checker</h2>
+                  <p className="section-sub">Compare local quotes against verified reference rates to protect against overcharging</p>
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="two-col-grid">
+                <div className="feature-card">
+                  <div className="feature-card-icon"><DollarSign size={20} /></div>
+                  <div className="feature-card-title">Check Price Fairness</div>
+                  <p className="feature-card-sub">Enter what you were quoted and we'll compare it against typical local rates.</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <div>
+                      <div className="field-label">Service Type</div>
+                      <select className="field-input" value={priceService} onChange={e => setPriceService(e.target.value)}>
+                        <option>Auto-rickshaw / Taxi</option>
+                        <option>City taxi / Cab</option>
+                        <option>Hotel room (budget)</option>
+                        <option>Hotel room (mid-range)</option>
+                        <option>Tour guide (half-day)</option>
+                        <option>Entry ticket</option>
+                      </select>
+                    </div>
+                    <div>
+                      <div className="field-label">City / Destination</div>
+                      <input className="field-input" value={priceCity} onChange={e => setPriceCity(e.target.value)} placeholder="e.g. Mysuru" />
+                    </div>
+                    <div>
+                      <div className="field-label">Your Quote (₹ / $)</div>
+                      <input className="field-input" type="number" value={priceQuote} onChange={e => setPriceQuote(e.target.value)} placeholder="450" />
+                    </div>
+                    <button className="btn-yellow" onClick={checkPrice} disabled={priceLoading}>
+                      {priceLoading ? <><Loader2 size={15} className="animate-spin" /><span>Checking...</span></> : <><DollarSign size={15} /><span>Check Price</span></>}
+                    </button>
+                  </div>
+                  {priceResult && !priceResult.error && (
+                    <div className={`status-box ${priceResult.verdict === "Fair" ? "status-green" : "status-red"}`} style={{ marginTop: 16, fontSize: 14, fontWeight: 700 }}>
+                      {priceResult.verdict === "Fair" ? "✓ Fair Price" : "⚠ Possibly Overpriced"} — Reference: {priceResult.reference} | Your quote: {priceResult.quote}
+                    </div>
+                  )}
+                </div>
+                <div className="feature-card">
+                  <div className="feature-card-icon"><Receipt size={20} /></div>
+                  <div className="feature-card-title">Reference Rate Guide</div>
+                  <p className="feature-card-sub">
+                    Typical rates in {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : priceCity || "Indian tourism cities"} (2024–2025 verified benchmarks).
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {getCityReferenceRates(plannerCity?.name || priceCity || "India", plannerCity?.country || "India").map((r, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--dark-border)", fontSize: 13 }}>
+                        <span style={{ color: "var(--gray-light)" }}>{r.service}</span>
+                        <span style={{ color: "var(--yellow)", fontWeight: 700 }}>{r.rate}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -2227,79 +2331,102 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "safety" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Trip Management</div>
-              <h2 className="section-title">Safety & Budget</h2>
-              <p className="section-sub">Emergency helplines and trip expense tracker</p>
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🛡️</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>Select a Destination First</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Safety contacts, emergency helplines, and the trip expense tracker are tailored to your chosen destination. Select a city in Discover to view emergency numbers and manage your budget.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
+              </button>
             </div>
-          </div>
-          <div className="two-col-grid">
-            {/* Emergency Contacts */}
-            <div className="feature-card">
-              <div className="feature-card-icon"><Phone size={20} /></div>
-              <div className="feature-card-title">Emergency Helplines</div>
-              <p className="feature-card-sub">Karnataka & India emergency contacts for travellers.</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  { label: "Police", number: "100", color: "#5585E0" },
-                  { label: "Ambulance", number: "108", color: "#E05555" },
-                  { label: "Tourist Helpline (India)", number: "1363 / 1800-11-1363", color: "var(--yellow)" },
-                  { label: "Women's Helpline", number: "181", color: "#9B59B6" },
-                  { label: "Fire", number: "101", color: "#E07030" },
-                  { label: "Road Accident", number: "1073", color: "var(--gray-light)" },
-                ].map(c => (
-                  <div key={c.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "var(--dark-elevated)", borderRadius: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Phone size={14} color={c.color} />
-                      <span style={{ fontSize: 13, color: "var(--gray-light)" }}>{c.label}</span>
-                    </div>
-                    <span style={{ fontWeight: 800, fontSize: 16, color: c.color }}>{c.number}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Budget Tracker */}
-            <div className="feature-card">
-              <div className="feature-card-icon"><Receipt size={20} /></div>
-              <div className="feature-card-title">Trip Expense Tracker</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={{ fontSize: 13, color: "var(--gray)" }}>Budget: ₹{budget.toLocaleString()}</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }}>
-                  Spent: ₹{totalSpent.toLocaleString()} ({budgetPct}%)
-                </span>
-              </div>
-              <div className="budget-bar-track">
-                <div className="budget-bar-fill" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }} />
-              </div>
-              <div style={{ marginTop: 16, marginBottom: 12 }}>
-                {expenses.map(e => (
-                  <div key={e.id} className="expense-row">
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.name}</div>
-                      <span className="expense-cat-badge">{e.cat}</span>
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)" }}>₹{e.amount.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--dark-border)", paddingTop: 14 }}>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input className="field-input" placeholder="Expense name" value={newExpName} onChange={e => setNewExpName(e.target.value)} style={{ flex: 1 }} />
-                  <input className="field-input" placeholder="₹" type="number" value={newExpAmount} onChange={e => setNewExpAmount(e.target.value)} style={{ width: 80 }} />
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <select className="field-input" style={{ flex: 1 }} value={newExpCat} onChange={e => setNewExpCat(e.target.value)}>
-                    {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => <option key={c}>{c}</option>)}
-                  </select>
-                  <button className="btn-yellow" style={{ width: "auto", padding: "0 16px" }} onClick={addExpense}>
-                    <Plus size={16} />
+          ) : (
+            <>
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
                   </button>
                 </div>
+              )}
+              <div className="section-header">
+                <div>
+                  <div className="section-label">✦ Trip Management</div>
+                  <h2 className="section-title">Safety & Budget</h2>
+                  <p className="section-sub">Emergency helplines and trip expense tracker</p>
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="two-col-grid">
+                {/* Emergency Contacts */}
+                <div className="feature-card">
+                  <div className="feature-card-icon"><Phone size={20} /></div>
+                  <div className="feature-card-title">Emergency Helplines</div>
+                  <p className="feature-card-sub">
+                    Official emergency contacts for {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : "your destination"}.
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {getCityHelplines(plannerCity?.name || "India", plannerCity?.country || "India").map(c => (
+                      <div key={c.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "var(--dark-elevated)", borderRadius: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <Phone size={14} color={c.color} />
+                          <span style={{ fontSize: 13, color: "var(--gray-light)" }}>{c.label}</span>
+                        </div>
+                        <span style={{ fontWeight: 800, fontSize: 16, color: c.color }}>{c.number}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Budget Tracker */}
+                <div className="feature-card">
+                  <div className="feature-card-icon"><Receipt size={20} /></div>
+                  <div className="feature-card-title">Trip Expense Tracker</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <span style={{ fontSize: 13, color: "var(--gray)" }}>
+                      Budget: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{budget.toLocaleString()}
+                    </span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }}>
+                      Spent: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{totalSpent.toLocaleString()} ({budgetPct}%)
+                    </span>
+                  </div>
+                  <div className="budget-bar-track">
+                    <div className="budget-bar-fill" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }} />
+                  </div>
+                  <div style={{ marginTop: 16, marginBottom: 12 }}>
+                    {expenses.map(e => (
+                      <div key={e.id} className="expense-row">
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.name}</div>
+                          <span className="expense-cat-badge">{e.cat}</span>
+                        </div>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)" }}>
+                          {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{e.amount.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--dark-border)", paddingTop: 14 }}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input className="field-input" placeholder="Expense name" value={newExpName} onChange={e => setNewExpName(e.target.value)} style={{ flex: 1 }} />
+                      <input className="field-input" placeholder="Amount" type="number" value={newExpAmount} onChange={e => setNewExpAmount(e.target.value)} style={{ width: 88 }} />
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <select className="field-input" style={{ flex: 1 }} value={newExpCat} onChange={e => setNewExpCat(e.target.value)}>
+                        {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => <option key={c}>{c}</option>)}
+                      </select>
+                      <button className="btn-yellow" style={{ width: "auto", padding: "0 16px" }} onClick={addExpense}>
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -2308,84 +2435,108 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "records" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Blockchain Verified</div>
-              <h2 className="section-title">On-Chain Itinerary Records</h2>
-              <p className="section-sub">Every committed itinerary is immutably stored on Solana Devnet. Verify any hash independently.</p>
-            </div>
-          </div>
-
-          {savedRecords.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-state-icon">🔗</div>
-              <h3>No records yet</h3>
-              <p>Go to Discover, select a destination, and click "Commit Hash to Solana Devnet" to create your first tamper-evident itinerary record.</p>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {savedRecords.map((rec, i) => (
-                <div key={i} className="record-card">
-                  <div className="record-icon">✓</div>
-                  <div className="record-body">
-                    <div className="record-dest">{rec.dest} — Itinerary Hash Committed</div>
-                    <div className="record-hash">Hash: {rec.hash}</div>
-                    <div className="record-time">{rec.time}</div>
-                  </div>
-                  {rec.tx.startsWith("demo_") ? (
-                    <a
-                      href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
-                      target="_blank" rel="noreferrer"
-                      className="record-link"
-                    >
-                      <ExternalLink size={13} /> View Anchor Program
-                    </a>
-                  ) : (
-                    <a
-                      href={`https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
-                      target="_blank" rel="noreferrer"
-                      className="record-link"
-                    >
-                      <ExternalLink size={13} /> View on Explorer
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Hash Verifier */}
-          <div className="feature-card" style={{ marginTop: 32, maxWidth: 600 }}>
-            <div className="feature-card-title" style={{ marginBottom: 6 }}>Hash Tamper Verifier</div>
-            <p className="feature-card-sub">Paste any 64-character SHA-256 hash to verify its format integrity.</p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <input
-                className="field-input"
-                placeholder="Paste 64-character SHA-256 hex..."
-                value={verifyHashInput}
-                onChange={e => setVerifyHashInput(e.target.value)}
-                style={{ flex: 1 }}
-              />
-              <button
-                className="btn-yellow"
-                style={{ width: "auto", padding: "0 20px", whiteSpace: "nowrap" }}
-                onClick={() => {
-                  if (verifyHashInput.length === 64 && /^[0-9a-f]+$/.test(verifyHashInput)) {
-                    setVerifyStatus("✓ Valid SHA-256 hash — matches canonical commitment structure");
-                  } else {
-                    setVerifyStatus("✗ Invalid: must be exactly 64 lowercase hex characters");
-                  }
-                }}
-              >
-                Verify
+          {!hasActivePlan ? (
+            <div className="empty-state" style={{ padding: "80px 24px", maxWidth: 620, margin: "0 auto", textAlign: "center" }}>
+              <div className="empty-state-icon" style={{ fontSize: 52, marginBottom: 16 }}>🔗</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#FFF", marginBottom: 10 }}>No On-Chain Records Yet</h3>
+              <p style={{ color: "var(--gray)", fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+                Tamper-evident trip agreements are hashed (SHA-256) and committed immutably to Solana Devnet. Select a destination in Discover and complete your 5-step customized plan to record your travel agreement.
+              </p>
+              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
+                <Compass size={16} />
+                <span>Explore Curated Destinations</span>
               </button>
             </div>
-            {verifyStatus && (
-              <div className={`status-box ${verifyStatus.startsWith("✓") ? "status-green" : "status-red"}`} style={{ marginTop: 12, fontSize: 13 }}>
-                {verifyStatus}
+          ) : (
+            <>
+              {plannerCity && !customCommitTx && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to commit to Solana Devnet.</span>
+                  <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Proceed to Step 5 to Commit Hash
+                  </button>
+                </div>
+              )}
+              <div className="section-header">
+                <div>
+                  <div className="section-label">✦ Blockchain Verified</div>
+                  <h2 className="section-title">On-Chain Itinerary Records</h2>
+                  <p className="section-sub">Every committed itinerary is immutably stored on Solana Devnet. Verify any hash independently.</p>
+                </div>
               </div>
-            )}
-          </div>
+
+              {savedRecords.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">🔗</div>
+                  <h3>No records yet</h3>
+                  <p>Go to Discover, select a destination, and click "Commit Hash to Solana Devnet" to create your first tamper-evident itinerary record.</p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {savedRecords.map((rec, i) => (
+                    <div key={i} className="record-card">
+                      <div className="record-icon">✓</div>
+                      <div className="record-body">
+                        <div className="record-dest">{rec.dest} — Itinerary Hash Committed</div>
+                        <div className="record-hash">Hash: {rec.hash}</div>
+                        <div className="record-time">{rec.time}</div>
+                      </div>
+                      {rec.tx.startsWith("demo_") ? (
+                        <a
+                          href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                          target="_blank" rel="noreferrer"
+                          className="record-link"
+                        >
+                          <ExternalLink size={13} /> View Anchor Program
+                        </a>
+                      ) : (
+                        <a
+                          href={`https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
+                          target="_blank" rel="noreferrer"
+                          className="record-link"
+                        >
+                          <ExternalLink size={13} /> View on Explorer
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Hash Verifier */}
+              <div className="feature-card" style={{ marginTop: 32, maxWidth: 600 }}>
+                <div className="feature-card-title" style={{ marginBottom: 6 }}>Hash Tamper Verifier</div>
+                <p className="feature-card-sub">Paste any 64-character SHA-256 hash to verify its format integrity.</p>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <input
+                    className="field-input"
+                    placeholder="Paste 64-character SHA-256 hex..."
+                    value={verifyHashInput}
+                    onChange={e => setVerifyHashInput(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn-yellow"
+                    style={{ width: "auto", padding: "0 20px", whiteSpace: "nowrap" }}
+                    onClick={() => {
+                      if (verifyHashInput.length === 64 && /^[0-9a-f]+$/.test(verifyHashInput)) {
+                        setVerifyStatus("✓ Valid SHA-256 hash — matches canonical commitment structure");
+                      } else {
+                        setVerifyStatus("✗ Invalid: must be exactly 64 lowercase hex characters");
+                      }
+                    }}
+                  >
+                    Verify
+                  </button>
+                </div>
+                {verifyStatus && (
+                  <div className={`status-box ${verifyStatus.startsWith("✓") ? "status-green" : "status-red"}`} style={{ marginTop: 12, fontSize: 13 }}>
+                    {verifyStatus}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 

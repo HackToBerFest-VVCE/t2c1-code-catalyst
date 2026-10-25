@@ -1202,3 +1202,219 @@ export function getCuratedCityData(cityName: string, fallbackHero?: string): Cur
     },
   };
 }
+
+export interface HelplineContact {
+  label: string;
+  number: string;
+  color: string;
+}
+
+export function getCityHelplines(cityName: string, country: string): HelplineContact[] {
+  const norm = (cityName + " " + country).toLowerCase();
+
+  if (norm.includes("france") || norm.includes("paris")) {
+    return [
+      { label: "European Emergency", number: "112", color: "var(--yellow)" },
+      { label: "Police Secours", number: "17", color: "#5585E0" },
+      { label: "Ambulance (SAMU)", number: "15", color: "#E05555" },
+      { label: "Paris Tourist Police", number: "+33 1 53 71 53 71", color: "#14F195" },
+      { label: "Fire Brigade (Pompiers)", number: "18", color: "#E07030" },
+      { label: "SOS Médecins (24/7 Doctor)", number: "36 24", color: "#9B59B6" },
+    ];
+  }
+
+  if (norm.includes("japan") || norm.includes("tokyo")) {
+    return [
+      { label: "Police (Incident & Lost Items)", number: "110", color: "#5585E0" },
+      { label: "Ambulance & Fire Service", number: "119", color: "#E05555" },
+      { label: "Japan Visitor Tourist Helpline", number: "0570-000-911", color: "var(--yellow)" },
+      { label: "Tokyo Metropolitan Police English", number: "03-3501-0110", color: "#14F195" },
+      { label: "Emergency Doctor (Himawari)", number: "03-5272-0303", color: "#9B59B6" },
+      { label: "Disaster Preparedness Line", number: "171", color: "#E07030" },
+    ];
+  }
+
+  if (norm.includes("emirates") || norm.includes("uae") || norm.includes("dubai")) {
+    return [
+      { label: "Dubai Police Emergency", number: "999", color: "#5585E0" },
+      { label: "Ambulance Service", number: "998", color: "#E05555" },
+      { label: "Dubai Tourist Police (24/7)", number: "901", color: "var(--yellow)" },
+      { label: "Civil Defense / Fire", number: "997", color: "#E07030" },
+      { label: "Coast Guard / Marine Emergency", number: "996", color: "#14F195" },
+      { label: "RTA Public Transit Inquiries", number: "800 90 90", color: "#9B59B6" },
+    ];
+  }
+
+  if (norm.includes("switzerland")) {
+    return [
+      { label: "General European Emergency", number: "112", color: "var(--yellow)" },
+      { label: "Swiss Police", number: "117", color: "#5585E0" },
+      { label: "Swiss Ambulance Service", number: "144", color: "#E05555" },
+      { label: "Rega Alpine Air Rescue", number: "1414", color: "#E07030" },
+      { label: "Tox Info Swiss (Poison/Medical)", number: "145", color: "#9B59B6" },
+      { label: "Swiss Fire Brigade", number: "118", color: "#14F195" },
+    ];
+  }
+
+  if (norm.includes("italy") || norm.includes("rome")) {
+    return [
+      { label: "European Emergency", number: "112", color: "var(--yellow)" },
+      { label: "State Police (Carabinieri)", number: "113", color: "#5585E0" },
+      { label: "Ambulance (Pronto Soccorso)", number: "118", color: "#E05555" },
+      { label: "Fire (Vigili del Fuoco)", number: "115", color: "#E07030" },
+      { label: "Rome City Tourist Call Center", number: "060608", color: "#14F195" },
+      { label: "Roadside Assistance (ACI)", number: "803 116", color: "#9B59B6" },
+    ];
+  }
+
+  if (norm.includes("indonesia") || norm.includes("bali")) {
+    return [
+      { label: "National Emergency Line", number: "112", color: "var(--yellow)" },
+      { label: "Police (Polisi)", number: "110", color: "#5585E0" },
+      { label: "Ambulance Service", number: "118", color: "#E05555" },
+      { label: "Bali Tourist Police Unit", number: "(0361) 754599", color: "#14F195" },
+      { label: "Search & Rescue (BASARNAS)", number: "115", color: "#E07030" },
+      { label: "Fire Department", number: "113", color: "#9B59B6" },
+    ];
+  }
+
+  if (norm.includes("greece")) {
+    return [
+      { label: "European Emergency Line", number: "112", color: "var(--yellow)" },
+      { label: "Greek Police", number: "100", color: "#5585E0" },
+      { label: "Tourist Police (English/Greek)", number: "1571", color: "var(--yellow)" },
+      { label: "National Ambulance (EKAV)", number: "166", color: "#E05555" },
+      { label: "Coast Guard / Island Marine Rescue", number: "108", color: "#14F195" },
+      { label: "Fire Service", number: "199", color: "#E07030" },
+    ];
+  }
+
+  if (norm.includes("maldives")) {
+    return [
+      { label: "Maldives Police Service", number: "119", color: "#5585E0" },
+      { label: "Medical Emergency & Ambulance", number: "102", color: "#E05555" },
+      { label: "Maldives Tourist Police Unit", number: "+960 979 0070", color: "var(--yellow)" },
+      { label: "MNDF Coast Guard (Atoll Emergencies)", number: "191", color: "#14F195" },
+      { label: "Fire & Rescue Service", number: "118", color: "#E07030" },
+      { label: "Velana Int'l Airport Operations", number: "+960 332 3506", color: "#9B59B6" },
+    ];
+  }
+
+  // India & Default Regional Numbers
+  return [
+    { label: "National Emergency / Police", number: "112 / 100", color: "#5585E0" },
+    { label: "Ambulance", number: "108", color: "#E05555" },
+    { label: "Incredible India Tourist Helpline", number: "1363 / 1800-11-1363", color: "var(--yellow)" },
+    { label: "Women's Helpline (24/7)", number: "181", color: "#9B59B6" },
+    { label: "Fire Emergency", number: "101", color: "#E07030" },
+    { label: "National Highway Accident Line", number: "1033", color: "#14F195" },
+  ];
+}
+
+export interface ReferenceRateItem {
+  service: string;
+  rate: string;
+}
+
+export function getCityReferenceRates(cityName: string, country: string): ReferenceRateItem[] {
+  const norm = (cityName + " " + country).toLowerCase();
+
+  if (norm.includes("france") || norm.includes("paris")) {
+    return [
+      { service: "Metro / RER single ticket", rate: "€2.15 (~$2.30)" },
+      { service: "Airport taxi flat rate (Right Bank)", rate: "€56 flat" },
+      { service: "Airport taxi flat rate (Left Bank)", rate: "€65 flat" },
+      { service: "Louvre Museum general admission", rate: "€22" },
+      { service: "Bistro 2-course lunch menu", rate: "€16–€24" },
+      { service: "Café espresso at bar counter", rate: "€2.00–€2.60" },
+    ];
+  }
+
+  if (norm.includes("japan") || norm.includes("tokyo")) {
+    return [
+      { service: "Tokyo Subway 24-hr unlimited ticket", rate: "¥800 (~$5.30)" },
+      { service: "Narita Express to Tokyo Station", rate: "¥3,070" },
+      { service: "Ramen bowl + gyoza lunch", rate: "¥900–¥1,350" },
+      { service: "Capsule / Business hotel room", rate: "¥6,500–¥11,000" },
+      { service: "Shinjuku Gyoen / Garden entry", rate: "¥500" },
+      { service: "Convenience store onigiri & green tea", rate: "¥300" },
+    ];
+  }
+
+  if (norm.includes("emirates") || norm.includes("uae") || norm.includes("dubai")) {
+    return [
+      { service: "Dubai Metro single (Zone 1–2)", rate: "AED 4.00–6.00" },
+      { service: "RTA Taxi flag-down fare", rate: "AED 12 + 2.19/km" },
+      { service: "Burj Khalifa At the Top (L124)", rate: "AED 179" },
+      { service: "Traditional Abra Creek crossing", rate: "AED 1.00" },
+      { service: "Shawarma wrap at Al Mallah", rate: "AED 12–18" },
+      { service: "Shared desert safari + BBQ dinner", rate: "AED 120–160" },
+    ];
+  }
+
+  if (norm.includes("switzerland")) {
+    return [
+      { service: "Swiss Travel Pass (daily flex)", rate: "CHF 75" },
+      { service: "SBB InterCity regional hop", rate: "CHF 14–32" },
+      { service: "Traditional cheese fondue meal", rate: "CHF 29–38" },
+      { service: "Mountain gondola / cogwheel ticket", rate: "CHF 45–85" },
+      { service: "Mid-range alpine hotel room", rate: "CHF 160–280" },
+      { service: "Espresso & croissant at bakery", rate: "CHF 7.50" },
+    ];
+  }
+
+  if (norm.includes("italy") || norm.includes("rome")) {
+    return [
+      { service: "ATAC 100-minute bus/metro ticket", rate: "€1.50" },
+      { service: "Fiumicino airport taxi flat rate", rate: "€55 flat" },
+      { service: "Colosseum + Roman Forum ticket", rate: "€18" },
+      { service: "Trattoria cacio e pepe pasta", rate: "€12–€16" },
+      { service: "Espresso at the counter", rate: "€1.20–€1.60" },
+      { service: "Artisanal gelato (2 flavors)", rate: "€3.00–€4.00" },
+    ];
+  }
+
+  if (norm.includes("indonesia") || norm.includes("bali")) {
+    return [
+      { service: "Scooter rental (daily rate)", rate: "IDR 75,000–95,000 (~$5–$6)" },
+      { service: "Private car with driver (full day)", rate: "IDR 600,000–750,000" },
+      { service: "Local Warung Nasi Campur meal", rate: "IDR 25,000–40,000" },
+      { service: "Beachfront villa room (mid-range)", rate: "IDR 550,000–950,000" },
+      { service: "Uluwatu Temple entry + Kecak dance", rate: "IDR 50,000 + 150,000" },
+      { service: "Traditional 1-hour Balinese massage", rate: "IDR 120,000–160,000" },
+    ];
+  }
+
+  if (norm.includes("greece")) {
+    return [
+      { service: "Athens Metro 90-minute pass", rate: "€1.20" },
+      { service: "High-speed island ferry (standard)", rate: "€45–€70" },
+      { service: "Acropolis & Parthenon entry", rate: "€20" },
+      { service: "Traditional gyro pita wrap", rate: "€3.80–€4.80" },
+      { service: "Seaside taverna fresh seafood meal", rate: "€22–€36" },
+      { service: "Freddo espresso at café", rate: "€3.50" },
+    ];
+  }
+
+  if (norm.includes("maldives")) {
+    return [
+      { service: "MTCC Public Atoll Ferry ticket", rate: "$2.00–$4.00" },
+      { service: "Airport to Maafushi Speedboat", rate: "$25.00 flat" },
+      { service: "Local island guesthouse room", rate: "$65–$120 / night" },
+      { service: "Fresh grilled reef fish meal", rate: "$12–$20" },
+      { service: "Guided coral reef snorkeling tour", rate: "$35–$50" },
+      { service: "Short-eats (Hedhika) snack pack", rate: "$1.50" },
+    ];
+  }
+
+  // India defaults
+  return [
+    { service: "Auto-rickshaw (short hop)", rate: "₹50–120" },
+    { service: "City taxi / cab (10km)", rate: "₹150–280" },
+    { service: "Tour guide (half-day licensed)", rate: "₹400–800" },
+    { service: "Hotel room (clean budget)", rate: "₹800–1,500" },
+    { service: "Hotel room (heritage / 3-4 star)", rate: "₹2,000–4,500" },
+    { service: "Monument entry ticket", rate: "₹25–200" },
+  ];
+}
+
