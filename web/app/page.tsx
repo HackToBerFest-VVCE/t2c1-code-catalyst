@@ -1,8 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { WalletMultiButton, useWalletModal } from "@solana/wallet-adapter-react-ui";
+import dynamic from "next/dynamic";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+
+// Client-only dynamic import of WalletMultiButton to eliminate Next.js SSR hydration mismatch
+const WalletMultiButton = dynamic(
+  async () => (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
+  {
+    ssr: false,
+    loading: () => (
+      <button className="wallet-adapter-button" style={{ opacity: 0.8 }}>
+        Select Wallet
+      </button>
+    ),
+  }
+);
 import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
 import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { tourismIdl } from "../lib/tourism-idl";
@@ -157,6 +171,11 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDest, setSelectedDest] = useState<DestinationItem>(DESTINATIONS[0]);
   const [heroThumb, setHeroThumb] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Solana / Blockchain
   const { connection } = useConnection();
@@ -630,7 +649,7 @@ export default function Home() {
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", padding: "4px 2px" }}>
                     <span>
-                      {wallet.publicKey ? (
+                      {mounted && wallet.publicKey ? (
                         <span style={{ color: "var(--success)", fontWeight: 600 }}>
                           🟢 Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
                         </span>
@@ -638,7 +657,7 @@ export default function Home() {
                         <span>⚡ Instant Devnet Demo Mode (Zero setup required)</span>
                       )}
                     </span>
-                    {!wallet.publicKey && (
+                    {mounted && !wallet.publicKey && (
                       <button
                         onClick={() => openWalletModal(true)}
                         style={{ background: "none", border: "none", color: "var(--yellow)", cursor: "pointer", fontSize: 12, textDecoration: "underline", fontWeight: 600 }}
