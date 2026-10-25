@@ -236,7 +236,7 @@ export default function Home() {
     try {
       const res = await fetch(`/api/agents/verify?asset=${mintAddress}`);
       const data = await res.json();
-      if (data.verified) setVerifiedAsset(mintAddress);
+      if (data.registered || data.verified) setVerifiedAsset(mintAddress);
       else setVerifiedAsset(null);
     } catch { /* ignore */ }
     finally { setVerifyingAsset(null); }
@@ -248,41 +248,44 @@ export default function Home() {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
   }
 
-  // ── Commit with connected wallet ──
+  // ── Unified Devnet Commit Flow (Never fails or blocks users without wallet) ──
   async function handleCommitItinerary() {
-    if (!wallet.publicKey || !wallet.sendTransaction) {
-      setCommitError("No wallet connected. Opening wallet connector...");
-      openWalletModal(true);
+    // If user has Phantom / Solflare connected, commit via their wallet
+    if (wallet.publicKey) {
+      const programIdStr = process.env.NEXT_PUBLIC_TOURISM_PROGRAM_ID || "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN";
+      setCommitLoading(true);
+      setCommitError("");
+      setCommitTx(null);
+      try {
+        const provider = new AnchorProvider(connection, wallet as never, { commitment: "confirmed" });
+        const program = new Program({ ...tourismIdl, address: programIdStr } as unknown as Idl, provider);
+        const itineraryText = `${selectedDest.tripTitle} | ${selectedDest.name} | ${selectedDest.duration} | stops:${selectedDest.stops.map(s => s.name).join(",")}`;
+        const hashHex = await sha256hex(itineraryText);
+        const hashBytes = Array.from(Buffer.from(hashHex, "hex"));
+        const agentAsset = new PublicKey("CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn");
+        const [recordPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from("itinerary"), wallet.publicKey.toBuffer(), agentAsset.toBuffer()],
+          new PublicKey(programIdStr)
+        );
+        const tx = await (program.methods as any).commitItinerary(agentAsset, hashBytes, selectedDest.name)
+          .accounts({ record: recordPda, traveler: wallet.publicKey, systemProgram: SystemProgram.programId })
+          .rpc();
+        setCommitTx(tx);
+        const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
+        const updated = [rec, ...savedRecords].slice(0, 10);
+        setSavedRecords(updated);
+        localStorage.setItem("prooftrip_records", JSON.stringify(updated));
+      } catch (e: any) {
+        setCommitError(e.message || "Transaction failed");
+      } finally {
+        setCommitLoading(false);
+      }
       return;
     }
-    const programIdStr = process.env.NEXT_PUBLIC_TOURISM_PROGRAM_ID || "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN";
-    setCommitLoading(true);
-    setCommitError("");
-    setCommitTx(null);
-    try {
-      const provider = new AnchorProvider(connection, wallet as never, { commitment: "confirmed" });
-      const program = new Program({ ...tourismIdl, address: programIdStr } as unknown as Idl, provider);
-      const itineraryText = `${selectedDest.tripTitle} | ${selectedDest.name} | ${selectedDest.duration} | stops:${selectedDest.stops.map(s => s.name).join(",")}`;
-      const hashHex = await sha256hex(itineraryText);
-      const hashBytes = Array.from(Buffer.from(hashHex, "hex"));
-      const agentAsset = new PublicKey("CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn");
-      const [recordPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("itinerary"), wallet.publicKey.toBuffer(), agentAsset.toBuffer()],
-        new PublicKey(programIdStr)
-      );
-      const tx = await (program.methods as any).commitItinerary(agentAsset, hashBytes, selectedDest.name)
-        .accounts({ record: recordPda, traveler: wallet.publicKey, systemProgram: SystemProgram.programId })
-        .rpc();
-      setCommitTx(tx);
-      const rec = { dest: selectedDest.name, tx, hash: hashHex.slice(0, 16) + "...", time: new Date().toLocaleString() };
-      const updated = [rec, ...savedRecords].slice(0, 10);
-      setSavedRecords(updated);
-      localStorage.setItem("prooftrip_records", JSON.stringify(updated));
-    } catch (e: any) {
-      setCommitError(e.message || "Transaction failed");
-    } finally {
-      setCommitLoading(false);
-    }
+
+    // If user does NOT have a wallet connected, seamlessly commit via instant Devnet demo keypair!
+    // No red error, no blocking popup!
+    await handleDemoCommit();
   }
 
   // ── Demo commit (ephemeral keypair, no wallet needed) ──
@@ -573,14 +576,14 @@ export default function Home() {
                 {/* Commit section */}
                 <div className="detail-actions">
                   {commitTx && (
-                    <div className="status-box status-green" style={{ fontSize: 12 }}>
-                      ✓ Committed on Solana Devnet!{" "}
+                    <div className="status-box status-green" style={{ fontSize: 13, lineHeight: 1.6 }}>
+                      <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Immutable Itinerary Hash Committed on Solana Devnet!</div>
                       <a
                         href={`https://explorer.solana.com/tx/${commitTx}?cluster=devnet`}
                         target="_blank" rel="noreferrer"
-                        style={{ color: "var(--yellow)", textDecoration: "underline" }}
+                        style={{ color: "var(--yellow)", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4 }}
                       >
-                        View transaction ↗
+                        View Verified Transaction on Solana Explorer <ExternalLink size={12} />
                       </a>
                     </div>
                   )}
@@ -588,12 +591,33 @@ export default function Home() {
                     <div className="status-box status-red" style={{ fontSize: 12 }}>{commitError}</div>
                   )}
 
-                  <button className="btn-yellow" onClick={handleCommitItinerary} disabled={commitLoading}>
-                    {commitLoading ? <><Loader2 size={16} className="animate-spin" /><span>Confirming...</span></> : <><Lock size={15} /><span>Commit Hash to Solana Devnet</span></>}
+                  <button className="btn-yellow" onClick={handleCommitItinerary} disabled={commitLoading || demoSigning}>
+                    {commitLoading || demoSigning ? (
+                      <><Loader2 size={16} className="animate-spin" /><span>Submitting to Solana Devnet...</span></>
+                    ) : (
+                      <><Lock size={15} /><span>Commit Itinerary Hash on Solana Devnet</span></>
+                    )}
                   </button>
-                  <button className="btn-dark" onClick={handleDemoCommit} disabled={demoSigning}>
-                    {demoSigning ? <><Loader2 size={15} className="animate-spin" /><span>Signing on Devnet...</span></> : <><Zap size={15} style={{ color: "var(--yellow)" }} /><span>⚡ Instant Demo Commit (No Wallet)</span></>}
-                  </button>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", padding: "4px 2px" }}>
+                    <span>
+                      {wallet.publicKey ? (
+                        <span style={{ color: "var(--success)", fontWeight: 600 }}>
+                          🟢 Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
+                        </span>
+                      ) : (
+                        <span>⚡ Instant Devnet Demo Mode (Zero setup required)</span>
+                      )}
+                    </span>
+                    {!wallet.publicKey && (
+                      <button
+                        onClick={() => openWalletModal(true)}
+                        style={{ background: "none", border: "none", color: "var(--yellow)", cursor: "pointer", fontSize: 12, textDecoration: "underline", fontWeight: 600 }}
+                      >
+                        Connect Phantom (Optional)
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
