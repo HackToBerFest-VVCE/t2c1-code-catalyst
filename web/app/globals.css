@@ -17,9 +17,19 @@
   --nav-h: 68px;
 }
 
+/* ── Custom Luxury Travel Waypoint Cursors ── */
+:root {
+  --cursor-default: url('/cursor-default.svg') 3 2, auto;
+  --cursor-pointer: url('/cursor-pointer.svg') 3 2, pointer;
+}
+
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; scroll-behavior: smooth; }
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  cursor: var(--cursor-default);
+}
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--pure-dark);
@@ -27,10 +37,30 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  cursor: var(--cursor-default);
 }
-a { color: inherit; text-decoration: none; }
-button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+a { color: inherit; text-decoration: none; cursor: var(--cursor-pointer); }
+button {
+  cursor: var(--cursor-pointer);
+  font-family: inherit;
+  border: none;
+  outline: none;
+}
 input, select, textarea { font-family: inherit; outline: none; border: none; }
+input[type="text"], input[type="number"], textarea {
+  cursor: text;
+}
+select, input[type="checkbox"], input[type="radio"], [role="button"],
+.dest-card, .pill-btn, .nav-tab, .mobile-tab, .currency-tab, .budget-tier-card,
+.crowd-option-card, .attraction-card, .transit-pass-ticket, .customizer-back-btn,
+.nav-brand, .btn-hero-yellow, .btn-yellow, .btn-dark, .btn-sm-yellow, .btn-sm-dark,
+[style*="cursor: pointer"], [style*="cursor:pointer"] {
+  cursor: var(--cursor-pointer) !important;
+}
+
+button:disabled, .btn-yellow:disabled, .btn-dark:disabled, .btn-sm-yellow:disabled {
+  cursor: not-allowed !important;
+}
 img {
   display: block;
   max-width: 100%;

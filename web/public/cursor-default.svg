@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <defs>
+    <linearGradient id="goldTip" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFEFA3"/>
+      <stop offset="50%" stop-color="#F8D057"/>
+      <stop offset="100%" stop-color="#C58C11"/>
+    </linearGradient>
+    <filter id="cursorShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+  <!-- Drop Shadow Outer Silhouette -->
+  <path d="M2.5 1.5L10.5 24L14.5 14L24 10L2.5 1.5Z" fill="#0C0E12" filter="url(#cursorShadow)"/>
+  <!-- Outer Border / Edge Accent -->
+  <path d="M2 1L10 23.5L14 13.5L23.5 9.5L2 1Z" fill="#15181F" stroke="url(#goldTip)" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Golden Aerodynamic Wing (Right half) -->
+  <path d="M2.5 2.5L14 13.5L22.5 10L2.5 2.5Z" fill="url(#goldTip)" fill-opacity="0.95"/>
+  <!-- Sleek Obsidian Core (Left half) -->
+  <path d="M2.5 2.5L9.5 22.5L13.5 14L2.5 2.5Z" fill="#20242E"/>
+  <!-- Precision Point Highlight -->
+  <circle cx="3" cy="3" r="1.2" fill="#FFFFFF"/>
+</svg>
