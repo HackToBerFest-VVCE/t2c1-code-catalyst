@@ -1,0 +1,13 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+tourism_registry = "A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[workspace]
+members = ["programs/tourism_registry"]
