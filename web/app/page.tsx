@@ -59,7 +59,7 @@ const DESTINATIONS: DestinationItem[] = [
     activityLevel: "Easy to Moderate", accommodation: "Heritage Havelis & 4-Star",
     bestSeason: "Oct – Mar",
     description: "Mysuru is Karnataka's cultural capital, celebrated for the illuminated Mysore Palace with 100,000 bulbs, Chamundi Hill vistas, Devaraja Market fragrances, and centuries-old sandalwood carving and silk weaving traditions.",
-    heroImg: "https://images.unsplash.com/photo-1600100397608-f010e42e4e84?auto=format&fit=crop&w=2000&q=92&dpr=2",
+    heroImg: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=2000&q=92&dpr=2",
     thumbs: [
       "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=90&dpr=2",
       "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=90&dpr=2",
@@ -83,7 +83,7 @@ const DESTINATIONS: DestinationItem[] = [
     thumbs: [
       "/images/destination-jaipur.jpg",
       "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1509625902746-8266e2f74bd1?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
       { time: "09:00 AM", name: "Amer Fort & Maota Lake", cost: "₹100", desc: "Hilltop citadel with Sheesh Mahal (Mirror Palace)" },
@@ -123,7 +123,7 @@ const DESTINATIONS: DestinationItem[] = [
     thumbs: [
       "/images/destination-delhi.jpg",
       "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1592635196078-9fe3d54f2377?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1584646098378-0874589d76b1?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
       { time: "09:30 AM", name: "India Gate & Kartavya Path", cost: "₹0", desc: "Iconic war memorial archway surrounded by sprawling lawns and fountains" },
@@ -183,7 +183,7 @@ const DESTINATIONS: DestinationItem[] = [
     thumbs: [
       "https://images.unsplash.com/photo-1571536802807-30451e3955d8?auto=format&fit=crop&w=1200&q=90&dpr=2",
       "https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1588096344356-9b49740523d4?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
       { time: "05:30 AM", name: "Sunrise Boat Ride on Ganges", cost: "₹250", desc: "Peaceful morning views of historic bathing ghats and palaces" },
@@ -343,7 +343,7 @@ const DESTINATIONS: DestinationItem[] = [
     thumbs: [
       "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1200&q=90&dpr=2",
       "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1200&q=90&dpr=2",
-      "https://images.unsplash.com/photo-1520939817895-060bdef4dc1a?auto=format&fit=crop&w=1200&q=90&dpr=2",
+      "https://images.unsplash.com/photo-1471623432079-b009d30b6729?auto=format&fit=crop&w=1200&q=90&dpr=2",
     ],
     stops: [
       { time: "09:30 AM", name: "Louvre Museum & Mona Lisa", cost: "€22", desc: "World's grandest art museum in former royal palace" },
