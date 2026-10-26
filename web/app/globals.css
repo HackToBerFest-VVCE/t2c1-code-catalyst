@@ -75,6 +75,120 @@ html {
   scroll-padding-top: calc(var(--nav-h) + 20px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(101, 39, 51, 0.5) var(--color-sabbia);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BESPOKE LUXURY SITE SCROLLBAR (SLIDEBAR)
+   ══════════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-sabbia);
+  border-left: 1px solid rgba(173, 137, 88, 0.18);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(101, 39, 51, 0.45);
+  border-radius: 9999px;
+  border: 2px solid var(--color-sabbia);
+  transition: background 0.25s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brunello);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--color-notte);
+}
+
+/* Top Site Scroll Progress Slidebar */
+.site-scroll-progress-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(226, 217, 204, 0.35);
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.site-scroll-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-brunello) 0%, var(--color-ottone) 100%);
+  box-shadow: 0 0 8px rgba(173, 137, 88, 0.6);
+  transition: width 0.08s ease-out;
+}
+
+/* Floating Luxury Back to Top Slidebar Pill */
+.floating-scroll-top-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(242, 237, 228, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(101, 39, 51, 0.24);
+  box-shadow: 0 8px 24px rgba(30, 51, 49, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-scroll-top-btn:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: #FFFFFF;
+  border-color: var(--color-brunello);
+  box-shadow: 0 12px 28px rgba(101, 39, 51, 0.2);
+}
+
+.scroll-progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.scroll-progress-ring-bg {
+  fill: none;
+  stroke: rgba(173, 137, 88, 0.2);
+  stroke-width: 2.5;
+}
+
+.scroll-progress-ring-fill {
+  fill: none;
+  stroke: var(--color-brunello);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.1s ease;
+}
+
+.scroll-top-arrow {
+  position: relative;
+  z-index: 2;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-brunello);
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.floating-scroll-top-btn:hover .scroll-top-arrow {
+  transform: translateY(-2px);
+  color: var(--color-notte);
 }
 
 body {

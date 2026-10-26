@@ -690,6 +690,25 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  // ── Site Scroll Progress & Floating Return Slidebar ──
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const progress = (window.scrollY / totalHeight) * 100;
+        setScrollProgress(Math.min(100, Math.max(0, progress)));
+      }
+      setShowScrollTop(window.scrollY > 350);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // ── Ascape-Style Dynamic Hero Carousel State ──
   const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
   const activeHeroSlide = HERO_CAROUSEL_ITEMS[heroSlideIndex] || HERO_CAROUSEL_ITEMS[0];
@@ -1583,6 +1602,13 @@ export default function Home() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
+      {/* ══ LUXURY SITE SCROLL PROGRESS SLIDEBAR ══ */}
+      <div className="site-scroll-progress-track" aria-hidden="true">
+        <div
+          className="site-scroll-progress-fill"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       {/* ══ MINIMALIST EDITORIAL NAVIGATION (Q'IN SABA REFERENCE LAYOUT) ══ */}
       <nav className="navbar" aria-label="Main Navigation">
         <div className="nav-inner">
@@ -5185,6 +5211,29 @@ export default function Home() {
             )}
           </div>
         </div>
+      )}
+      {/* ══ FLOATING LUXURY SCROLL-TO-TOP SLIDEBAR PILL ══ */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="floating-scroll-top-btn"
+          aria-label="Scroll back to top"
+          title="Scroll back to top"
+        >
+          <svg className="scroll-progress-ring" viewBox="0 0 36 36">
+            <path
+              className="scroll-progress-ring-bg"
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <path
+              className="scroll-progress-ring-fill"
+              strokeDasharray={`${scrollProgress}, 100`}
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+          </svg>
+          <span className="scroll-top-arrow">↑</span>
+        </button>
       )}
     </>
   );
