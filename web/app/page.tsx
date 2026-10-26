@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -694,10 +694,25 @@ export default function Home() {
   const [foreignCountry, setForeignCountry] = useState<string>("United States");
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState<boolean>(false);
 
-  // ── Multi-Language Translation State ──
+  // ── Multi-Language Translation State & Dropdown ──
   const [language, setLanguage] = useState<LanguageCode>("en");
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
   const t = useMemo(() => getTranslation(language), [language]);
+
+  // Close language dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    if (isLangDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isLangDropdownOpen]);
 
   // ── Account & Solana Travel Hub Modal State ──
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
@@ -1573,16 +1588,49 @@ export default function Home() {
             <span className="brand-word-hi">Setu</span>
           </div>
 
-          {/* Right Navigation: LANGUAGE, ACCOUNT, and Quick Switcher */}
+          {/* Right Navigation: LANGUAGE Dropdown, ACCOUNT, and Quick Switcher */}
           <div className="nav-editorial-right">
-            <button
-              type="button"
-              className="nav-editorial-link"
-              onClick={() => setIsLangModalOpen(true)}
-              aria-label="Select Language"
-            >
-              LANGUAGE
-            </button>
+            {/* Language Dropdown Trigger & Floating Menu (Matching User Screenshot Layout) */}
+            <div className="nav-dropdown-anchor" ref={langDropdownRef}>
+              <button
+                type="button"
+                className={`nav-editorial-link nav-editorial-link-dropdown ${isLangDropdownOpen ? "active" : ""}`}
+                onClick={() => setIsLangDropdownOpen(prev => !prev)}
+                aria-expanded={isLangDropdownOpen}
+                aria-haspopup="listbox"
+                aria-label="Select Language"
+              >
+                <span>LANGUAGE</span>
+                <ChevronDown size={13} className={`nav-dropdown-chevron ${isLangDropdownOpen ? "open" : ""}`} />
+              </button>
+
+              {/* Floating Language Dropdown Menu (Styled with site palette) */}
+              {isLangDropdownOpen && (
+                <div className="lang-dropdown-menu" role="listbox" aria-label="Languages">
+                  {SUPPORTED_LANGUAGES.map((langItem) => {
+                    const isSelected = language === langItem.code;
+                    return (
+                      <button
+                        key={langItem.code}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        className={`lang-dropdown-item ${isSelected ? "selected" : ""}`}
+                        onClick={() => {
+                          handleSelectLang(langItem.code);
+                          setIsLangDropdownOpen(false);
+                        }}
+                      >
+                        <span className="lang-item-flag">{langItem.flag}</span>
+                        <span className="lang-item-name">{langItem.name}</span>
+                        <span className="lang-item-native">({langItem.nativeName})</span>
+                        {isSelected && <Check size={14} className="lang-item-check" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
