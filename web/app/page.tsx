@@ -4375,23 +4375,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Editorial Credits & Links */}
-        <div className="site-footer__inner">
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span className="site-header__clock-dot" style={{ background: "var(--color-verified)" }} />
-            <span>Encrypted &amp; Certified Travel Network · Solana Devnet Anchor Program</span>
-          </div>
-
+        {/* Editorial Navigation Links */}
+        <div className="site-footer__inner" style={{ justifyContent: "center" }}>
           <div className="site-footer__links">
             <button type="button" onClick={() => setActiveTab("discover")} className="site-footer__link">Discover</button>
             <button type="button" onClick={() => setActiveTab("agents")} className="site-footer__link">Concierge</button>
             <button type="button" onClick={() => setActiveTab("price")} className="site-footer__link">Fair Price</button>
             <button type="button" onClick={() => setActiveTab("safety")} className="site-footer__link">Safety</button>
             <button type="button" onClick={() => setActiveTab("records")} className="site-footer__link">Certified Records</button>
-          </div>
-
-          <div>
-            Code Catalyst (Suresh Kishor Savant, Gahana B G) · HackToBerFest 2026, VVCE
           </div>
         </div>
       </footer>
