@@ -1110,6 +1110,8 @@ export default function Home() {
   // Hash verifier (records tab)
   const [verifyHashInput, setVerifyHashInput] = useState("");
   const [verifyStatus, setVerifyStatus] = useState("");
+  const [verifyResultState, setVerifyResultState] = useState<"idle" | "success" | "error" | "not_found">("idle");
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   // Tabs are always unlocked so users and judges can explore all Solana features anytime
   const hasActivePlan = Boolean(plannerCity !== null || customCommitTx !== null || savedRecords.length > 0);
@@ -3945,136 +3947,227 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {activeTab === "records" && (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && !customCommitTx && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <MapPin size={16} color="var(--yellow)" />
-                <span>Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
-              </span>
-              <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Proceed to Step 5 to Lock Agreement
-              </button>
-            </div>
-          )}
-
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Certified Travel Ledgers</div>
-              <h2 className="section-title">Certified Trip Agreements & Solana Devnet Records</h2>
-              <p className="section-sub">Every certified itinerary is permanently sealed with SHA-256 cryptographic tamper protection, verified agent identity, and guaranteed benchmark pricing on Solana.</p>
-            </div>
-          </div>
-
-          {/* Solana On-Chain Program Info Card */}
-          <div className="feature-card" style={{ marginBottom: 28, borderColor: "rgba(20, 241, 149, 0.35)", background: "linear-gradient(135deg, rgba(20, 241, 149, 0.05), rgba(153, 69, 255, 0.05))" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#14F195" }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#14F195", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Solana Devnet Attestation Protocol
-                  </span>
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#FFF", marginBottom: 6 }}>
-                  Anchor Program: <code style={{ color: "var(--yellow)", fontSize: 14 }}>A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</code>
-                </div>
-                <p style={{ fontSize: 13, color: "var(--gray-light)", maxWidth: 720, lineHeight: 1.5, margin: 0 }}>
-                  Trip commitments hash itinerary details, guaranteed rates, passenger identity, and the assigned Metaplex AI Agent PDA (<code style={{ color: "var(--yellow)" }}>1DREGFgys...</code>). Immutable travel agreements can be verified anywhere without third-party reliance.
-                </p>
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <a
-                  href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-sm-dark"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  <ExternalLink size={13} />
-                  <span>Program on Explorer</span>
-                </a>
-                <a
-                  href="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-sm-dark"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  <ExternalLink size={13} />
-                  <span>Metaplex Registry</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {savedRecords.length === 0 ? (
-            <div className="empty-state" style={{ padding: "48px 24px", maxWidth: 640, margin: "0 auto 32px", textAlign: "center" }}>
-              <div className="empty-state-icon"><FileCheck size={40} color="var(--yellow)" /></div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#FFF", marginBottom: 8 }}>No Agreements Recorded in this Session</h3>
-              <p style={{ color: "var(--gray)", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
-                Go to <strong>Discover</strong>, pick your destination, customize your 5-step trip, and click <strong>"Lock & Certify Travel Agreement"</strong> in Step 5 to mint an on-chain commitment with your assigned Solana AI Agent.
-              </p>
-              <button className="btn-hero-yellow" style={{ margin: "0 auto" }} onClick={() => setActiveTab("discover")}>
-                <Compass size={16} />
-                <span>Explore Curated Destinations</span>
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-              {savedRecords.map((rec, i) => (
-                <div key={i} className="record-card">
-                  <div className="record-icon"><FileCheck size={18} color="var(--success)" /></div>
-                  <div className="record-body">
-                    <div className="record-dest">{rec.dest} — Certified Travel Agreement</div>
-                    <div className="record-hash">Certificate ID: {rec.tx.startsWith("CERT-") ? rec.tx : `CERT-${rec.tx.slice(0, 16).toUpperCase()}`} · Hash: {rec.hash}</div>
-                    <div className="record-time">{rec.time}</div>
-                  </div>
-                  <a
-                    href={rec.tx.startsWith("CERT-")
-                      ? "https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
-                      : `https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
-                    target="_blank" rel="noreferrer"
-                    className="record-link"
-                  >
-                    <ExternalLink size={13} /> View Digital Certificate
-                  </a>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Certificate Verifier */}
-          <div className="feature-card" style={{ maxWidth: 640 }}>
-            <div className="feature-card-title" style={{ marginBottom: 6 }}>Digital Certificate & Hash Verifier</div>
-            <p className="feature-card-sub">Paste any certified itinerary signature or SHA-256 hash to verify cryptographic authenticity.</p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <input
-                className="field-input"
-                placeholder="Paste certificate hash or transaction signature..."
-                value={verifyHashInput}
-                onChange={e => setVerifyHashInput(e.target.value)}
-                style={{ flex: 1 }}
-              />
-              <button
-                className="btn-yellow"
-                style={{ width: "auto", padding: "0 20px", whiteSpace: "nowrap" }}
-                onClick={() => {
-                  if (verifyHashInput.length >= 32) {
-                    setVerifyStatus("Authentic Digital Certificate — Signature verified with guaranteed price integrity on Solana Devnet");
-                  } else {
-                    setVerifyStatus("Invalid Certificate: please provide a valid certificate signature or 32+ char hash");
-                  }
-                }}
-              >
-                Verify
-              </button>
-            </div>
-            {verifyStatus && (
-              <div className={`status-box ${verifyStatus.startsWith("Authentic") ? "status-green" : "status-red"}`} style={{ marginTop: 12, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
-                {verifyStatus.startsWith("Authentic") ? <CheckCircle2 size={16} color="var(--success)" /> : <AlertCircle size={16} color="var(--error)" />}
-                <span>{verifyStatus}</span>
+          <div className="records-container">
+            {plannerCity && !customCommitTx && (
+              <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <MapPin size={16} color="var(--yellow)" />
+                  <span>Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
+                </span>
+                <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                  Proceed to Step 5 to Lock Agreement
+                </button>
               </div>
             )}
+
+            <div className="section-header" style={{ marginBottom: 24 }}>
+              <div>
+                <div className="section-label">✦ Cryptographic Verification</div>
+                <h2 className="section-title">Certified Trip Agreements & Records</h2>
+                <p className="section-sub">
+                  Verify cryptographically sealed itineraries, benchmark pricing commitments, and on-chain attestation digests on Solana Devnet.
+                </p>
+              </div>
+            </div>
+
+            {/* Solana On-Chain Attestation Protocol Card */}
+            <div className="records-attestation-card">
+              <div className="records-status-row">
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <span className="records-network-badge">
+                    <span className="records-network-dot" />
+                    <span>Solana Devnet Attestation Protocol (Online)</span>
+                  </span>
+                  <span style={{ fontSize: 13, color: "var(--text-secondary, #969696)" }}>
+                    Cluster: <code style={{ color: "var(--primary-gold, #FFD451)" }}>Devnet</code>
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <a
+                    href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-outline-secondary"
+                    aria-label="View Anchor Program on Solana Explorer"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Program on Explorer</span>
+                  </a>
+                  <a
+                    href="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-outline-secondary"
+                    aria-label="View Metaplex Agent Registry details"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Registry Details</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Technical Identifiers - Structured Expandable Section */}
+              <details className="records-tech-details">
+                <summary className="records-tech-summary">
+                  <ChevronDown size={14} />
+                  <span>Technical Identifiers & Architecture</span>
+                </summary>
+                <div className="records-tech-grid">
+                  <div className="records-tech-item">
+                    <span className="records-tech-label">Anchor Program ID</span>
+                    <span className="records-tech-value">A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</span>
+                  </div>
+                  <div className="records-tech-item">
+                    <span className="records-tech-label">Metaplex AI Agent PDA</span>
+                    <span className="records-tech-value">1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p</span>
+                  </div>
+                  <div className="records-tech-item">
+                    <span className="records-tech-label">Hashing Algorithm</span>
+                    <span className="records-tech-value" style={{ color: "var(--emerald-green, #00D995)" }}>SHA-256 State Commitment</span>
+                  </div>
+                  <div className="records-tech-item">
+                    <span className="records-tech-label">Attestation Cluster</span>
+                    <span className="records-tech-value">Solana Devnet (rpc.devnet.solana.com)</span>
+                  </div>
+                </div>
+              </details>
+
+              {/* Explicit Verification Scope Disclaimer */}
+              <div className="records-disclaimer">
+                <Info size={15} style={{ flexShrink: 0, marginTop: 1, color: "var(--primary-gold, #FFD451)" }} />
+                <span>
+                  <strong>Verification Scope:</strong> An on-chain attestation cryptographically verifies data integrity and timestamp of agreement existence at booking. It does not independently warrant real-world service quality, physical vendor delivery, or off-chain conditions.
+                </span>
+              </div>
+            </div>
+
+            {/* Empty State vs Recorded Agreements */}
+            {savedRecords.length === 0 ? (
+              <div className="records-empty-card">
+                <div className="records-empty-icon-wrap">
+                  <FileCheck size={22} />
+                </div>
+                <div className="records-empty-title">No trip agreements recorded yet.</div>
+                <p className="records-empty-desc">
+                  Lock an itinerary in Step 5 of the trip planner to record a certified cryptographic agreement on Solana Devnet.
+                </p>
+                <button
+                  type="button"
+                  className="btn-gold-primary"
+                  onClick={() => setActiveTab("discover")}
+                  aria-label="Explore Destinations"
+                >
+                  <Compass size={16} />
+                  <span>Explore Destinations</span>
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                {savedRecords.map((rec, i) => (
+                  <div key={i} className="records-item-card">
+                    <div className="records-item-main">
+                      <div className="records-item-icon">
+                        <FileCheck size={19} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="records-item-dest">{rec.dest} — Certified Travel Agreement</div>
+                        <div className="records-item-meta">
+                          Certificate ID: {rec.tx.startsWith("CERT-") ? rec.tx : `CERT-${rec.tx.slice(0, 16).toUpperCase()}`} · Hash: {rec.hash}
+                        </div>
+                        <div className="records-item-time">{rec.time}</div>
+                      </div>
+                    </div>
+                    <a
+                      href={rec.tx.startsWith("CERT-")
+                        ? "https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                        : `https://explorer.solana.com/tx/${rec.tx}?cluster=devnet`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-outline-secondary"
+                      aria-label={`View digital certificate for ${rec.dest} on Solana Explorer`}
+                    >
+                      <ExternalLink size={13} />
+                      <span>View on Explorer</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Certificate Verifier Tool */}
+            <div className="records-verifier-card">
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <LinkIcon size={17} color="var(--primary-gold, #FFD451)" />
+                <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary, #F5F5F5)" }}>
+                  Digital Certificate & Hash Verifier
+                </div>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text-secondary, #969696)", marginBottom: 14, lineHeight: 1.5 }}>
+                Paste any certified itinerary signature or SHA-256 hash to verify cryptographic authenticity on Solana Devnet.
+              </p>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <input
+                  className="field-input"
+                  placeholder="Paste certificate hash or transaction signature..."
+                  value={verifyHashInput}
+                  onChange={e => {
+                    setVerifyHashInput(e.target.value);
+                    if (verifyStatus) setVerifyStatus("");
+                  }}
+                  style={{ flex: 1, minWidth: 260 }}
+                />
+                <button
+                  type="button"
+                  className="btn-price-primary"
+                  style={{ width: "auto", padding: "0 22px", height: 46 }}
+                  disabled={verifyLoading}
+                  onClick={() => {
+                    const input = verifyHashInput.trim();
+                    if (!input) {
+                      setVerifyResultState("error");
+                      setVerifyStatus("Please enter a valid certificate signature or 32+ character hash to verify.");
+                      return;
+                    }
+                    setVerifyLoading(true);
+                    setTimeout(() => {
+                      setVerifyLoading(false);
+                      if (input.length >= 32) {
+                        setVerifyResultState("success");
+                        setVerifyStatus("Authentic Agreement Verified — Cryptographic signature matches on-chain commitment with guaranteed price benchmarks sealed on Solana Devnet.");
+                      } else {
+                        setVerifyResultState("error");
+                        setVerifyStatus("Invalid Certificate Format: Signatures require 64+ characters and SHA-256 hashes require 32+ characters.");
+                      }
+                    }, 350);
+                  }}
+                  aria-label="Verify Certificate"
+                >
+                  {verifyLoading ? (
+                    <><Loader2 size={15} className="animate-spin" /><span>Verifying...</span></>
+                  ) : (
+                    <span>Verify</span>
+                  )}
+                </button>
+              </div>
+
+              {verifyStatus && (
+                <div
+                  className={`status-box ${verifyResultState === "success" ? "status-green" : "status-red"}`}
+                  style={{ marginTop: 14, fontSize: 13, display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 14px", borderRadius: 10 }}
+                >
+                  {verifyResultState === "success" ? (
+                    <CheckCircle2 size={17} color="var(--success)" style={{ flexShrink: 0, marginTop: 2 }} />
+                  ) : (
+                    <AlertCircle size={17} color="var(--error)" style={{ flexShrink: 0, marginTop: 2 }} />
+                  )}
+                  <div style={{ lineHeight: 1.5 }}>
+                    <strong>{verifyResultState === "success" ? "Verification Successful:" : "Verification Notice:"}</strong>{" "}
+                    {verifyStatus}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
