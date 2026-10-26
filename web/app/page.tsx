@@ -23,7 +23,7 @@ import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from
 import { tourismIdl } from "../lib/tourism-idl";
 import {
   Globe, Search, Sparkles, CheckCircle, CheckCircle2, Phone, DollarSign,
-  ExternalLink, Loader2, ArrowRight, ArrowLeft, Plus, RefreshCw, Lock,
+  ExternalLink, Loader2, ArrowRight, ArrowLeft, ArrowUpRight, Plus, RefreshCw, Lock,
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
@@ -482,6 +482,74 @@ const DESTINATIONS: DestinationItem[] = [
 
 const ALL_TAGS = ["All", "Heritage", "Trending", "Budget Friendly"];
 
+export interface HeroCarouselItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  bgText: string;
+  image: string;
+  cityName: string;
+}
+
+const HERO_CAROUSEL_ITEMS: HeroCarouselItem[] = [
+  {
+    id: "hampi",
+    title: "Vittala Stone Chariot",
+    subtitle: "Hampi, Karnataka",
+    bgText: "HAMPI",
+    image: "/images/destinations/hampi-chariot.jpg",
+    cityName: "Hampi",
+  },
+  {
+    id: "jaipur",
+    title: "Amer Fort & Palaces",
+    subtitle: "Jaipur, Rajasthan",
+    bgText: "JAIPUR",
+    image: "/images/destinations/hawa-mahal.jpg",
+    cityName: "Jaipur",
+  },
+  {
+    id: "mysuru",
+    title: "Mysore Royal Palace",
+    subtitle: "Mysuru, Karnataka",
+    bgText: "MYSURU",
+    image: "/images/destinations/mysore-palace.jpg",
+    cityName: "Mysuru",
+  },
+  {
+    id: "varanasi",
+    title: "Sacred Ganga Ghats",
+    subtitle: "Varanasi, Uttar Pradesh",
+    bgText: "VARANASI",
+    image: "/images/destinations/varanasi-ghats.jpg",
+    cityName: "Varanasi",
+  },
+  {
+    id: "goa",
+    title: "Palolem Crescent Beach",
+    subtitle: "South Goa, India",
+    bgText: "GOA",
+    image: "/images/destinations/palolem-beach.jpg",
+    cityName: "Goa",
+  },
+  {
+    id: "kerala",
+    title: "Tranquil Backwaters",
+    subtitle: "Alleppey, Kerala",
+    bgText: "KERALA",
+    image: "/images/destinations/kerala-backwaters.jpg",
+    cityName: "Kerala",
+  },
+  {
+    id: "ladakh",
+    title: "Pangong Tso Alpine Lake",
+    subtitle: "Ladakh, Himalayas",
+    bgText: "LADAKH",
+    image: "/images/destinations/pangong-tso.jpg",
+    cityName: "Ladakh",
+  },
+];
+
 // ─── Indian States & Union Territories Mapping ──────────────────────────────
 const DESTINATION_STATES: Record<string, string> = {
   mysuru: "Karnataka",
@@ -547,6 +615,30 @@ export default function Home() {
   const [heroThumb, setHeroThumb] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isDevnetHealthy, setIsDevnetHealthy] = useState<boolean>(true);
+
+  // ── Ascape-Style Dynamic Hero Carousel State ──
+  const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
+  const activeHeroSlide = HERO_CAROUSEL_ITEMS[heroSlideIndex] || HERO_CAROUSEL_ITEMS[0];
+
+  const handleNextHeroSlide = () => {
+    const nextIdx = (heroSlideIndex + 1) % HERO_CAROUSEL_ITEMS.length;
+    setHeroSlideIndex(nextIdx);
+    const targetDest = DESTINATIONS.find((d) => d.id === HERO_CAROUSEL_ITEMS[nextIdx].id);
+    if (targetDest) setSelectedDest(targetDest);
+  };
+
+  const handlePrevHeroSlide = () => {
+    const prevIdx = (heroSlideIndex - 1 + HERO_CAROUSEL_ITEMS.length) % HERO_CAROUSEL_ITEMS.length;
+    setHeroSlideIndex(prevIdx);
+    const targetDest = DESTINATIONS.find((d) => d.id === HERO_CAROUSEL_ITEMS[prevIdx].id);
+    if (targetDest) setSelectedDest(targetDest);
+  };
+
+  const handleSelectHeroSlide = (idx: number) => {
+    setHeroSlideIndex(idx);
+    const targetDest = DESTINATIONS.find((d) => d.id === HERO_CAROUSEL_ITEMS[idx].id);
+    if (targetDest) setSelectedDest(targetDest);
+  };
 
   // ── Bespoke Trip Customizer Wizard State ──
   const [plannerCity, setPlannerCity] = useState<CuratedCity | null>(null);
@@ -2574,194 +2666,271 @@ export default function Home() {
             /* DISCOVERY CATALOG (Select any city to customize)          */
             /* ══════════════════════════════════════════════════════════ */
             <>
-              {/* Hero Section */}
-              <section className="hero">
-                <div
-                  className="hero-bg"
-                  style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
-                />
-                <div className="hero-gradient" />
-                <div className="hero-content">
-                  <div className="hero-main-container">
-                    {/* Compact Trust Label */}
-                    <div className="hero-trust-label">
-                      <ShieldCheck size={14} color="var(--primary-gold)" />
-                      <span>AI Travel Assistant & Verified Local Guide</span>
-                    </div>
+              {/* Ultra-Luxury Ascape Hero Section */}
+              <section className="ascape-hero-frame">
+                <div className="ascape-hero-container">
+                  {/* Dynamic Backdrop with cross-fade transition */}
+                  <div
+                    className="ascape-hero-bg"
+                    style={{ backgroundImage: `url('${activeHeroSlide.image}')` }}
+                  />
+                  <div className="ascape-hero-overlay" />
 
-                    <h1 className="hero-title">
-                      {t.heroTitle || "Discover India, Your Way."}
-                    </h1>
+                  {/* Behind-Subject Horizon Giant Typography */}
+                  <div className="ascape-horizon-text" aria-hidden="true">
+                    {activeHeroSlide.bgText}
+                  </div>
 
-                    <p className="hero-sub">
-                      {t.heroSub || "Explore heritage landmarks, bustling cultural cities, serene nature, tropical beaches, authentic regional food, and local experiences across all of India."}
-                    </p>
+                  {/* Hero Body Content */}
+                  <div className="ascape-hero-body">
+                    {/* Left Column: Social Proof, Cinematic Tagline, Signature Pill Button, Search Bar */}
+                    <div className="ascape-left-col">
+                      <div className="ascape-social-proof">
+                        <div className="ascape-avatar-stack">
+                          <img
+                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                            alt="Traveler 1"
+                            className="ascape-avatar"
+                          />
+                          <img
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80"
+                            alt="Traveler 2"
+                            className="ascape-avatar"
+                          />
+                          <img
+                            src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop&q=80"
+                            alt="Traveler 3"
+                            className="ascape-avatar"
+                          />
+                        </div>
+                        <span className="ascape-social-text">
+                          Join over <strong>15,000+</strong> travelers exploring India with Touristमित्र
+                        </span>
+                      </div>
 
-                    {/* Compact Visitor Selector */}
-                    <div className="hero-visitor-segmented" role="group" aria-label="Traveler Category">
+                      <h1 className="ascape-tagline">
+                        {t.heroTitle || "Discover India's heritage, protected & certified on Solana."}
+                      </h1>
+
                       <button
                         type="button"
-                        className={`visitor-segment-btn ${travelerType !== "foreign" ? "active" : ""}`}
-                        onClick={handleSelectIndian}
-                        aria-pressed={travelerType !== "foreign"}
-                      >
-                        <span className="segment-flag">🇮🇳</span>
-                        <span>Indian Citizen</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`visitor-segment-btn ${travelerType === "foreign" ? "active" : ""}`}
+                        className="ascape-cta-btn"
                         onClick={() => {
-                          if (travelerType === "foreign") {
-                            setIsPersonaModalOpen(true);
+                          const el = document.getElementById("destinations-section");
+                          if (el) {
+                            el.scrollIntoView({ behavior: "smooth" });
                           } else {
-                            handleConfirmForeign(foreignCountry || "United States");
+                            handleAiSearchDestination(activeHeroSlide.cityName);
                           }
                         }}
-                        aria-pressed={travelerType === "foreign"}
                       >
-                        <Globe size={14} />
-                        <span>Foreign Visitor{travelerType === "foreign" ? ` (${foreignCountry})` : ""}</span>
+                        <span className="ascape-cta-icon-wrap">
+                          <ArrowUpRight size={18} />
+                        </span>
+                        <span>{t.exploreBtn || "Explore Destinations"}</span>
                       </button>
-                      {travelerType === "foreign" && (
-                        <button
-                          type="button"
-                          className="visitor-visa-link"
-                          onClick={() => setIsPersonaModalOpen(true)}
-                          title="Review Official Visa Specs & Requirements"
-                        >
-                          <FileText size={12} />
-                          <span>Visa Guide</span>
-                        </button>
-                      )}
-                    </div>
 
-                    {/* Destination Search & Actions */}
-                    <div className="hero-search-wrapper">
-                      <div className="hero-search" style={{ borderColor: isAiSearchingCity ? "var(--emerald-green)" : undefined }}>
-                        <Search size={18} color="var(--primary-gold)" />
-                        <input
-                          placeholder={t.heroSearchPlaceholder || "Search destinations, landmarks, cities..."}
-                          value={searchQuery}
-                          onChange={e => setSearchQuery(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === "Enter") {
-                              const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                              handleAiSearchDestination(query);
-                            }
-                          }}
-                          aria-label="Search destinations, landmarks, cities"
-                        />
-                        {searchQuery && (
+                      {/* Integrated Glassmorphism Search Bar */}
+                      <div className="ascape-search-bar" style={{ borderColor: isAiSearchingCity ? "var(--emerald-green)" : undefined }}>
+                        <div className="ascape-search-input-wrap">
+                          <Search size={18} color="var(--primary-gold)" />
+                          <input
+                            placeholder={t.heroSearchPlaceholder || "Search any city or landmark..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const q = searchQuery.trim() || activeHeroSlide.cityName;
+                                handleAiSearchDestination(q);
+                              }
+                            }}
+                            aria-label="Search destinations, landmarks, cities"
+                          />
+                          {searchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setSearchQuery("")}
+                              className="ascape-search-clear"
+                              aria-label="Clear search"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="ascape-search-actions">
                           <button
                             type="button"
-                            onClick={() => setSearchQuery("")}
-                            style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", minWidth: 36, minHeight: 36, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-                            title="Clear search"
-                            aria-label="Clear search"
+                            className="ascape-plan-btn"
+                            disabled={isAiSearchingCity}
+                            onClick={() => {
+                              const q = searchQuery.trim() || activeHeroSlide.cityName;
+                              handleAiSearchDestination(q);
+                            }}
                           >
-                            ✕
+                            {isAiSearchingCity ? (
+                              <>
+                                <Loader2 size={15} className="animate-spin" />
+                                <span>Planning...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={15} />
+                                <span>AI Plan</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Compact Visitor Segment Selector */}
+                      <div className="hero-visitor-segmented" role="group" aria-label="Traveler Category">
+                        <button
+                          type="button"
+                          className={`visitor-segment-btn ${travelerType !== "foreign" ? "active" : ""}`}
+                          onClick={handleSelectIndian}
+                          aria-pressed={travelerType !== "foreign"}
+                        >
+                          <span className="segment-flag">🇮🇳</span>
+                          <span>Indian Citizen</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`visitor-segment-btn ${travelerType === "foreign" ? "active" : ""}`}
+                          onClick={() => {
+                            if (travelerType === "foreign") {
+                              setIsPersonaModalOpen(true);
+                            } else {
+                              handleConfirmForeign(foreignCountry || "United States");
+                            }
+                          }}
+                          aria-pressed={travelerType === "foreign"}
+                        >
+                          <Globe size={14} />
+                          <span>Foreign Visitor{travelerType === "foreign" ? ` (${foreignCountry})` : ""}</span>
+                        </button>
+                        {travelerType === "foreign" && (
+                          <button
+                            type="button"
+                            className="visitor-visa-link"
+                            onClick={() => setIsPersonaModalOpen(true)}
+                            title="Review Official Visa Specs & Requirements"
+                          >
+                            <FileText size={12} />
+                            <span>Visa Guide</span>
                           </button>
                         )}
                       </div>
 
-                      <div className="hero-action-buttons">
-                        <button
-                          type="button"
-                          className="btn-hero-primary"
-                          onClick={() => {
-                            const query = searchQuery.trim();
-                            if (query) {
-                              handleAiSearchDestination(query);
-                            } else {
-                              const el = document.getElementById("destinations-section");
-                              if (el) {
-                                el.scrollIntoView({ behavior: "smooth" });
-                              } else {
-                                handleAiSearchDestination(filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                              }
-                            }
+                      {/* AI Search status indicator */}
+                      {isAiSearchingCity && (
+                        <div
+                          role="status"
+                          aria-live="polite"
+                          style={{
+                            marginTop: 10,
+                            padding: "8px 14px",
+                            borderRadius: 12,
+                            background: "rgba(0, 217, 149, 0.12)",
+                            border: "1.5px solid rgba(0, 217, 149, 0.4)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontSize: 12,
+                            color: "#FFF",
                           }}
                         >
-                          <span>{t.exploreBtn || "Explore Destinations"}</span>
-                          <ArrowRight size={16} />
-                        </button>
+                          <Loader2 size={14} className="animate-spin" color="var(--emerald-green)" />
+                          <span>
+                            Concierge authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
+                          </span>
+                        </div>
+                      )}
 
-                        <button
-                          type="button"
-                          className="btn-hero-secondary"
-                          disabled={isAiSearchingCity}
-                          onClick={() => {
-                            const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                            handleAiSearchDestination(query);
-                          }}
-                        >
-                          {isAiSearchingCity ? (
-                            <>
-                              <Loader2 size={16} className="animate-spin" />
-                              <span>AI Planning...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles size={16} color="var(--primary-gold)" />
-                              <span>Plan My Trip</span>
-                            </>
-                          )}
-                        </button>
+                      {/* Quick-Pick Popular City Chips */}
+                      <div className="hero-popular-cities" style={{ marginTop: 12 }}>
+                        <span className="hero-popular-label">Popular:</span>
+                        <div className="hero-chips-wrap">
+                          {[
+                            "Mysuru",
+                            "Jaipur",
+                            "Agra",
+                            "Goa",
+                            "Kerala",
+                            "Varanasi",
+                            "Ladakh",
+                            "Hampi",
+                          ].map((cityName) => (
+                            <button
+                              key={cityName}
+                              type="button"
+                              className="hero-city-chip"
+                              onClick={() => handleAiSearchDestination(cityName)}
+                            >
+                              <MapPin size={11} className="chip-icon" />
+                              <span>{cityName}</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    {/* AI Verification Pulse Banner during search */}
-                    {isAiSearchingCity && (
-                      <div
-                        role="status"
-                        aria-live="polite"
-                        style={{
-                          marginTop: 4,
-                          padding: "10px 18px",
-                          borderRadius: 14,
-                          background: "rgba(0, 217, 149, 0.12)",
-                          border: "1.5px solid rgba(0, 217, 149, 0.4)",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 12,
-                          fontSize: 13,
-                          color: "#FFF",
-                        }}
-                      >
-                        <Loader2 size={16} className="animate-spin" color="var(--emerald-green)" />
-                        <span>
-                          Solana AI Concierge <strong>{selectedAgent?.displayName || "Touristमित्र AI Concierge"}</strong> is retrieving & authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
-                        </span>
+                    {/* Right Column: Floating Destination Preview Cards */}
+                    <div className="ascape-right-col">
+                      <div className="ascape-carousel-track">
+                        {HERO_CAROUSEL_ITEMS.map((item, idx) => {
+                          const isActive = idx === heroSlideIndex;
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`ascape-card-item ${isActive ? "active" : ""}`}
+                              onClick={() => handleSelectHeroSlide(idx)}
+                              aria-label={`Select destination ${item.title}`}
+                            >
+                              <div
+                                className="ascape-card-img"
+                                style={{ backgroundImage: `url('${item.image}')` }}
+                              />
+                              <div className="ascape-card-overlay" />
+                              <div className="ascape-card-info">
+                                <span className="ascape-card-title">{item.title}</span>
+                                <span className="ascape-card-sub">{item.subtitle}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
-                    )}
+                    </div>
+                  </div>
 
-                    {/* Quick-Pick Popular City Chips */}
-                    <div className="hero-popular-cities">
-                      <span className="hero-popular-label">Popular Destinations:</span>
-                      <div className="hero-chips-wrap">
-                        {[
-                          "Mysuru",
-                          "Jaipur",
-                          "Agra",
-                          "Delhi",
-                          "Goa",
-                          "Kerala",
-                          "Varanasi",
-                          "Ladakh",
-                          "Srinagar",
-                        ].map(cityName => (
-                          <button
-                            key={cityName}
-                            type="button"
-                            className="hero-city-chip"
-                            onClick={() => handleAiSearchDestination(cityName)}
-                          >
-                            <MapPin size={12} className="chip-icon" />
-                            <span>{cityName}</span>
-                          </button>
-                        ))}
-                      </div>
+                  {/* Bottom Controls Row: Waveform Sound Indicator & Navigation Arrows */}
+                  <div className="ascape-controls-row">
+                    <div className="ascape-wave-bars" title="Ambient Heritage Audio">
+                      <div className="ascape-wave-bar" />
+                      <div className="ascape-wave-bar" />
+                      <div className="ascape-wave-bar" />
+                      <div className="ascape-wave-bar" />
+                      <div className="ascape-wave-bar" />
+                    </div>
+
+                    <div className="ascape-arrows-wrap">
+                      <button
+                        type="button"
+                        className="ascape-arrow-btn"
+                        onClick={handlePrevHeroSlide}
+                        aria-label="Previous destination"
+                      >
+                        <ArrowLeft size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className="ascape-arrow-btn"
+                        onClick={handleNextHeroSlide}
+                        aria-label="Next destination"
+                      >
+                        <ArrowRight size={16} />
+                      </button>
                     </div>
                   </div>
                 </div>
