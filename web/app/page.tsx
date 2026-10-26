@@ -669,7 +669,6 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [isDevnetHealthy, setIsDevnetHealthy] = useState<boolean>(true);
   const [liveTime, setLiveTime] = useState<string>("");
-  const [activeArtIndex, setActiveArtIndex] = useState<number>(0);
 
   useEffect(() => {
     const updateTime = () => {
@@ -4654,56 +4653,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: Signature Architectural Line-Art Showcase */}
-          <div className="editorial-prefooter__right">
-            <div className="editorial-art-showcase">
-              <div
-                className="editorial-art-frame"
-                onClick={() => {
-                  const art = HERITAGE_ARTWORKS[activeArtIndex];
-                  if (art.cityName && art.cityName !== "India") {
-                    handleSelectDestination(art.cityName, art.image);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  } else {
-                    const first = DESTINATIONS[0];
-                    handleSelectDestination(first.name, first.heroImg);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-                title={`Explore ${HERITAGE_ARTWORKS[activeArtIndex].name} — Click to customize your journey`}
-              >
-                <img
-                  src={HERITAGE_ARTWORKS[activeArtIndex].image}
-                  alt={HERITAGE_ARTWORKS[activeArtIndex].name}
-                  className="editorial-prefooter__art"
-                />
-                <div className="editorial-art-meta">
-                  <div>
-                    <div className="editorial-art-caption">{HERITAGE_ARTWORKS[activeArtIndex].name}</div>
-                    <div className="editorial-art-location">{HERITAGE_ARTWORKS[activeArtIndex].location}</div>
-                  </div>
-                  <span className="editorial-art-cta">
-                    Plan {HERITAGE_ARTWORKS[activeArtIndex].cityName || "Journey"} →
-                  </span>
-                </div>
-              </div>
-
-              {/* Interactive Monument Selector Pills */}
-              <div className="editorial-art-selector" role="tablist" aria-label="Heritage Art Selector">
-                {HERITAGE_ARTWORKS.map((art, idx) => (
-                  <button
-                    key={art.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeArtIndex === idx}
-                    onClick={() => setActiveArtIndex(idx)}
-                    className={`editorial-art-pill ${activeArtIndex === idx ? "active" : ""}`}
-                  >
-                    ✦ {art.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Right: Signature Architectural Line-Art (Pure Artwork) */}
+          <div className="editorial-prefooter__right" aria-hidden="true">
+            <img
+              src="/images/art/taj-mahal.png"
+              alt="Taj Mahal Architectural Artwork"
+              className="editorial-prefooter__art"
+            />
           </div>
         </div>
       </section>
