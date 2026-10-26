@@ -30,7 +30,7 @@ import {
   Mail, Download, WifiOff, Printer, X, Send, Award,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
   Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, Info,
-  Shield, Ambulance, FireExtinguisher, PhoneCall, LifeBuoy
+  Shield, Ambulance, FireExtinguisher, PhoneCall, LifeBuoy, Utensils, ShoppingBag
 } from "lucide-react";
 import {
   getCuratedCityData,
@@ -1105,6 +1105,7 @@ export default function Home() {
   const [newExpName, setNewExpName] = useState("");
   const [newExpAmount, setNewExpAmount] = useState("");
   const [newExpCat, setNewExpCat] = useState("Food");
+  const [expenseValidationError, setExpenseValidationError] = useState("");
 
   // Hash verifier (records tab)
   const [verifyHashInput, setVerifyHashInput] = useState("");
@@ -1292,13 +1293,38 @@ export default function Home() {
 
   // ── Budget helpers ──
   const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
-  const budgetPct = Math.min(100, Math.round((totalSpent / budget) * 100));
+  const budgetPct = Math.min(100, Math.round((totalSpent / (budget || 1)) * 100));
 
   function addExpense() {
-    if (!newExpName || !newExpAmount) return;
-    const updated = [...expenses, { id: Date.now().toString(), name: newExpName, amount: parseFloat(newExpAmount), cat: newExpCat }];
+    const trimmedName = newExpName.trim();
+    const parsedAmount = parseFloat(newExpAmount);
+
+    if (!trimmedName) {
+      setExpenseValidationError("Please enter an expense name.");
+      return;
+    }
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      setExpenseValidationError("Please enter a valid positive expense amount.");
+      return;
+    }
+
+    const updated = [
+      ...expenses,
+      {
+        id: Date.now().toString(),
+        name: trimmedName,
+        amount: parsedAmount,
+        cat: newExpCat || "Other",
+      },
+    ];
     setExpenses(updated);
-    setNewExpName(""); setNewExpAmount("");
+    setNewExpName("");
+    setNewExpAmount("");
+    setExpenseValidationError("");
+  }
+
+  function removeExpense(id: string) {
+    setExpenses(prev => prev.filter(e => e.id !== id));
   }
 
   // ── Smart Dynamic Search & Filtering (Never misses places) ──
@@ -3629,65 +3655,285 @@ export default function Home() {
               </div>
 
               <div className="budget-section-card">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                  <span style={{ fontSize: 13, color: "var(--gray)" }}>
-                    Allocated Budget: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{budget.toLocaleString()}
-                  </span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }}>
-                    Total Spent: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{totalSpent.toLocaleString()} ({budgetPct}%)
-                  </span>
-                </div>
-                <div className="budget-bar-track">
-                  <div className="budget-bar-fill" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }} />
-                </div>
+                {(() => {
+                  const currencySymbol = selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency;
+                  const remainingBalance = budget - totalSpent;
+                  const isOverBudget = remainingBalance < 0;
+                  const overBudgetAmount = isOverBudget ? Math.abs(remainingBalance) : 0;
+                  const actualPct = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
+                  const progressBarWidth = Math.min(100, actualPct);
 
-                <div style={{ marginTop: 18, marginBottom: 14 }}>
-                  {expenses.map(e => (
-                    <div key={e.id} className="expense-row">
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.name}</div>
-                        <span className="expense-cat-badge">{e.cat}</span>
-                      </div>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)" }}>
-                        {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{e.amount.toLocaleString()}
+                  const renderCategoryBadge = (cat: string) => {
+                    const normCat = (cat || "").toLowerCase();
+                    let icon = <Receipt size={12} />;
+                    if (normCat.includes("food") || normCat.includes("dining") || normCat.includes("meal")) {
+                      icon = <Utensils size={12} />;
+                    } else if (normCat.includes("transport") || normCat.includes("cab") || normCat.includes("auto")) {
+                      icon = <Car size={12} />;
+                    } else if (normCat.includes("hotel") || normCat.includes("stay") || normCat.includes("room")) {
+                      icon = <Hotel size={12} />;
+                    } else if (normCat.includes("activity") || normCat.includes("sight") || normCat.includes("ticket")) {
+                      icon = <Ticket size={12} />;
+                    } else if (normCat.includes("shopping")) {
+                      icon = <ShoppingBag size={12} />;
+                    }
+
+                    return (
+                      <span className="budget-cat-pill">
+                        {icon}
+                        <span>{cat}</span>
                       </span>
-                    </div>
-                  ))}
-                </div>
+                    );
+                  };
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--dark-border)", paddingTop: 16 }}>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <input
-                      className="field-input"
-                      placeholder="Expense description (e.g. Temple entry ticket)"
-                      value={newExpName}
-                      onChange={e => setNewExpName(e.target.value)}
-                      style={{ flex: 1, minWidth: 200 }}
-                    />
-                    <input
-                      className="field-input"
-                      placeholder="Amount"
-                      type="number"
-                      value={newExpAmount}
-                      onChange={e => setNewExpAmount(e.target.value)}
-                      style={{ width: 110 }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <select
-                      className="field-input"
-                      style={{ flex: 1 }}
-                      value={newExpCat}
-                      onChange={e => setNewExpCat(e.target.value)}
-                    >
-                      {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => <option key={c}>{c}</option>)}
-                    </select>
-                    <button className="btn-yellow" style={{ width: "auto", padding: "0 20px" }} onClick={addExpense} aria-label="Add expense">
-                      <Plus size={16} />
-                      <span style={{ marginLeft: 6, fontWeight: 700 }}>Add Expense</span>
-                    </button>
-                  </div>
-                </div>
+                  return (
+                    <div>
+                      {/* Budget Summary: 4-Card Overview */}
+                      <div className="budget-summary-grid">
+                        {/* 1. Total Trip Budget */}
+                        <div className="budget-summary-card">
+                          <div className="budget-metric-top">
+                            <span className="budget-metric-label">Total Trip Budget</span>
+                            <div className="budget-metric-icon">
+                              <Wallet size={16} />
+                            </div>
+                          </div>
+                          <div className="budget-metric-val">
+                            {currencySymbol}{budget.toLocaleString()}
+                          </div>
+                          <div className="budget-metric-sub">
+                            Allocated Travel Fund
+                          </div>
+                        </div>
+
+                        {/* 2. Total Amount Spent */}
+                        <div className="budget-summary-card">
+                          <div className="budget-metric-top">
+                            <span className="budget-metric-label">Total Amount Spent</span>
+                            <div className="budget-metric-icon" style={{ color: "var(--primary-gold, #FFD451)" }}>
+                              <Receipt size={16} />
+                            </div>
+                          </div>
+                          <div className="budget-metric-val">
+                            {currencySymbol}{totalSpent.toLocaleString()}
+                          </div>
+                          <div className="budget-metric-sub">
+                            {expenses.length} logged expense{expenses.length === 1 ? "" : "s"}
+                          </div>
+                        </div>
+
+                        {/* 3. Remaining Balance (High Visibility & Discovery) */}
+                        <div className={`budget-summary-card ${isOverBudget ? "overbudget" : "highlight"}`}>
+                          <div className="budget-metric-top">
+                            <span className="budget-metric-label" style={{ color: isOverBudget ? "#FF6B6B" : "var(--primary-gold, #FFD451)" }}>
+                              Remaining Balance
+                            </span>
+                            <div className="budget-metric-icon" style={{ color: isOverBudget ? "#FF6B6B" : "var(--emerald-green, #00D995)" }}>
+                              <IndianRupee size={16} />
+                            </div>
+                          </div>
+                          <div className={`budget-metric-val ${isOverBudget ? "deficit" : "surplus"}`}>
+                            {isOverBudget ? `-${currencySymbol}${overBudgetAmount.toLocaleString()}` : `${currencySymbol}${remainingBalance.toLocaleString()}`}
+                          </div>
+                          <div className="budget-metric-sub">
+                            {isOverBudget ? (
+                              <span className="budget-status-tag deficit">
+                                <AlertTriangle size={11} /> Deficit: Exceeded by {currencySymbol}{overBudgetAmount.toLocaleString()}
+                              </span>
+                            ) : actualPct >= 80 ? (
+                              <span className="budget-status-tag low">
+                                <AlertCircle size={11} /> Low: {100 - actualPct}% Available
+                              </span>
+                            ) : (
+                              <span className="budget-status-tag surplus">
+                                <CheckCircle2 size={11} /> Surplus: {100 - actualPct}% Available
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 4. Budget Utilized (%) */}
+                        <div className="budget-summary-card">
+                          <div className="budget-metric-top">
+                            <span className="budget-metric-label">Budget Utilized</span>
+                            <div className="budget-metric-icon">
+                              <Ticket size={16} />
+                            </div>
+                          </div>
+                          <div className="budget-metric-val">
+                            {actualPct}%
+                          </div>
+                          <div className="budget-metric-sub">
+                            {isOverBudget ? "Exceeded target budget" : `${actualPct}% of allowance spent`}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Neutral Track Progress Bar */}
+                      <div className="budget-progress-container">
+                        <div className="budget-progress-track">
+                          <div
+                            className={`budget-progress-fill ${isOverBudget ? "danger" : actualPct > 80 ? "warning" : "normal"}`}
+                            style={{ width: `${progressBarWidth}%` }}
+                          />
+                        </div>
+                        <div className="budget-progress-labels">
+                          <span>0% Started</span>
+                          <span>50% Target Benchmark</span>
+                          <span>100% Budget ({currencySymbol}{budget.toLocaleString()})</span>
+                        </div>
+                      </div>
+
+                      {/* Explicit Warning Banner when Over-Budget */}
+                      {isOverBudget && (
+                        <div className="budget-alert-banner">
+                          <AlertTriangle size={20} className="budget-alert-icon" />
+                          <div>
+                            <div className="budget-alert-title">
+                              Budget Exceeded by {currencySymbol}{overBudgetAmount.toLocaleString()}
+                            </div>
+                            <div className="budget-alert-desc">
+                              Your cumulative spending of {currencySymbol}{totalSpent.toLocaleString()} has surpassed your allocated travel budget of {currencySymbol}{budget.toLocaleString()} by {actualPct - 100}%. We recommend reviewing recent non-essential dining or shopping expenses.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 2-Column Grid: Itemized Expenses vs Log New Expense */}
+                      <div className="budget-layout-grid">
+                        {/* Left: Itemized Expenses */}
+                        <div className="budget-sub-card">
+                          <div className="budget-sub-card-title">
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                              <Receipt size={17} color="var(--primary-gold, #FFD451)" />
+                              <span>Itemized Expenses ({expenses.length})</span>
+                            </span>
+                            <span style={{ fontSize: 13, color: "var(--primary-gold, #FFD451)", fontWeight: 700 }}>
+                              Total: {currencySymbol}{totalSpent.toLocaleString()}
+                            </span>
+                          </div>
+
+                          {expenses.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "36px 16px", color: "var(--text-secondary, #969696)", fontSize: 13 }}>
+                              No expenses logged yet. Use the form to record your first expense.
+                            </div>
+                          ) : (
+                            <div className="budget-expense-list">
+                              {expenses.map(e => (
+                                <div key={e.id} className="budget-expense-row">
+                                  <div className="budget-expense-info">
+                                    <span className="budget-expense-name" title={e.name}>
+                                      {e.name}
+                                    </span>
+                                    {renderCategoryBadge(e.cat)}
+                                  </div>
+                                  <div className="budget-expense-right">
+                                    <span className="budget-expense-val">
+                                      {currencySymbol}{e.amount.toLocaleString()}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      className="btn-expense-remove"
+                                      onClick={() => removeExpense(e.id)}
+                                      aria-label={`Remove expense ${e.name}`}
+                                      title="Remove expense"
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right: Log New Expense Form */}
+                        <div className="budget-sub-card">
+                          <div className="budget-sub-card-title">
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                              <Plus size={17} color="var(--primary-gold, #FFD451)" />
+                              <span>Log New Expense</span>
+                            </span>
+                            <span style={{ fontSize: 12, color: "var(--text-secondary, #969696)", fontWeight: 500 }}>
+                              Currency: {currencySymbol} ({selectedCurrency})
+                            </span>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {/* Expense Name Input */}
+                            <div className="budget-form-field">
+                              <label className="budget-field-label">Expense Name *</label>
+                              <input
+                                className="field-input"
+                                placeholder="e.g. Metro rail pass, Palace entry, Local thali"
+                                value={newExpName}
+                                onChange={e => {
+                                  setNewExpName(e.target.value);
+                                  if (expenseValidationError) setExpenseValidationError("");
+                                }}
+                              />
+                            </div>
+
+                            {/* Amount & Category Inputs */}
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                              <div className="budget-form-field">
+                                <label className="budget-field-label">Amount *</label>
+                                <div className="budget-input-wrapper">
+                                  <span className="budget-currency-symbol">{currencySymbol}</span>
+                                  <input
+                                    className="field-input budget-input-with-symbol"
+                                    placeholder="0.00"
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    value={newExpAmount}
+                                    onChange={e => {
+                                      setNewExpAmount(e.target.value);
+                                      if (expenseValidationError) setExpenseValidationError("");
+                                    }}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="budget-form-field">
+                                <label className="budget-field-label">Category</label>
+                                <select
+                                  className="field-input"
+                                  value={newExpCat}
+                                  onChange={e => setNewExpCat(e.target.value)}
+                                >
+                                  {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Validation Error Message */}
+                            {expenseValidationError && (
+                              <div className="price-validation-msg">
+                                <AlertCircle size={14} />
+                                <span>{expenseValidationError}</span>
+                              </div>
+                            )}
+
+                            {/* Add Expense Action Button */}
+                            <button
+                              type="button"
+                              className="btn-price-primary"
+                              onClick={addExpense}
+                              aria-label="Add expense to tracker"
+                              style={{ marginTop: 6 }}
+                            >
+                              <Plus size={16} />
+                              <span>Add Expense</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

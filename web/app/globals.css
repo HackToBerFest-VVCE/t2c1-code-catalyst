@@ -2243,7 +2243,360 @@ img {
   }
 }
 
-/* ── Budget Bar ── */
+/* ── Redesigned Trip Budget Tracker ── */
+.budget-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 960px) {
+  .budget-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .budget-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.budget-summary-card {
+  background: #252525;
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.budget-summary-card.highlight {
+  background: rgba(255, 212, 81, 0.05);
+  border-color: rgba(255, 212, 81, 0.35);
+}
+
+.budget-summary-card.overbudget {
+  background: rgba(255, 107, 107, 0.06);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.budget-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.budget-metric-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary, #969696);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-metric-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #1c1c1c;
+  border: 1px solid #383838;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-gold, #FFD451);
+  flex-shrink: 0;
+}
+
+.budget-metric-val {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text-primary, #F5F5F5);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.01em;
+}
+
+.budget-metric-val.deficit {
+  color: #FF6B6B;
+}
+
+.budget-metric-val.surplus {
+  color: var(--emerald-green, #00D995);
+}
+
+.budget-metric-sub {
+  font-size: 11.5px;
+  color: #888888;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.budget-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.02em;
+}
+
+.budget-status-tag.surplus {
+  background: rgba(0, 217, 149, 0.12);
+  color: var(--emerald-green, #00D995);
+  border: 1px solid rgba(0, 217, 149, 0.25);
+}
+
+.budget-status-tag.low {
+  background: rgba(255, 212, 81, 0.12);
+  color: var(--primary-gold, #FFD451);
+  border: 1px solid rgba(255, 212, 81, 0.25);
+}
+
+.budget-status-tag.deficit {
+  background: rgba(255, 107, 107, 0.12);
+  color: #FF6B6B;
+  border: 1px solid rgba(255, 107, 107, 0.25);
+}
+
+/* Neutral Progress Bar */
+.budget-progress-container {
+  margin: 14px 0 22px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-progress-track {
+  height: 10px;
+  background: #2A2A2A;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #383838;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.budget-progress-fill.normal {
+  background: var(--emerald-green, #00D995);
+}
+
+.budget-progress-fill.warning {
+  background: var(--primary-gold, #FFD451);
+}
+
+.budget-progress-fill.danger {
+  background: #FF6B6B;
+}
+
+.budget-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #888888;
+  font-weight: 600;
+}
+
+/* Explicit Warning Banner for Over-Budget */
+.budget-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.budget-alert-icon {
+  color: #FF6B6B;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.budget-alert-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #FF6B6B;
+  margin-bottom: 3px;
+}
+
+.budget-alert-desc {
+  font-size: 12px;
+  color: #CCCCCC;
+  line-height: 1.45;
+}
+
+/* 2-Column Responsive Layout: List vs Entry */
+.budget-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .budget-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.budget-sub-card {
+  background: #252525;
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-sub-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary, #F5F5F5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color, #333333);
+}
+
+.budget-expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.budget-expense-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--border-color, #333333);
+  gap: 12px;
+}
+
+.budget-expense-row:last-child {
+  border-bottom: none;
+}
+
+.budget-expense-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.budget-expense-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary, #F5F5F5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.budget-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #1c1c1c;
+  border: 1px solid #383838;
+  color: var(--text-secondary, #969696);
+  width: fit-content;
+}
+
+.budget-expense-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.budget-expense-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-gold, #FFD451);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-expense-remove {
+  background: transparent;
+  border: none;
+  color: #666666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-expense-remove:hover {
+  color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.budget-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.budget-field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary, #969696);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.budget-currency-symbol {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-gold, #FFD451);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.budget-input-with-symbol {
+  padding-left: 36px !important;
+}
+
+/* ── Legacy Budget Bar Support ── */
 .budget-bar-track {
   height: 8px;
   background: var(--dark-elevated);
