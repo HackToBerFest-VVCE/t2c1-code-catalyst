@@ -741,6 +741,48 @@ img, video {
   background: var(--color-bg-alt);
   border: 1px solid var(--color-sabbia);
   box-shadow: var(--shadow-elevated);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.hero-carousel:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-ottone);
+  box-shadow: 0 20px 48px rgba(30, 51, 49, 0.18);
+}
+
+.hero-carousel:focus-visible {
+  outline: 2px solid var(--color-ottone);
+  outline-offset: 3px;
+}
+
+.hero-carousel__cta-pill {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(30, 51, 49, 0.78);
+  backdrop-filter: blur(8px);
+  color: var(--color-avorio);
+  font-family: var(--font-jost);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(173, 137, 88, 0.45);
+  transition: all 0.25s ease;
+  z-index: 2;
+}
+
+.hero-carousel:hover .hero-carousel__cta-pill {
+  background: var(--color-notte);
+  color: #FFFFFF;
+  border-color: var(--color-ottone);
+  transform: translateY(-1px);
 }
 
 .hero-carousel__img {

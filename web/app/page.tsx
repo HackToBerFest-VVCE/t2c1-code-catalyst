@@ -2856,24 +2856,52 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right Column: Framed Editorial Carousel */}
+                {/* Right Column: Framed Editorial Carousel (Interactive 1-Click Destination Launch) */}
                 <div className="home-hero__media">
-                  <div className="hero-carousel">
+                  <div
+                    className="hero-carousel"
+                    role="button"
+                    tabIndex={0}
+                    title={`Explore & customize your bespoke trip to ${activeHeroSlide.cityName}`}
+                    onClick={() => {
+                      handleSelectDestination(activeHeroSlide.cityName, activeHeroSlide.image);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleSelectDestination(activeHeroSlide.cityName, activeHeroSlide.image);
+                      }
+                    }}
+                    aria-label={`Explore and customize trip to ${activeHeroSlide.cityName}`}
+                  >
                     <div
                       className="hero-carousel__img"
                       style={{ backgroundImage: `url('${activeHeroSlide.image}')` }}
                     />
                     <div className="hero-carousel__overlay" />
+
+                    {/* Floating Interactive Explore Badge */}
+                    <div className="hero-carousel__cta-pill">
+                      <Sparkles size={12} color="var(--color-ottone-light)" />
+                      <span>Explore {activeHeroSlide.cityName} →</span>
+                    </div>
+
                     <div className="hero-carousel__caption">
                       <div>
                         <div className="hero-carousel__title">{activeHeroSlide.title}</div>
                         <div className="hero-carousel__sub">{activeHeroSlide.subtitle}</div>
                       </div>
-                      <div className="hero-carousel__arrows">
+                      <div
+                        className="hero-carousel__arrows"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           type="button"
                           className="hero-carousel__arrow-btn"
-                          onClick={handlePrevHeroSlide}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevHeroSlide();
+                          }}
                           aria-label="Previous destination"
                         >
                           <ArrowLeft size={16} />
@@ -2881,7 +2909,10 @@ export default function Home() {
                         <button
                           type="button"
                           className="hero-carousel__arrow-btn"
-                          onClick={handleNextHeroSlide}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextHeroSlide();
+                          }}
                           aria-label="Next destination"
                         >
                           <ArrowRight size={16} />
