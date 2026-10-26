@@ -474,7 +474,7 @@ const DESTINATIONS: DestinationItem[] = [
   },
 ];
 
-const ALL_TAGS = ["All", "Heritage Pick", "Trending", "Budget Friendly"];
+const ALL_TAGS = ["All", "Heritage", "Trending", "Budget Friendly"];
 
 // ─── Dynamic AI Destination Generator for ANY User Search ───────────────────
 function createCustomDestination(query: string): DestinationItem {
@@ -1253,7 +1253,10 @@ export default function Home() {
   const filteredDests = React.useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     const matched = DESTINATIONS.filter(d => {
-      const tagOk = filterTag === "All" || d.tag === filterTag;
+      const tagOk =
+        filterTag === "All" ||
+        d.tag === filterTag ||
+        (filterTag === "Heritage" && (d.tag === "Heritage" || d.tag === "Heritage Pick"));
       const searchOk =
         !query ||
         d.name.toLowerCase().includes(query) ||
@@ -2461,148 +2464,195 @@ export default function Home() {
             /* ══════════════════════════════════════════════════════════ */
             <>
               {/* Hero Section */}
-              <section className="hero" style={{ paddingTop: "var(--nav-h)" }}>
+              <section className="hero">
                 <div
                   className="hero-bg"
                   style={{ backgroundImage: `url('${selectedDest.heroImg || FALLBACK_HERO}')` }}
                 />
                 <div className="hero-gradient" />
                 <div className="hero-content">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                    <div className="hero-eyebrow" style={{ margin: 0 }}>
-                      <Sparkles size={13} />
-                      <span>Verified Travel Concierge · Guaranteed Price Integrity</span>
+                  <div className="hero-main-container">
+                    {/* Compact Trust Label */}
+                    <div className="hero-trust-label">
+                      <ShieldCheck size={14} color="var(--primary-gold)" />
+                      <span>AI Travel Assistant & Verified Local Guide</span>
                     </div>
-                  </div>
-                  <h1 className="hero-title">
-                    {t.heroTitle}
-                  </h1>
-                  <p className="hero-sub">
-                    {t.heroSub}
-                  </p>
 
-                  {/* Traveler Category Context Banner */}
-                  {travelerType === "foreign" ? (
-                    <div className="traveler-status-banner foreign" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Globe size={14} color="var(--yellow)" />
-                        <span>International Visitor ({foreignCountry})</span>
-                        <span className="visa-chip">Official e-Visa Guide</span>
-                      </div>
-                      <span className="view-docs-link">Review Visa Documents & White-Bg Photo Specs →</span>
-                    </div>
-                  ) : (
-                    <div className="traveler-status-banner indian" style={{ margin: "0 0 20px 0" }} onClick={() => setIsPersonaModalOpen(true)}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span>🇮🇳</span>
-                        <span><strong>Indian Citizen</strong> · Direct access with verified domestic rates & transit cards</span>
-                      </div>
-                      <span className="switch-status-link">Foreign Visitor? Check Visa →</span>
-                    </div>
-                  )}
+                    <h1 className="hero-title">
+                      {t.heroTitle || "Discover India, Your Way."}
+                    </h1>
 
-                  <div className="hero-actions" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                    <div className="hero-search" style={{ flex: 1, minWidth: 260, borderColor: isAiSearchingCity ? "#14F195" : undefined }}>
-                      <Search size={16} color="var(--yellow)" />
-                      <input
-                        placeholder="Search any destination (e.g. Hampi, Jaipur, Coorg, Varanasi, Goa, Kashmir)..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") {
-                            const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                            handleAiSearchDestination(query);
+                    <p className="hero-sub">
+                      {t.heroSub || "Explore heritage landmarks, bustling cultural cities, serene nature, tropical beaches, authentic regional food, and local experiences across all of India."}
+                    </p>
+
+                    {/* Compact Visitor Selector */}
+                    <div className="hero-visitor-segmented" role="group" aria-label="Traveler Category">
+                      <button
+                        type="button"
+                        className={`visitor-segment-btn ${travelerType !== "foreign" ? "active" : ""}`}
+                        onClick={handleSelectIndian}
+                        aria-pressed={travelerType !== "foreign"}
+                      >
+                        <span className="segment-flag">🇮🇳</span>
+                        <span>Indian Citizen</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`visitor-segment-btn ${travelerType === "foreign" ? "active" : ""}`}
+                        onClick={() => {
+                          if (travelerType === "foreign") {
+                            setIsPersonaModalOpen(true);
+                          } else {
+                            handleConfirmForeign(foreignCountry || "United States");
                           }
                         }}
-                      />
-                    </div>
-                    <button
-                      className="btn-hero-yellow"
-                      disabled={isAiSearchingCity}
-                      onClick={() => {
-                        const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
-                        handleAiSearchDestination(query);
-                      }}
-                      style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "0 24px" }}
-                    >
-                      {isAiSearchingCity ? (
-                        <><Loader2 size={16} className="animate-spin" /><span>AI Authenticating...</span></>
-                      ) : (
-                        <><Sparkles size={16} /><span>AI Explore & Plan</span><ArrowRight size={16} /></>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* AI Verification Pulse Banner during search */}
-                  {isAiSearchingCity && (
-                    <div style={{
-                      marginTop: 14,
-                      padding: "10px 18px",
-                      borderRadius: 14,
-                      background: "linear-gradient(135deg, rgba(20, 241, 149, 0.18), rgba(153, 69, 255, 0.18))",
-                      border: "1.5px solid rgba(20, 241, 149, 0.45)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      fontSize: 13,
-                      color: "#FFF",
-                    }}>
-                      <Loader2 size={16} className="animate-spin" color="#14F195" />
-                      <span>
-                        Solana AI Concierge <strong>{selectedAgent?.displayName || "Touristमत्रम् Heritage Concierge"}</strong> is retrieving & authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Quick-Pick Popular City Chips */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
-                    <span style={{ fontSize: 12, color: "var(--gray-light)", fontWeight: 600 }}>Popular Destinations:</span>
-                    {[
-                      { name: "Mysuru", flag: "🇮🇳" },
-                      { name: "Jaipur", flag: "🇮🇳" },
-                      { name: "Agra", flag: "🇮🇳" },
-                      { name: "Delhi", flag: "🇮🇳" },
-                      { name: "Goa", flag: "🇮🇳" },
-                      { name: "Kerala", flag: "🇮🇳" },
-                      { name: "Varanasi", flag: "🇮🇳" },
-                      { name: "Ladakh", flag: "🇮🇳" },
-                      { name: "Srinagar", flag: "🇮🇳" },
-                    ].map(chip => (
-                      <button
-                        key={chip.name}
-                        onClick={() => handleAiSearchDestination(chip.name)}
-                        style={{
-                          background: "rgba(255, 255, 255, 0.08)",
-                          border: "1px solid rgba(255, 255, 255, 0.16)",
-                          borderRadius: 20,
-                          padding: "5px 13px",
-                          color: "#FFF",
-                          fontSize: 12,
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                          transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "var(--yellow)";
-                          e.currentTarget.style.background = "rgba(248, 208, 87, 0.15)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                        }}
+                        aria-pressed={travelerType === "foreign"}
                       >
-                        <span>{chip.flag}</span>
-                        <span>{chip.name}</span>
+                        <Globe size={14} />
+                        <span>Foreign Visitor{travelerType === "foreign" ? ` (${foreignCountry})` : ""}</span>
                       </button>
-                    ))}
+                      {travelerType === "foreign" && (
+                        <button
+                          type="button"
+                          className="visitor-visa-link"
+                          onClick={() => setIsPersonaModalOpen(true)}
+                          title="Review Official Visa Specs & Requirements"
+                        >
+                          <FileText size={12} />
+                          <span>Visa Guide</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Destination Search & Actions */}
+                    <div className="hero-search-wrapper">
+                      <div className="hero-search" style={{ borderColor: isAiSearchingCity ? "var(--emerald-green)" : undefined }}>
+                        <Search size={18} color="var(--primary-gold)" />
+                        <input
+                          placeholder={t.heroSearchPlaceholder || "Search destinations, landmarks, cities..."}
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                              handleAiSearchDestination(query);
+                            }
+                          }}
+                          aria-label="Search destinations, landmarks, cities"
+                        />
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery("")}
+                            style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: "0 4px" }}
+                            title="Clear search"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="hero-action-buttons">
+                        <button
+                          type="button"
+                          className="btn-hero-primary"
+                          onClick={() => {
+                            const query = searchQuery.trim();
+                            if (query) {
+                              handleAiSearchDestination(query);
+                            } else {
+                              const el = document.getElementById("destinations-section");
+                              if (el) {
+                                el.scrollIntoView({ behavior: "smooth" });
+                              } else {
+                                handleAiSearchDestination(filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                              }
+                            }
+                          }}
+                        >
+                          <span>{t.exploreBtn || "Explore Destinations"}</span>
+                          <ArrowRight size={16} />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn-hero-secondary"
+                          disabled={isAiSearchingCity}
+                          onClick={() => {
+                            const query = searchQuery.trim() || (filteredDests.length > 0 ? filteredDests[0].name : "Mysuru");
+                            handleAiSearchDestination(query);
+                          }}
+                        >
+                          {isAiSearchingCity ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              <span>AI Planning...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={16} color="var(--primary-gold)" />
+                              <span>Plan My Trip</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* AI Verification Pulse Banner during search */}
+                    {isAiSearchingCity && (
+                      <div style={{
+                        marginTop: 4,
+                        padding: "10px 18px",
+                        borderRadius: 14,
+                        background: "rgba(0, 217, 149, 0.12)",
+                        border: "1.5px solid rgba(0, 217, 149, 0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        fontSize: 13,
+                        color: "#FFF",
+                      }}>
+                        <Loader2 size={16} className="animate-spin" color="var(--emerald-green)" />
+                        <span>
+                          Solana AI Concierge <strong>{selectedAgent?.displayName || "Touristमित्र AI Concierge"}</strong> is retrieving & authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Quick-Pick Popular City Chips */}
+                    <div className="hero-popular-cities">
+                      <span className="hero-popular-label">Popular Destinations:</span>
+                      <div className="hero-chips-wrap">
+                        {[
+                          "Mysuru",
+                          "Jaipur",
+                          "Agra",
+                          "Delhi",
+                          "Goa",
+                          "Kerala",
+                          "Varanasi",
+                          "Ladakh",
+                          "Srinagar",
+                        ].map(cityName => (
+                          <button
+                            key={cityName}
+                            type="button"
+                            className="hero-city-chip"
+                            onClick={() => handleAiSearchDestination(cityName)}
+                          >
+                            <MapPin size={12} className="chip-icon" />
+                            <span>{cityName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
 
               {/* Destination cards */}
-              <div className="page-section">
+              <div className="page-section" id="destinations-section">
                 <div className="section-header">
                   <div>
                     <div className="section-label">✦ {t.navDiscover}</div>
@@ -2611,10 +2661,12 @@ export default function Home() {
                       {t.curatedSub}
                     </p>
                   </div>
-                  <div className="filter-pills">
+                  <div className="filter-pills" role="tablist" aria-label="Destination Categories">
                     {ALL_TAGS.map(tag => (
                       <button
                         key={tag}
+                        role="tab"
+                        aria-selected={filterTag === tag}
                         className={`pill-btn ${filterTag === tag ? "active" : ""}`}
                         onClick={() => setFilterTag(tag)}
                       >{tag}</button>
