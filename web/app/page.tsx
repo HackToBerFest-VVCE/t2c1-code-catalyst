@@ -1474,26 +1474,33 @@ export default function Home() {
     return matched;
   }, [filterTag, searchQuery]);
 
-  // Curated visual gallery destinations filtered by category mood (No typing required)
+  // Curated visual gallery destinations filtered by category mood & search (No typing required)
   const filteredGalleryDests = React.useMemo(() => {
-    if (galleryCategory === "All") return DESTINATIONS;
+    let list = DESTINATIONS;
     if (galleryCategory === "Heritage Citadels") {
-      return DESTINATIONS.filter(d => d.tag.toLowerCase().includes("heritage") || ["jaipur", "agra", "hampi", "delhi"].includes(d.id));
+      list = DESTINATIONS.filter(d => d.tag.toLowerCase().includes("heritage") || ["jaipur", "agra", "hampi", "delhi"].includes(d.id));
+    } else if (galleryCategory === "Sacred Waters") {
+      list = DESTINATIONS.filter(d => d.tag.toLowerCase().includes("spiritual") || ["varanasi", "rishikesh", "amritsar", "haridwar"].includes(d.id));
+    } else if (galleryCategory === "Himalayan Vistas") {
+      list = DESTINATIONS.filter(d => ["ladakh", "manali", "shimla", "srinagar", "darjeeling"].includes(d.id) || d.tag.toLowerCase().includes("mountain"));
+    } else if (galleryCategory === "Coastal Tropics") {
+      list = DESTINATIONS.filter(d => ["kerala", "goa", "andaman", "pondicherry", "kochi"].includes(d.id) || d.tag.toLowerCase().includes("coastal"));
+    } else if (galleryCategory === "Royal Palaces") {
+      list = DESTINATIONS.filter(d => ["udaipur", "mysore", "jodhpur", "jaipur"].includes(d.id) || d.tag.toLowerCase().includes("royal"));
     }
-    if (galleryCategory === "Sacred Waters") {
-      return DESTINATIONS.filter(d => d.tag.toLowerCase().includes("spiritual") || ["varanasi", "rishikesh", "amritsar", "haridwar"].includes(d.id));
+
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      const searched = list.filter(d =>
+        d.name.toLowerCase().includes(query) ||
+        d.country.toLowerCase().includes(query) ||
+        (d.state && d.state.toLowerCase().includes(query)) ||
+        d.tagline.toLowerCase().includes(query)
+      );
+      if (searched.length > 0) return searched;
     }
-    if (galleryCategory === "Himalayan Vistas") {
-      return DESTINATIONS.filter(d => ["ladakh", "manali", "shimla", "srinagar", "darjeeling"].includes(d.id) || d.tag.toLowerCase().includes("mountain"));
-    }
-    if (galleryCategory === "Coastal Tropics") {
-      return DESTINATIONS.filter(d => ["kerala", "goa", "andaman", "pondicherry", "kochi"].includes(d.id) || d.tag.toLowerCase().includes("coastal"));
-    }
-    if (galleryCategory === "Royal Palaces") {
-      return DESTINATIONS.filter(d => ["udaipur", "mysore", "jodhpur", "jaipur"].includes(d.id) || d.tag.toLowerCase().includes("royal"));
-    }
-    return DESTINATIONS;
-  }, [galleryCategory]);
+    return list;
+  }, [galleryCategory, searchQuery]);
 
   // Smoothly reload detail panel and sync destination when user searches
   useEffect(() => {
@@ -2670,7 +2677,7 @@ export default function Home() {
                       type="button"
                       className="btn--primary"
                       onClick={() => {
-                        const el = document.getElementById("destinations-section");
+                        const el = document.getElementById("gallery-section");
                         if (el) {
                           el.scrollIntoView({ behavior: "smooth" });
                         } else {
@@ -2970,137 +2977,6 @@ export default function Home() {
                   })}
                 </div>
               </section>
-
-              {/* Destination cards */}
-              <div className="page-section" id="destinations-section">
-                <div className="section-header">
-                  <div>
-                    <div className="section-label">✦ {t.navDiscover}</div>
-                    <h2 className="section-title">{t.curatedHeading}</h2>
-                    <p className="section-sub">
-                      {t.curatedSub}
-                    </p>
-                  </div>
-                  <div className="filter-pills" role="tablist" aria-label="Destination Categories">
-                    {ALL_TAGS.map(tag => (
-                      <button
-                        key={tag}
-                        role="tab"
-                        aria-selected={filterTag === tag}
-                        className={`pill-btn ${filterTag === tag ? "active" : ""}`}
-                        onClick={() => setFilterTag(tag)}
-                      >{tag}</button>
-                    ))}
-                  </div>
-                </div>
-
-                {filteredDests.length === 0 ? (
-                  <div className="dest-empty-state">
-                    <div className="dest-empty-icon-wrap">
-                      <Compass size={32} color="var(--primary-gold)" />
-                    </div>
-                    <h3 className="dest-empty-title">No destinations found</h3>
-                    <p className="dest-empty-desc">
-                      {searchQuery
-                        ? `We couldn't find any destinations matching "${searchQuery}". Try searching for another city, landmark, or reset your filters.`
-                        : "No destinations currently match this category filter. Try selecting 'All' or a different category."}
-                    </p>
-                    <button
-                      type="button"
-                      className="btn-pill-reset"
-                      onClick={() => {
-                        setSearchQuery("");
-                        setFilterTag("All");
-                      }}
-                    >
-                      <RotateCcw size={14} />
-                      <span>Reset Filters & Search</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="destinations-grid">
-                    {filteredDests.map(dest => {
-                      const stateName = dest.state || DESTINATION_STATES[dest.id] || "India";
-                      const isSelected = selectedDest.id === dest.id;
-                      const isSearchingThis = isAiSearchingCity && aiSearchingCityName.toLowerCase() === dest.name.toLowerCase();
-                      const categoryLabel = dest.tag === "Heritage Pick" ? "Heritage" : dest.tag;
-
-                      return (
-                        <article
-                          key={dest.id}
-                          className={`dest-card ${isSelected ? "selected" : ""}`}
-                          onClick={() => {
-                            setSelectedDest(dest);
-                            handleAiSearchDestination(dest.name, dest.heroImg);
-                          }}
-                          tabIndex={0}
-                          role="button"
-                          aria-label={`Explore ${dest.name}, ${stateName}`}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              setSelectedDest(dest);
-                              handleAiSearchDestination(dest.name, dest.heroImg);
-                            }
-                          }}
-                        >
-                          <div className="dest-card-photo-wrap">
-                            <img
-                              src={dest.heroImg}
-                              alt={`${dest.name}, ${stateName}`}
-                              loading="lazy"
-                              className="dest-card-img"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = FALLBACK_HERO;
-                              }}
-                            />
-                            <div className="dest-card-photo-overlay" />
-                            <div className="dest-card-badges-top">
-                              {categoryLabel && (
-                                <span className="dest-card-category-pill">
-                                  {categoryLabel}
-                                </span>
-                              )}
-                              {isSelected && (
-                                <span className="dest-card-selected-pill">
-                                  <Check size={11} strokeWidth={2.5} /> Active
-                                </span>
-                              )}
-                            </div>
-                            {dest.price && (
-                              <span className="dest-card-price-pill">
-                                {dest.price}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="dest-card-content">
-                            <div className="dest-card-location">
-                              <MapPin size={13} color="var(--primary-gold)" />
-                              <span>{stateName}, India</span>
-                            </div>
-
-                            <h3 className="dest-card-title">{dest.name}</h3>
-
-                            <p className="dest-card-desc">{dest.tagline}</p>
-
-                            <div className="dest-card-footer">
-                              <span className="dest-card-action">
-                                <span>Explore destination</span>
-                                {isSearchingThis ? (
-                                  <Loader2 size={15} className="animate-spin" color="var(--primary-gold)" />
-                                ) : (
-                                  <ArrowRight size={15} className="action-arrow" />
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </>
           )}
         </>
