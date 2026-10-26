@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -23,7 +24,7 @@ import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from
 import { tourismIdl } from "../lib/tourism-idl";
 import {
   Globe, Search, Sparkles, CheckCircle, CheckCircle2, Phone, DollarSign,
-  ExternalLink, Loader2, ArrowRight, ArrowLeft, ArrowUpRight, Plus, RefreshCw, Lock,
+  ExternalLink, Loader2, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus, RefreshCw, Lock,
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
@@ -50,6 +51,7 @@ import {
 } from "../lib/i18n";
 import LanguageSelectorModal from "../components/LanguageSelectorModal";
 import AccountModal from "../components/AccountModal";
+import TransitTracker from "../components/TransitTracker";
 import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
 import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
@@ -1710,14 +1712,13 @@ export default function Home() {
               )}
             </div>
 
-            <button
-              type="button"
-              className={`nav-editorial-link ${isAccountModalOpen ? "active" : ""}`}
-              onClick={() => setIsAccountModalOpen(true)}
-              aria-label="Account and travel hub"
+            <Link
+              href="/account"
+              className="nav-editorial-link"
+              aria-label="Account details"
             >
               ACCOUNT
-            </button>
+            </Link>
 
             {/* Quick Language Switcher: EN / HI / KN (matching EN / IT / ES in reference) */}
             <div className="nav-lang-quick-switch" aria-label="Quick language switcher">
@@ -1793,13 +1794,13 @@ export default function Home() {
         >
           LANGUAGE ({language.toUpperCase()})
         </button>
-        <button
-          role="tab"
+        <Link
+          href="/account"
           className="mobile-tab-btn"
-          onClick={() => setIsAccountModalOpen(true)}
+          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
         >
-          ACCOUNT &amp; HUB
-        </button>
+          ACCOUNT DETAILS
+        </Link>
       </nav>
 
       {/* ══════════════════════════════════════════════════════════════ */}
@@ -4605,13 +4606,12 @@ export default function Home() {
                     </button>
                   </li>
                   <li>
-                    <button
-                      type="button"
+                    <Link
+                      href="/account"
                       className="editorial-link-btn"
-                      onClick={() => setIsAccountModalOpen(true)}
                     >
                       Account Details
-                    </button>
+                    </Link>
                   </li>
                 </ul>
               </div>
