@@ -1,0 +1,51 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- River Ganges Waves & Reflection Base -->
+  <path d="M60 490 C160 480 240 500 350 490 C460 480 560 500 740 490" stroke="#652733" stroke-width="2" stroke-linecap="round"/>
+  <path d="M90 520 C200 510 300 530 420 520 C540 510 640 530 710 520" stroke="#652733" stroke-width="1.5" stroke-dasharray="12 8" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M150 550 C260 545 370 555 490 548 C600 542 670 552 750 548" stroke="#652733" stroke-width="1" stroke-opacity="0.5"/>
+
+  <!-- Ghat Stone Steps (Pauri) -->
+  <line x1="100" y1="470" x2="700" y2="470" stroke="#652733" stroke-width="2.5"/>
+  <line x1="120" y1="450" x2="680" y2="450" stroke="#652733" stroke-width="2"/>
+  <line x1="140" y1="430" x2="660" y2="430" stroke="#652733" stroke-width="1.8"/>
+  <line x1="160" y1="410" x2="640" y2="410" stroke="#652733" stroke-width="1.6"/>
+
+  <!-- Traditional Wooden Ganga Boat at Ghat -->
+  <path d="M140 500 Q190 515 260 502 Q280 490 270 480 L130 480 Q120 490 140 500 Z" stroke="#652733" stroke-width="2.8" fill="#652733" fill-opacity="0.15"/>
+  <line x1="200" y1="480" x2="200" y2="430" stroke="#652733" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="200,430 240,445 200,460" stroke="#652733" stroke-width="1.5" fill="#652733" fill-opacity="0.2"/>
+
+  <!-- Central Great Temple Tower (Kashi Shikhara) -->
+  <path d="M360 410 V270 C360 210 380 130 400 90 C420 130 440 210 440 270 V410 Z" stroke="#652733" stroke-width="3.5" fill="rgba(101,39,51,0.06)"/>
+  <path d="M370 330 Q400 325 430 330" stroke="#652733" stroke-width="2"/>
+  <path d="M375 270 Q400 265 425 270" stroke="#652733" stroke-width="2"/>
+  <path d="M382 210 Q400 205 418 210" stroke="#652733" stroke-width="2"/>
+  <path d="M388 150 Q400 146 412 150" stroke="#652733" stroke-width="2"/>
+  <!-- Crown Amalaka & Trident / Trishul -->
+  <ellipse cx="400" cy="85" rx="14" ry="6" stroke="#652733" stroke-width="2.5" fill="#652733" fill-opacity="0.3"/>
+  <line x1="400" y1="80" x2="400" y2="45" stroke="#652733" stroke-width="3" stroke-linecap="round"/>
+  <!-- Temple Flag (Dhwaja) fluttering in wind -->
+  <path d="M400 50 Q435 45 445 60 Q425 65 400 65" stroke="#652733" stroke-width="1.8" fill="#652733" fill-opacity="0.4"/>
+
+  <!-- Left Flanking Temple & Mandapa -->
+  <path d="M240 410 V310 C240 250 260 190 280 160 C300 190 315 250 315 310 V410 Z" stroke="#652733" stroke-width="2.8" fill="rgba(101,39,51,0.04)"/>
+  <ellipse cx="280" cy="155" rx="10" ry="5" stroke="#652733" stroke-width="2" fill="#652733" fill-opacity="0.3"/>
+  <line x1="280" y1="150" x2="280" y2="125" stroke="#652733" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Right Flanking Palace / Haveli Chhatri -->
+  <path d="M490 410 V330 C490 280 510 230 530 200 C550 230 565 280 565 330 V410 Z" stroke="#652733" stroke-width="2.8" fill="rgba(101,39,51,0.04)"/>
+  <ellipse cx="530" cy="195" rx="10" ry="5" stroke="#652733" stroke-width="2" fill="#652733" fill-opacity="0.3"/>
+  <line x1="530" y1="190" x2="530" y2="165" stroke="#652733" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Traditional Octagonal Chhatri / Pavilions at Water's Edge -->
+  <path d="M170 380 Q200 350 230 380 Z" stroke="#652733" stroke-width="2" fill="#652733" fill-opacity="0.2"/>
+  <line x1="180" y1="380" x2="180" y2="410" stroke="#652733" stroke-width="2"/>
+  <line x1="220" y1="380" x2="220" y2="410" stroke="#652733" stroke-width="2"/>
+  <path d="M580 380 Q610 350 640 380 Z" stroke="#652733" stroke-width="2" fill="#652733" fill-opacity="0.2"/>
+  <line x1="590" y1="380" x2="590" y2="410" stroke="#652733" stroke-width="2"/>
+  <line x1="630" y1="380" x2="630" y2="410" stroke="#652733" stroke-width="2"/>
+
+  <!-- Sacred River Lamps / Diyas floating on water -->
+  <circle cx="320" cy="505" r="4" fill="#AD8958"/>
+  <circle cx="460" cy="515" r="4" fill="#AD8958"/>
+</svg>

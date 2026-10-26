@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       certificateId ||
       plan.certificateId ||
       `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-    const subject = `Your Verified Itinerary for ${cityName} · Touristमत्रम् [${certId}]`;
+    const subject = `Your Verified Itinerary for ${cityName} · YatraSetu [${certId}]`;
 
     // Generate responsive HTML email body
     const emailHtml = generateItineraryEmailHTML(plan as ItineraryPlan, {
@@ -72,8 +72,8 @@ export async function POST(req: NextRequest) {
     // On free tier without verified domain, Resend only allows onboarding@resend.dev as sender
     // Use a verified sender domain if configured, otherwise fall back to onboarding@resend.dev
     const fromAddress = process.env.RESEND_FROM_EMAIL
-      ? `Touristमत्रम् <${process.env.RESEND_FROM_EMAIL}>`
-      : "Touristमत्रम् <onboarding@resend.dev>";
+      ? `YatraSetu <${process.env.RESEND_FROM_EMAIL}>`
+      : "YatraSetu <onboarding@resend.dev>";
 
     const { data, error: resendError } = await resend.emails.send({
       from: fromAddress,

@@ -1,4 +1,4 @@
-// ─── Multi-Language Support for Touristमत्रम् ─────────────────────────────────
+// ─── Multi-Language Support for YatraSetu ─────────────────────────────────
 
 export type LanguageCode =
   | "en" // English

@@ -71,7 +71,7 @@ export default function TravelerPersonaModal({
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
                 <img
                   src="/logo-icon.png"
-                  alt="Touristमित्रम् Logo"
+                  alt="YatraSetu Logo"
                   style={{
                     width: 58,
                     height: 58,
@@ -84,7 +84,7 @@ export default function TravelerPersonaModal({
               </div>
               <div className="persona-badge">
                 <ShieldCheck size={14} color="var(--yellow)" />
-                <span>Touristमत्रम् · Personalized Travel Protection</span>
+                <span>YatraSetu · Personalized Travel Protection</span>
               </div>
               <h2 className="persona-title">Welcome to India</h2>
               <p className="persona-sub">

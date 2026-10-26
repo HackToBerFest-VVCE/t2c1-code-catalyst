@@ -299,7 +299,7 @@ function buildItinerary(params: {
     tips: data.tips,
     generatedAt: new Date().toISOString(),
     agent: {
-      name: agentName || "Touristमत्रम् Verified Tourism Concierge",
+      name: agentName || "YatraSetu Verified Tourism Concierge",
       identityPda: identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
       programId: "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p",
       cluster: "solana-devnet",
