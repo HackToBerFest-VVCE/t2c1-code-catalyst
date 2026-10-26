@@ -1293,21 +1293,20 @@ export default function Home() {
           >
             <div className="nav-logo-wrap">
               <img
-                src="/logo.png"
-                alt="Touristमत्रम् Logo"
+                src="/logo-icon.png"
+                alt="Touristमित्रम् Logo"
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
                   objectFit: "contain",
-                  boxShadow: "0 2px 10px rgba(248, 208, 87, 0.25)",
-                  border: "1px solid rgba(248, 208, 87, 0.35)",
+                  boxShadow: "0 2px 12px rgba(248, 208, 87, 0.35)",
                 }}
               />
             </div>
             <div className="nav-brand-text">
               <span className="nav-brand-tourist">Tourist</span>
-              <span className="nav-brand-matram">मत्रम्</span>
+              <span className="nav-brand-matram">मित्रम्</span>
             </div>
             <div className="nav-brand-badge">
               <span className="nav-badge-dot" />
@@ -3222,27 +3221,23 @@ export default function Home() {
 
       {/* ══ FOOTER ══ */}
       <footer className="site-footer">
-        <div className="footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="footer-brand" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img
             src="/logo.png"
-            alt="Touristमत्रम् Logo"
+            alt="Touristमित्रम् Logo"
             style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
+              height: 36,
+              width: "auto",
               objectFit: "contain",
-              border: "1px solid rgba(248, 208, 87, 0.35)",
+              filter: "drop-shadow(0 2px 6px rgba(248, 208, 87, 0.25))",
             }}
           />
-          <span style={{ fontSize: 18, fontWeight: 900 }}>
-            Tourist<span style={{ color: "var(--yellow)" }}>मत्रम्</span>
-          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span className="footer-devnet-dot" style={{ background: "var(--success)" }} />
-          <span>Encrypted & Certified Travel Network</span>
+          <span>Encrypted & Certified Travel Network · Powered by Solana Devnet</span>
         </div>
-        <div>© 2026 Touristमत्रम्. All rights reserved.</div>
+        <div>© 2026 Touristमित्रम्. All rights reserved.</div>
       </footer>
 
       {/* Traveler Persona & Official Visa Advisor Modal */}

@@ -70,12 +70,12 @@ export default function TravelerPersonaModal({
             <div className="persona-header">
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
                 <img
-                  src="/logo.png"
-                  alt="Touristमत्रम् Logo"
+                  src="/logo-icon.png"
+                  alt="Touristमित्रम् Logo"
                   style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 14,
+                    width: 58,
+                    height: 58,
+                    borderRadius: 16,
                     border: "1.5px solid rgba(248, 208, 87, 0.4)",
                     boxShadow: "0 4px 16px rgba(248, 208, 87, 0.25)",
                     objectFit: "contain",
