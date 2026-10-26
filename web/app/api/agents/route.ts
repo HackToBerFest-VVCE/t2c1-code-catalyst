@@ -6,8 +6,8 @@ export const revalidate = 0;
 // Curated verified tourism agents registered on Solana Devnet (ERC-8004 / Solana Agent Registry standard)
 const CURATED_TOURISM_AGENTS = [
   {
-    name: "Touristमत्रम् Verified Tourism Concierge",
-    displayName: "Touristमत्रम् Heritage & Travel Concierge",
+    name: "Touristमित्र Verified Tourism Concierge",
+    displayName: "Touristमित्र Heritage & Travel Concierge",
     description: "Specialized AI travel concierge for heritage itineraries, local landmark authentication, and certified digital travel agreements with price guarantees.",
     mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
