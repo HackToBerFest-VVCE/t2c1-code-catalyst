@@ -23,20 +23,20 @@ export const FormLabel: React.FC<FormLabelProps> = ({
           display: "block",
           fontSize: "12px",
           fontWeight: 600,
-          color: "#969696",
+          color: "var(--color-text-muted, #475446)",
           textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          fontFamily: "'DM Sans', -apple-system, sans-serif",
+          letterSpacing: "0.10em",
+          fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
           ...style,
         }}
         className={`tm-form-label ${className}`}
         {...props}
       >
         {children}
-        {required && <span style={{ color: "#FF4D4D", marginLeft: "4px" }}>*</span>}
+        {required && <span style={{ color: "#8A2828", marginLeft: "4px" }}>*</span>}
       </label>
       {helperText && (
-        <span style={{ display: "block", fontSize: "11.5px", color: "#666666", marginTop: "2px" }}>
+        <span style={{ display: "block", fontSize: "11.5px", color: "var(--color-text-muted, #475446)", opacity: 0.8, marginTop: "2px" }}>
           {helperText}
         </span>
       )}

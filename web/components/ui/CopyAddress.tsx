@@ -104,10 +104,10 @@ export const CopyAddress: React.FC<CopyAddressProps> = ({
   );
 
   const colorMap = {
-    gold: "var(--primary-gold, #FFD451)",
-    emerald: "var(--emerald-green, #00D995)",
-    muted: "var(--text-secondary, #969696)",
-    white: "var(--text-primary, #F5F5F5)",
+    gold: "var(--color-ottone, #AD8958)",
+    emerald: "var(--color-oliva, #2D5A43)",
+    muted: "var(--color-text-muted, #475446)",
+    white: "var(--color-text, #1E3331)",
   };
 
   const textColor = colorMap[colorTheme] || colorMap.gold;
@@ -146,18 +146,18 @@ export const CopyAddress: React.FC<CopyAddressProps> = ({
           alignItems: "center",
           gap: 6,
           background: copied
-            ? "rgba(0, 217, 149, 0.12)"
+            ? "rgba(45, 90, 67, 0.10)"
             : copyError
-            ? "rgba(255, 77, 77, 0.12)"
-            : "rgba(0, 0, 0, 0.35)",
+            ? "rgba(138, 40, 40, 0.10)"
+            : "var(--color-bg-card, #FAF7F2)",
           border: copied
-            ? "1px solid rgba(0, 217, 149, 0.4)"
+            ? "1px solid rgba(45, 90, 67, 0.35)"
             : copyError
-            ? "1px solid rgba(255, 77, 77, 0.4)"
-            : "1px solid rgba(255, 255, 255, 0.10)",
+            ? "1px solid rgba(138, 40, 40, 0.35)"
+            : "1px solid var(--color-sabbia, #E2D9CC)",
           borderRadius: 6,
           padding: compact ? "2px 6px" : "3px 8px",
-          color: copied ? "var(--emerald-green, #00D995)" : textColor,
+          color: copied ? "var(--color-oliva, #2D5A43)" : textColor,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
           fontSize: compact ? 11 : 11.5,
           cursor: "pointer",
@@ -187,9 +187,9 @@ export const CopyAddress: React.FC<CopyAddressProps> = ({
           }}
         >
           {copied ? (
-            <Check size={12} color="var(--emerald-green, #00D995)" />
+            <Check size={12} color="var(--color-oliva, #2D5A43)" />
           ) : copyError ? (
-            <AlertCircle size={12} color="var(--error, #FF4D4D)" />
+            <AlertCircle size={12} color="#8A2828" />
           ) : (
             <Copy size={11} color={textColor} />
           )}
@@ -211,9 +211,9 @@ export const CopyAddress: React.FC<CopyAddressProps> = ({
             justifyContent: "center",
             padding: "3px 5px",
             borderRadius: 5,
-            background: "rgba(255, 255, 255, 0.04)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            color: "var(--text-secondary, #969696)",
+            background: "var(--color-bg-alt, #E5DED3)",
+            border: "1px solid var(--color-sabbia, #D8CBB8)",
+            color: "var(--color-text-muted, #475446)",
             cursor: "pointer",
             transition: "all 0.15s ease",
           }}

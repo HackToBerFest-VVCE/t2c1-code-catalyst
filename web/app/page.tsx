@@ -615,6 +615,27 @@ export default function Home() {
   const [heroThumb, setHeroThumb] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isDevnetHealthy, setIsDevnetHealthy] = useState<boolean>(true);
+  const [liveTime, setLiveTime] = useState<string>("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      try {
+        const now = new Date();
+        const formatted = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }).format(now);
+        setLiveTime(`${formatted} IST`);
+      } catch {
+        setLiveTime("IST");
+      }
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 15000);
+    return () => clearInterval(timer);
+  }, []);
 
   // ── Ascape-Style Dynamic Hero Carousel State ──
   const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
@@ -1504,6 +1525,12 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Q'in Saba Signature Clock: "Now in India" */}
+          <div className="site-header__clock" title="Current time across India">
+            <span className="site-header__clock-dot" aria-hidden="true" />
+            <span>Now in India {liveTime ? `· ${liveTime}` : ""}</span>
+          </div>
+
           {/* Desktop Tabs - Discover, Concierge, Fair Price, Safety, Certified Records */}
           <div className="nav-tabs" role="tablist">
             {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
@@ -1701,22 +1728,23 @@ export default function Home() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  background: "linear-gradient(135deg, rgba(20, 241, 149, 0.12), rgba(153, 69, 255, 0.12))",
-                  border: "1px solid rgba(20, 241, 149, 0.35)",
+                  background: "var(--color-bg-card, #FAF7F2)",
+                  border: "1px solid var(--color-sabbia, #E2D9CC)",
                   borderRadius: 20,
                   padding: "6px 14px",
                   fontSize: 12,
-                  color: "#FFF",
-                  fontWeight: 600,
+                  color: "var(--color-notte, #1E3331)",
+                  fontWeight: 500,
+                  boxShadow: "var(--shadow-subtle)",
                 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#14F195", boxShadow: "0 0 8px #14F195" }} />
-                  <span>Sourced & Verified by Solana AI Concierge: <strong>{selectedAgent?.displayName || "Touristमत्रम् Heritage Concierge"}</strong></span>
-                  <span style={{ color: "var(--yellow)", fontWeight: 700 }}>({selectedAgent?.reputation?.trustScore || 99.4}% Trust)</span>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--color-verified)" }} />
+                  <span>Sourced &amp; Verified by Solana AI Concierge: <strong>{selectedAgent?.displayName || "Touristमित्रम् Heritage Concierge"}</strong></span>
+                  <span style={{ color: "var(--color-ottone)", fontWeight: 600 }}>({selectedAgent?.reputation?.trustScore || 99.4}% Trust)</span>
                 </div>
 
-                <div className="customizer-verified-badge">
+                <div className="customizer-verified-badge" style={{ background: "rgba(45, 90, 67, 0.08)", border: "1px solid rgba(45, 90, 67, 0.22)", color: "var(--color-verified)" }}>
                   <ShieldCheck size={14} />
-                  <span>2026 Live Verified Guide & Transit System</span>
+                  <span>Verified Guide &amp; Transit System</span>
                 </div>
               </div>
 
@@ -1836,7 +1864,7 @@ export default function Home() {
                               </span>
                             </div>
                             <div className="attraction-tip">
-                              <strong style={{ color: "#FFF" }}>Insider Tip:</strong> {attr.tip}
+                              <strong style={{ color: "var(--color-notte)" }}>Insider Tip:</strong> {attr.tip}
                             </div>
                           </div>
                         </div>
@@ -1849,12 +1877,13 @@ export default function Home() {
                     <input
                       style={{
                         flex: 1, minWidth: 260,
-                        background: "var(--dark-elevated)",
-                        border: "1px solid var(--dark-border)",
+                        background: "var(--color-bg-card, #FAF7F2)",
+                        border: "1px solid var(--color-sabbia, #E2D9CC)",
                         borderRadius: 12,
                         padding: "12px 18px",
-                        color: "#FFF",
+                        color: "var(--color-notte, #1E3331)",
                         fontSize: 14,
+                        fontFamily: "var(--font-jost)",
                       }}
                       placeholder={`+ Add another specific spot or market in ${plannerCity.name}...`}
                       value={customAttractionInput}
@@ -2110,7 +2139,7 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="ticket-how-to-use">
-                          <strong style={{ color: "#FFF" }}>How to Use:</strong> {plannerCity.transit.howToUse}
+                          <strong style={{ color: "var(--color-notte)" }}>How to Use:</strong> {plannerCity.transit.howToUse}
                         </div>
                       </div>
 
@@ -2337,28 +2366,28 @@ export default function Home() {
                     {/* Summary Bar */}
                     <div style={{
                       display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                      gap: 16, background: "var(--dark-elevated)", border: "1px solid var(--dark-border)",
-                      borderRadius: 14, padding: "18px 22px", marginBottom: 28,
+                      gap: 16, background: "var(--color-bg-card, #FAF7F2)", border: "1px solid var(--color-sabbia, #E2D9CC)",
+                      borderRadius: 14, padding: "18px 22px", marginBottom: 28, boxShadow: "var(--shadow-subtle)",
                     }}>
                       <div>
-                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Duration</div>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>{generatedPlan.numDays} Days</div>
+                        <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Duration</div>
+                        <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-notte)" }}>{generatedPlan.numDays} Days</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Pace & Crowd</div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--yellow)" }}>
+                        <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Pace &amp; Crowd</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ottone)" }}>
                           {generatedPlan.crowd === "tranquil" ? "Tranquil Flow" : generatedPlan.crowd === "vibrant" ? "Vibrant Flow" : "Balanced Flow"} · {generatedPlan.pace === "leisurely" ? "Relaxed Pace" : "Explorer Pace"}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Total Budget</div>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--yellow)" }}>
+                        <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Total Budget</div>
+                        <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-ottone)" }}>
                           {generatedPlan.currency === "SOL" ? "◎ " : ""}{generatedPlan.totalBudget.toLocaleString()} {generatedPlan.currency}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>SOL Equivalent</div>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>
+                        <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>SOL Equivalent</div>
+                        <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-notte)" }}>
                           ◎ {generatedPlan.totalBudgetSOL} SOL
                         </div>
                       </div>
@@ -2449,32 +2478,34 @@ export default function Home() {
 
                     {/* ── Verified Solana AI Agent Assigned to Itinerary ── */}
                     <div style={{
-                      background: "rgba(20, 241, 149, 0.06)",
-                      border: "1.5px solid rgba(20, 241, 149, 0.35)",
+                      background: "var(--color-bg-card, #FAF7F2)",
+                      border: "1px solid var(--color-sabbia, #E2D9CC)",
                       borderRadius: 18,
                       padding: "20px 24px",
                       marginBottom: 24,
+                      boxShadow: "var(--shadow-subtle)",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                           <div style={{
                             width: 46, height: 46, borderRadius: 12,
-                            background: "rgba(0, 217, 149, 0.15)",
-                            border: "1px solid rgba(0, 217, 149, 0.35)",
+                            background: "rgba(173, 137, 88, 0.12)",
+                            border: "1px solid rgba(173, 137, 88, 0.28)",
                             display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "var(--color-ottone)",
                           }}>
-                            <Headset size={24} color="var(--success)" />
+                            <Headset size={24} color="var(--color-ottone)" />
                           </div>
                           <div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                              <span style={{ fontSize: 16, fontWeight: 900, color: "#FFF" }}>
-                                {selectedAgent?.displayName || "Touristमत्रम् Heritage & Travel Concierge"}
+                              <span style={{ fontFamily: "var(--font-mollie)", fontSize: "1.3rem", fontWeight: 600, color: "var(--color-notte)" }}>
+                                {selectedAgent?.displayName || "Touristमित्रम् Heritage & Travel Concierge"}
                               </span>
-                              <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.22)", color: "var(--success)", padding: "2px 8px", borderRadius: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                              <span style={{ fontSize: 11, background: "rgba(45, 90, 67, 0.08)", color: "var(--color-verified)", border: "1px solid rgba(45, 90, 67, 0.22)", padding: "2px 8px", borderRadius: 10, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
                                 <CheckCircle2 size={11} /> Verified on Solana Devnet
                               </span>
                             </div>
-                            <div style={{ fontSize: 12, color: "var(--gray-light)", marginTop: 4, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                            <div style={{ fontSize: 12, color: "var(--color-oliva)", marginTop: 4, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                               <span>Agent Identity PDA:</span>
                               <CopyAddress
                                 value={selectedAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}
@@ -2520,14 +2551,20 @@ export default function Home() {
 
                     {/* Digital Travel Certificate & Price Lock Guarantee */}
                     <div style={{
-                      background: "rgba(248, 208, 87, 0.05)", border: "2px solid rgba(248, 208, 87, 0.35)",
-                      borderRadius: 18, padding: "28px", marginBottom: 24,
+                      background: "var(--color-bg-card, #FAF7F2)",
+                      border: "1px solid var(--color-sabbia, #E2D9CC)",
+                      borderRadius: 18,
+                      padding: "26px",
+                      marginBottom: 24,
+                      boxShadow: "var(--shadow-subtle)",
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                        <Lock size={20} color="var(--yellow)" />
-                        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>Tamper-Proof Travel Agreement & Guarantee</h3>
+                        <Lock size={20} color="var(--color-ottone)" />
+                        <h3 style={{ fontFamily: "var(--font-mollie)", fontSize: "1.45rem", fontWeight: 600, color: "var(--color-notte)", margin: 0 }}>
+                          Tamper-Proof Travel Agreement &amp; Guarantee
+                        </h3>
                       </div>
-                      <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.6, marginBottom: 20 }}>
+                      <p style={{ fontSize: 13.5, color: "var(--color-oliva)", lineHeight: 1.6, marginBottom: 20 }}>
                         Your bespoke itinerary is authenticated by certified local travel concierges. Lock this agreement to secure guaranteed pricing, authentic landmark schedules, and tamper-proof fraud protection.
                       </p>
 
@@ -2666,271 +2703,215 @@ export default function Home() {
             /* DISCOVERY CATALOG (Select any city to customize)          */
             /* ══════════════════════════════════════════════════════════ */
             <>
-              {/* Ultra-Luxury Ascape Hero Section */}
-              <section className="ascape-hero-frame">
-                <div className="ascape-hero-container">
-                  {/* Dynamic Backdrop with cross-fade transition */}
-                  <div
-                    className="ascape-hero-bg"
-                    style={{ backgroundImage: `url('${activeHeroSlide.image}')` }}
-                  />
-                  <div className="ascape-hero-overlay" />
+              {/* ══════════════════════════════════════════════════════════ */}
+              {/* Q'IN SABA EDITORIAL SPLIT HERO                             */}
+              {/* ══════════════════════════════════════════════════════════ */}
+              <section className="home-hero split">
+                {/* Left Column: Editorial Content */}
+                <div className="home-hero__content">
+                  <p className="t-label t-accent">Private &amp; Curated Journeys</p>
+                  
+                  <h1 className="home-hero__title">
+                    <span>India,</span>
+                    <span>thoughtfully yours.</span>
+                  </h1>
 
-                  {/* Behind-Subject Horizon Giant Typography */}
-                  <div className="ascape-horizon-text" aria-hidden="true">
-                    {activeHeroSlide.bgText}
+                  <p className="home-hero__lead">
+                    Bespoke cultural journeys through India, thoughtfully shaped around the way you love to travel. Protected by verified AI concierges, benchmark fair pricing, and cryptographic certainty on Solana.
+                  </p>
+
+                  <div className="home-hero__cta-row">
+                    <button
+                      type="button"
+                      className="btn--primary"
+                      onClick={() => {
+                        const el = document.getElementById("destinations-section");
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth" });
+                        } else {
+                          handleAiSearchDestination(activeHeroSlide.cityName);
+                        }
+                      }}
+                    >
+                      <span>Plan your journey</span>
+                      <span className="btn__arrow">→</span>
+                    </button>
+
+                    <div className="site-header__clock" title="Solana Devnet Attestation Status">
+                      <span className="site-header__clock-dot" style={{ background: isDevnetHealthy ? "var(--color-verified)" : "var(--color-error)" }} />
+                      <span>Solana Devnet Live</span>
+                    </div>
                   </div>
 
-                  {/* Hero Body Content */}
-                  <div className="ascape-hero-body">
-                    {/* Left Column: Social Proof, Cinematic Tagline, Signature Pill Button, Search Bar */}
-                    <div className="ascape-left-col">
-                      <div className="ascape-social-proof">
-                        <div className="ascape-avatar-stack">
-                          <img
-                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                            alt="Traveler 1"
-                            className="ascape-avatar"
-                          />
-                          <img
-                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80"
-                            alt="Traveler 2"
-                            className="ascape-avatar"
-                          />
-                          <img
-                            src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop&q=80"
-                            alt="Traveler 3"
-                            className="ascape-avatar"
-                          />
-                        </div>
-                        <span className="ascape-social-text">
-                          Join over <strong>15,000+</strong> travelers exploring India with Touristमित्र
-                        </span>
-                      </div>
-
-                      <h1 className="ascape-tagline">
-                        {t.heroTitle || "Discover India's heritage, protected & certified on Solana."}
-                      </h1>
-
+                  {/* Architectural Search Box */}
+                  <div className="hero-search-wrapper" style={{ borderColor: isAiSearchingCity ? "var(--color-verified)" : undefined }}>
+                    <Search size={18} color="var(--color-ottone)" />
+                    <input
+                      placeholder={t.heroSearchPlaceholder || "Search any destination, citadel, city..."}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const q = searchQuery.trim() || activeHeroSlide.cityName;
+                          handleAiSearchDestination(q);
+                        }
+                      }}
+                      aria-label="Search destinations, landmarks, cities"
+                    />
+                    {searchQuery && (
                       <button
                         type="button"
-                        className="ascape-cta-btn"
-                        onClick={() => {
-                          const el = document.getElementById("destinations-section");
-                          if (el) {
-                            el.scrollIntoView({ behavior: "smooth" });
-                          } else {
-                            handleAiSearchDestination(activeHeroSlide.cityName);
-                          }
-                        }}
+                        onClick={() => setSearchQuery("")}
+                        style={{ color: "var(--color-oliva)", padding: "0 6px", fontSize: 13 }}
+                        aria-label="Clear search"
                       >
-                        <span className="ascape-cta-icon-wrap">
-                          <ArrowUpRight size={18} />
-                        </span>
-                        <span>{t.exploreBtn || "Explore Destinations"}</span>
+                        ✕
                       </button>
-
-                      {/* Integrated Glassmorphism Search Bar */}
-                      <div className="ascape-search-bar" style={{ borderColor: isAiSearchingCity ? "var(--emerald-green)" : undefined }}>
-                        <div className="ascape-search-input-wrap">
-                          <Search size={18} color="var(--primary-gold)" />
-                          <input
-                            placeholder={t.heroSearchPlaceholder || "Search any city or landmark..."}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                const q = searchQuery.trim() || activeHeroSlide.cityName;
-                                handleAiSearchDestination(q);
-                              }
-                            }}
-                            aria-label="Search destinations, landmarks, cities"
-                          />
-                          {searchQuery && (
-                            <button
-                              type="button"
-                              onClick={() => setSearchQuery("")}
-                              className="ascape-search-clear"
-                              aria-label="Clear search"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-
-                        <div className="ascape-search-actions">
-                          <button
-                            type="button"
-                            className="ascape-plan-btn"
-                            disabled={isAiSearchingCity}
-                            onClick={() => {
-                              const q = searchQuery.trim() || activeHeroSlide.cityName;
-                              handleAiSearchDestination(q);
-                            }}
-                          >
-                            {isAiSearchingCity ? (
-                              <>
-                                <Loader2 size={15} className="animate-spin" />
-                                <span>Planning...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles size={15} />
-                                <span>AI Plan</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Compact Visitor Segment Selector */}
-                      <div className="hero-visitor-segmented" role="group" aria-label="Traveler Category">
-                        <button
-                          type="button"
-                          className={`visitor-segment-btn ${travelerType !== "foreign" ? "active" : ""}`}
-                          onClick={handleSelectIndian}
-                          aria-pressed={travelerType !== "foreign"}
-                        >
-                          <span className="segment-flag">🇮🇳</span>
-                          <span>Indian Citizen</span>
-                        </button>
-                        <button
-                          type="button"
-                          className={`visitor-segment-btn ${travelerType === "foreign" ? "active" : ""}`}
-                          onClick={() => {
-                            if (travelerType === "foreign") {
-                              setIsPersonaModalOpen(true);
-                            } else {
-                              handleConfirmForeign(foreignCountry || "United States");
-                            }
-                          }}
-                          aria-pressed={travelerType === "foreign"}
-                        >
-                          <Globe size={14} />
-                          <span>Foreign Visitor{travelerType === "foreign" ? ` (${foreignCountry})` : ""}</span>
-                        </button>
-                        {travelerType === "foreign" && (
-                          <button
-                            type="button"
-                            className="visitor-visa-link"
-                            onClick={() => setIsPersonaModalOpen(true)}
-                            title="Review Official Visa Specs & Requirements"
-                          >
-                            <FileText size={12} />
-                            <span>Visa Guide</span>
-                          </button>
-                        )}
-                      </div>
-
-                      {/* AI Search status indicator */}
-                      {isAiSearchingCity && (
-                        <div
-                          role="status"
-                          aria-live="polite"
-                          style={{
-                            marginTop: 10,
-                            padding: "8px 14px",
-                            borderRadius: 12,
-                            background: "rgba(0, 217, 149, 0.12)",
-                            border: "1.5px solid rgba(0, 217, 149, 0.4)",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            fontSize: 12,
-                            color: "#FFF",
-                          }}
-                        >
-                          <Loader2 size={14} className="animate-spin" color="var(--emerald-green)" />
-                          <span>
-                            Concierge authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
-                          </span>
-                        </div>
+                    )}
+                    <button
+                      type="button"
+                      className="hero-plan-btn"
+                      disabled={isAiSearchingCity}
+                      onClick={() => {
+                        const q = searchQuery.trim() || activeHeroSlide.cityName;
+                        handleAiSearchDestination(q);
+                      }}
+                    >
+                      {isAiSearchingCity ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          <span>Planning...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={14} color="var(--color-ottone-light)" />
+                          <span>AI Plan</span>
+                        </>
                       )}
-
-                      {/* Quick-Pick Popular City Chips */}
-                      <div className="hero-popular-cities" style={{ marginTop: 12 }}>
-                        <span className="hero-popular-label">Popular:</span>
-                        <div className="hero-chips-wrap">
-                          {[
-                            "Mysuru",
-                            "Jaipur",
-                            "Agra",
-                            "Goa",
-                            "Kerala",
-                            "Varanasi",
-                            "Ladakh",
-                            "Hampi",
-                          ].map((cityName) => (
-                            <button
-                              key={cityName}
-                              type="button"
-                              className="hero-city-chip"
-                              onClick={() => handleAiSearchDestination(cityName)}
-                            >
-                              <MapPin size={11} className="chip-icon" />
-                              <span>{cityName}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column: Floating Destination Preview Cards */}
-                    <div className="ascape-right-col">
-                      <div className="ascape-carousel-track">
-                        {HERO_CAROUSEL_ITEMS.map((item, idx) => {
-                          const isActive = idx === heroSlideIndex;
-                          return (
-                            <button
-                              key={item.id}
-                              type="button"
-                              className={`ascape-card-item ${isActive ? "active" : ""}`}
-                              onClick={() => handleSelectHeroSlide(idx)}
-                              aria-label={`Select destination ${item.title}`}
-                            >
-                              <div
-                                className="ascape-card-img"
-                                style={{ backgroundImage: `url('${item.image}')` }}
-                              />
-                              <div className="ascape-card-overlay" />
-                              <div className="ascape-card-info">
-                                <span className="ascape-card-title">{item.title}</span>
-                                <span className="ascape-card-sub">{item.subtitle}</span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    </button>
                   </div>
 
-                  {/* Bottom Controls Row: Waveform Sound Indicator & Navigation Arrows */}
-                  <div className="ascape-controls-row">
-                    <div className="ascape-wave-bars" title="Ambient Heritage Audio">
-                      <div className="ascape-wave-bar" />
-                      <div className="ascape-wave-bar" />
-                      <div className="ascape-wave-bar" />
-                      <div className="ascape-wave-bar" />
-                      <div className="ascape-wave-bar" />
-                    </div>
+                  {/* Visitor Persona Segmented Control */}
+                  <div className="hero-visitor-segmented" role="group" aria-label="Traveler Category">
+                    <button
+                      type="button"
+                      className={`visitor-segment-btn ${travelerType !== "foreign" ? "active" : ""}`}
+                      onClick={handleSelectIndian}
+                      aria-pressed={travelerType !== "foreign"}
+                    >
+                      <span>🇮🇳 Indian Citizen</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`visitor-segment-btn ${travelerType === "foreign" ? "active" : ""}`}
+                      onClick={() => {
+                        if (travelerType === "foreign") {
+                          setIsPersonaModalOpen(true);
+                        } else {
+                          handleConfirmForeign(foreignCountry || "United States");
+                        }
+                      }}
+                      aria-pressed={travelerType === "foreign"}
+                    >
+                      <Globe size={13} />
+                      <span>Foreign Visitor{travelerType === "foreign" ? ` (${foreignCountry})` : ""}</span>
+                    </button>
+                    {travelerType === "foreign" && (
+                      <button
+                        type="button"
+                        className="visitor-visa-link"
+                        onClick={() => setIsPersonaModalOpen(true)}
+                        title="Review Official Visa Specs & Requirements"
+                      >
+                        Visa Guide
+                      </button>
+                    )}
+                  </div>
 
-                    <div className="ascape-arrows-wrap">
-                      <button
-                        type="button"
-                        className="ascape-arrow-btn"
-                        onClick={handlePrevHeroSlide}
-                        aria-label="Previous destination"
-                      >
-                        <ArrowLeft size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className="ascape-arrow-btn"
-                        onClick={handleNextHeroSlide}
-                        aria-label="Next destination"
-                      >
-                        <ArrowRight size={16} />
-                      </button>
+                  {/* AI Search status indicator */}
+                  {isAiSearchingCity && (
+                    <div
+                      role="status"
+                      aria-live="polite"
+                      style={{
+                        marginBottom: 14,
+                        padding: "8px 14px",
+                        borderRadius: 12,
+                        background: "rgba(45, 90, 67, 0.08)",
+                        border: "1px solid rgba(45, 90, 67, 0.25)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        fontSize: 12.5,
+                        color: "var(--color-notte)",
+                      }}
+                    >
+                      <Loader2 size={14} className="animate-spin" color="var(--color-verified)" />
+                      <span>
+                        Concierge authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Popular City Chips */}
+                  <div className="hero-popular-cities">
+                    <span className="hero-popular-label">Popular:</span>
+                    <div className="hero-chips-wrap">
+                      {[
+                        "Mysuru",
+                        "Jaipur",
+                        "Agra",
+                        "Goa",
+                        "Kerala",
+                        "Varanasi",
+                        "Ladakh",
+                        "Hampi",
+                      ].map((cityName) => (
+                        <button
+                          key={cityName}
+                          type="button"
+                          className="hero-city-chip"
+                          onClick={() => handleAiSearchDestination(cityName)}
+                        >
+                          <MapPin size={11} color="var(--color-ottone)" />
+                          <span>{cityName}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Framed Editorial Carousel */}
+                <div className="home-hero__media">
+                  <div className="hero-carousel">
+                    <div
+                      className="hero-carousel__img"
+                      style={{ backgroundImage: `url('${activeHeroSlide.image}')` }}
+                    />
+                    <div className="hero-carousel__overlay" />
+                    <div className="hero-carousel__caption">
+                      <div>
+                        <div className="hero-carousel__title">{activeHeroSlide.title}</div>
+                        <div className="hero-carousel__sub">{activeHeroSlide.subtitle}</div>
+                      </div>
+                      <div className="hero-carousel__arrows">
+                        <button
+                          type="button"
+                          className="hero-carousel__arrow-btn"
+                          onClick={handlePrevHeroSlide}
+                          aria-label="Previous destination"
+                        >
+                          <ArrowLeft size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="hero-carousel__arrow-btn"
+                          onClick={handleNextHeroSlide}
+                          aria-label="Next destination"
+                        >
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3078,41 +3059,42 @@ export default function Home() {
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 36px)" }}>
           {/* Solana Agent Registry Architecture Info Header */}
           <div style={{
-            background: "linear-gradient(135deg, rgba(20, 241, 149, 0.08) 0%, rgba(153, 69, 255, 0.08) 100%)",
-            border: "1.5px solid rgba(20, 241, 149, 0.3)",
-            borderRadius: 20,
-            padding: "24px 28px",
+            background: "var(--color-bg-card, #FAF7F2)",
+            border: "1px solid var(--color-sabbia, #E2D9CC)",
+            borderRadius: 18,
+            padding: "26px 30px",
             marginBottom: 28,
+            boxShadow: "var(--shadow-subtle)",
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20 }}>
               <div style={{ maxWidth: 720 }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.8, color: "#14F195", marginBottom: 8 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#14F195", display: "inline-block" }} />
-                  <span>Solana Agent Registry · Metaplex Standard (ERC-8004 Equivalent)</span>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11.5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--color-ottone)", marginBottom: 8 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--color-verified)", display: "inline-block" }} />
+                  <span>Solana Agent Registry · Metaplex Standard</span>
                 </div>
-                <h2 style={{ fontSize: 26, fontWeight: 900, color: "#FFF", marginBottom: 8 }}>
+                <h2 style={{ fontFamily: "var(--font-mollie)", fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 600, color: "var(--color-notte)", marginBottom: 8, lineHeight: 1.2 }}>
                   Verified Solana AI Tourism Concierges
                 </h2>
-                <p style={{ fontSize: 14, color: "var(--gray-light)", lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 14, color: "var(--color-oliva)", lineHeight: 1.6, margin: 0 }}>
                   Each autonomous AI concierge is cryptographically registered on the <strong>Solana Devnet Agent Registry</strong> with an on-chain Identity PDA (Program Derived Address). Concierges authenticate landmark itineraries, benchmark fare integrity, and anchor digital travel agreements to the blockchain.
                 </p>
               </div>
 
               {/* Devnet Live Stats Box */}
               <div style={{
-                background: "rgba(10, 14, 22, 0.85)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
+                background: "var(--color-bg-alt, #EBE4D8)",
+                border: "1px solid var(--color-sabbia, #E2D9CC)",
                 borderRadius: 14,
-                padding: "14px 18px",
-                fontSize: 12,
-                minWidth: 260,
+                padding: "16px 20px",
+                fontSize: 12.5,
+                minWidth: 280,
               }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <span style={{ color: "var(--gray)" }}>Network Cluster:</span>
-                  <span style={{ color: "#14F195", fontWeight: 700 }}>Solana Devnet (Active)</span>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span style={{ color: "var(--color-oliva)" }}>Network Cluster:</span>
+                  <span style={{ color: "var(--color-verified)", fontWeight: 600 }}>Solana Devnet (Active)</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <span style={{ color: "var(--gray)" }}>Registry Program:</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ color: "var(--color-oliva)" }}>Registry Program:</span>
                   <CopyAddress
                     value="1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p"
                     label="Touristमित्र Registry Program ID"
@@ -3124,7 +3106,7 @@ export default function Home() {
                   />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "var(--gray)" }}>Attestation Program:</span>
+                  <span style={{ color: "var(--color-oliva)" }}>Attestation Program:</span>
                   <CopyAddress
                     value="A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
                     label="Metaplex Agent Attestation Program ID"
@@ -3168,35 +3150,37 @@ export default function Home() {
 
           {/* Live Interactive Agent Search & Travel Query Bar */}
           <div style={{
-            background: "linear-gradient(135deg, rgba(20, 241, 149, 0.08), rgba(248, 208, 87, 0.08))",
-            border: "1.5px solid rgba(248, 208, 87, 0.35)",
+            background: "var(--color-bg-card, #FAF7F2)",
+            border: "1px solid var(--color-sabbia, #E2D9CC)",
             borderRadius: 16,
-            padding: "18px 22px",
+            padding: "20px 24px",
             marginBottom: 24,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             gap: 16,
             flexWrap: "wrap",
+            boxShadow: "var(--shadow-subtle)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: "rgba(248, 208, 87, 0.15)",
+                background: "rgba(173, 137, 88, 0.12)",
+                border: "1px solid rgba(173, 137, 88, 0.28)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "var(--yellow)",
+                color: "var(--color-ottone)",
               }}>
-                <Sparkles size={22} color="var(--yellow)" />
+                <Sparkles size={20} color="var(--color-ottone)" />
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#FFF" }}>
-                  Search Places & Plan Trips with Solana Registry AI Agents
+                <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.25rem", fontWeight: 600, color: "var(--color-notte)" }}>
+                  Search Places &amp; Plan Trips with Solana Registry AI Agents
                 </div>
-                <div style={{ fontSize: 13, color: "var(--gray-light)", marginTop: 2 }}>
+                <div style={{ fontSize: 13, color: "var(--color-oliva)", marginTop: 2 }}>
                   Query verified AI concierges to search destinations, inspect day-by-day schedules, and audit municipal fares on Solana Devnet.
                 </div>
               </div>
@@ -4441,25 +4425,45 @@ export default function Home() {
         </div>
       )}
 
-      {/* ══ FOOTER ══ */}
+      {/* ══ Q'IN SABA LUXURY FOOTER ══ */}
       <footer className="site-footer">
-        <div className="footer-brand" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img
-            src="/logo.png"
-            alt="Touristमित्रम् Logo"
-            style={{
-              height: 36,
-              width: "auto",
-              objectFit: "contain",
-              filter: "drop-shadow(0 2px 6px rgba(248, 208, 87, 0.25))",
-            }}
-          />
+        {/* Kinetic Marquee Track */}
+        <div className="site-footer__marquee" aria-hidden="true">
+          <div className="site-footer__marquee-track">
+            <span className="site-footer__wordmark">
+              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+            </span>
+            <span className="site-footer__wordmark">
+              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+            </span>
+            <span className="site-footer__wordmark">
+              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+            </span>
+            <span className="site-footer__wordmark">
+              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+            </span>
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="footer-devnet-dot" style={{ background: "var(--success)" }} />
-          <span>Encrypted & Certified Travel Network · Powered by Solana Devnet</span>
+
+        {/* Editorial Credits & Links */}
+        <div className="site-footer__inner">
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <span className="site-header__clock-dot" style={{ background: "var(--color-verified)" }} />
+            <span>Encrypted &amp; Certified Travel Network · Solana Devnet Anchor Program</span>
+          </div>
+
+          <div className="site-footer__links">
+            <button type="button" onClick={() => setActiveTab("discover")} className="site-footer__link">Discover</button>
+            <button type="button" onClick={() => setActiveTab("agents")} className="site-footer__link">Concierge</button>
+            <button type="button" onClick={() => setActiveTab("price")} className="site-footer__link">Fair Price</button>
+            <button type="button" onClick={() => setActiveTab("safety")} className="site-footer__link">Safety</button>
+            <button type="button" onClick={() => setActiveTab("records")} className="site-footer__link">Certified Records</button>
+          </div>
+
+          <div>
+            Code Catalyst (Suresh Kishor Savant, Gahana B G) · HackToBerFest 2026, VVCE
+          </div>
         </div>
-        <div>© 2026 Touristमित्रम्. All rights reserved.</div>
       </footer>
 
       {/* Traveler Persona & Official Visa Advisor Modal */}
@@ -4527,10 +4531,10 @@ export default function Home() {
               maxHeight: "90vh",
               overflowY: "auto",
               padding: "28px 32px",
-              borderRadius: 24,
-              border: "1.5px solid rgba(248, 208, 87, 0.4)",
-              background: "#0E131F",
-              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.85)",
+              borderRadius: 20,
+              border: "1px solid var(--color-sabbia, #E2D9CC)",
+              background: "var(--color-bg-card, #FAF7F2)",
+              boxShadow: "var(--shadow-dropdown)",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -4541,26 +4545,27 @@ export default function Home() {
                   width: 50,
                   height: 50,
                   borderRadius: 14,
-                  background: "linear-gradient(135deg, rgba(20, 241, 149, 0.2), rgba(153, 69, 255, 0.25))",
-                  border: "1.5px solid rgba(20, 241, 149, 0.45)",
+                  background: "rgba(173, 137, 88, 0.12)",
+                  border: "1px solid rgba(173, 137, 88, 0.30)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  color: "var(--color-ottone)",
                 }}>
-                  <Headset size={26} color="var(--success)" />
+                  <Headset size={26} color="var(--color-ottone)" />
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <h3 style={{ fontSize: 20, fontWeight: 900, color: "#FFF", margin: 0 }}>
+                    <h3 style={{ fontFamily: "var(--font-mollie)", fontSize: "1.5rem", fontWeight: 600, color: "var(--color-notte)", margin: 0 }}>
                       {consultAgent?.displayName || consultAgent?.name || "Solana AI Travel Concierge"}
                     </h3>
                     <span style={{
-                      fontSize: 10.5,
-                      fontWeight: 800,
-                      background: "rgba(0, 217, 149, 0.15)",
-                      color: "var(--success)",
-                      border: "1px solid rgba(0, 217, 149, 0.35)",
-                      padding: "3px 8px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      background: "rgba(45, 90, 67, 0.08)",
+                      color: "var(--color-verified)",
+                      border: "1px solid rgba(45, 90, 67, 0.25)",
+                      padding: "3px 9px",
                       borderRadius: 12,
                       display: "inline-flex",
                       alignItems: "center",
@@ -4569,7 +4574,7 @@ export default function Home() {
                       <CheckCircle2 size={11} /> Devnet Registered
                     </span>
                   </div>
-                  <div style={{ fontSize: 12.5, color: "var(--yellow)", marginTop: 3 }}>
+                  <div style={{ fontSize: 13, color: "var(--color-ottone)", marginTop: 3 }}>
                     Specialty: {consultAgent?.specialty || "Heritage Itineraries & Price Protection"} · Trust Score: {consultAgent?.reputation?.trustScore || 99.4}%
                   </div>
                 </div>
@@ -4579,14 +4584,14 @@ export default function Home() {
                 onClick={() => setConsultModalOpen(false)}
                 aria-label="Close Agent Consultation modal"
                 style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "none",
-                  borderRadius: 10,
-                  color: "var(--gray)",
+                  background: "var(--color-bg-alt, #EBE4D8)",
+                  border: "1px solid var(--color-sabbia, #E2D9CC)",
+                  borderRadius: "50%",
+                  color: "var(--color-notte)",
                   cursor: "pointer",
                   padding: 8,
-                  minWidth: 44,
-                  minHeight: 44,
+                  width: 38,
+                  height: 38,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -4778,22 +4783,23 @@ export default function Home() {
               <div style={{ marginTop: 16 }}>
                 {/* Destination Header */}
                 <div style={{
-                  background: "linear-gradient(135deg, rgba(248, 208, 87, 0.08), rgba(20, 241, 149, 0.08))",
-                  border: "1px solid rgba(248, 208, 87, 0.3)",
+                  background: "var(--color-bg-card, #FAF7F2)",
+                  border: "1px solid var(--color-sabbia, #E2D9CC)",
                   borderRadius: 16,
-                  padding: "16px 20px",
+                  padding: "18px 22px",
                   marginBottom: 16,
+                  boxShadow: "var(--shadow-subtle)",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <MapPin size={18} color="var(--yellow)" />
+                    <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-notte)", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      <MapPin size={18} color="var(--color-ottone)" />
                       <span>{agentSearchResult.destination}</span>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--yellow)" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ottone)" }}>
                       {agentSearchResult.duration} · Budget: {selectedCurrency === "INR" ? "₹" : "$"}{agentSearchResult.budget}
                     </span>
                   </div>
-                  <p style={{ fontSize: 13, color: "var(--gray-light)", lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: 13.5, color: "var(--color-oliva)", lineHeight: 1.55, margin: 0 }}>
                     {agentSearchResult.summary}
                   </p>
                 </div>
@@ -4802,14 +4808,14 @@ export default function Home() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
                   {agentSearchResult.days?.map((d: any) => (
                     <div key={d.day} style={{
-                      background: "rgba(255, 255, 255, 0.02)",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "var(--color-bg-card, #FAF7F2)",
+                      border: "1px solid var(--color-sabbia, #E2D9CC)",
                       borderRadius: 14,
-                      padding: "14px 18px",
+                      padding: "16px 20px",
                     }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--yellow)", marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
+                      <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.15rem", fontWeight: 600, color: "var(--color-notte)", marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
                         <span>Day {d.day} — {d.theme}</span>
-                        <span style={{ fontSize: 12, color: "var(--gray)", fontWeight: 500 }}>{d.date}</span>
+                        <span style={{ fontFamily: "var(--font-jost)", fontSize: 12.5, color: "var(--color-oliva)", fontWeight: 500 }}>{d.date}</span>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {d.stops?.map((stop: any, sIdx: number) => (
@@ -4817,39 +4823,40 @@ export default function Home() {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "flex-start",
-                            padding: "8px 12px",
-                            background: "rgba(255, 255, 255, 0.03)",
+                            padding: "10px 14px",
+                            background: "var(--color-bg-alt, #EBE4D8)",
+                            border: "1px solid var(--color-sabbia, #E2D9CC)",
                             borderRadius: 10,
                             gap: 12,
                           }}>
                             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                               <span style={{
                                 fontSize: 11,
-                                padding: "2px 7px",
+                                padding: "3px 8px",
                                 borderRadius: 6,
-                                background: "rgba(248, 208, 87, 0.15)",
-                                color: "var(--yellow)",
-                                fontWeight: 700,
+                                background: "rgba(173, 137, 88, 0.15)",
+                                color: "var(--color-ottone)",
+                                fontWeight: 600,
                                 whiteSpace: "nowrap",
                               }}>
                                 {stop.time}
                               </span>
                               <div>
-                                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#FFF" }}>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-notte)" }}>
                                   {stop.name}
                                   <span style={{
-                                    fontSize: 10,
+                                    fontSize: 10.5,
                                     textTransform: "uppercase",
-                                    padding: "2px 6px",
+                                    padding: "2px 7px",
                                     borderRadius: 4,
-                                    background: "rgba(255, 255, 255, 0.06)",
-                                    color: "var(--gray)",
+                                    background: "rgba(30, 51, 49, 0.08)",
+                                    color: "var(--color-oliva)",
                                     marginLeft: 6,
                                   }}>
                                     {stop.type}
                                   </span>
                                 </div>
-                                <div style={{ fontSize: 12, color: "var(--gray)", marginTop: 2, lineHeight: 1.4 }}>
+                                <div style={{ fontSize: 12.5, color: "var(--color-oliva)", marginTop: 2, lineHeight: 1.45 }}>
                                   {stop.description}
                                 </div>
                               </div>

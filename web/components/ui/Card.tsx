@@ -24,35 +24,39 @@ export const Card: React.FC<CardProps> = ({
 
   const variantStyles: Record<string, React.CSSProperties> = {
     default: {
-      background: "#202020",
-      border: "1px solid #333333",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.35)",
+      background: "var(--color-bg-card, #FAF7F2)",
+      border: "1px solid var(--color-sabbia, #E2D9CC)",
+      boxShadow: "0 4px 20px -2px rgba(30, 51, 49, 0.05)",
+      color: "var(--color-text, #1E3331)",
     },
     elevated: {
-      background: "#262626",
-      border: "1px solid #3A3A3A",
-      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.45)",
+      background: "#FFFFFF",
+      border: "1px solid var(--color-sabbia, #E2D9CC)",
+      boxShadow: "0 8px 30px -4px rgba(30, 51, 49, 0.08)",
+      color: "var(--color-text, #1E3331)",
     },
     interactive: {
-      background: "#202020",
-      border: "1px solid #333333",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.35)",
+      background: "var(--color-bg-card, #FAF7F2)",
+      border: "1px solid var(--color-sabbia, #E2D9CC)",
+      boxShadow: "0 4px 18px -2px rgba(30, 51, 49, 0.05)",
       cursor: "pointer",
+      color: "var(--color-text, #1E3331)",
       transition: "border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
     },
     accent: {
-      background: "#202020",
-      border: "1.5px solid rgba(255, 212, 81, 0.45)",
-      boxShadow: "0 4px 24px rgba(255, 212, 81, 0.12)",
+      background: "var(--color-bg-card, #FAF7F2)",
+      border: "1.5px solid var(--color-ottone, #AD8958)",
+      boxShadow: "0 6px 24px -2px rgba(173, 137, 88, 0.15)",
+      color: "var(--color-text, #1E3331)",
     },
   };
 
   return (
     <div
       style={{
-        borderRadius: "16px", // 14–16px rule
+        borderRadius: "14px",
         padding: paddingStyles[padding],
-        fontFamily: "'DM Sans', -apple-system, sans-serif",
+        fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
         ...variantStyles[variant],
         ...style,
       }}

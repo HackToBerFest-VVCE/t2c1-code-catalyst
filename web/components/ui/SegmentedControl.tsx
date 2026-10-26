@@ -32,12 +32,12 @@ export function SegmentedControl<T extends string = string>({
     <div
       style={{
         display: fullWidth ? "flex" : "inline-flex",
-        background: "#202020",
-        border: "1px solid #333333",
-        borderRadius: "12px",
+        background: "var(--color-bg-alt, #E5DED3)",
+        border: "1px solid var(--color-sabbia, #D8CBB8)",
+        borderRadius: "9999px",
         padding: "4px",
         gap: "4px",
-        fontFamily: "'DM Sans', -apple-system, sans-serif",
+        fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
       }}
       className={`tm-segmented-control ${className}`}
       role="tablist"
@@ -58,12 +58,12 @@ export function SegmentedControl<T extends string = string>({
               justifyContent: "center",
               gap: "6px",
               height: isSm ? "32px" : "38px",
-              padding: isSm ? "0 12px" : "0 16px",
-              borderRadius: "8px",
+              padding: isSm ? "0 14px" : "0 18px",
+              borderRadius: "9999px",
               fontSize: isSm ? "12px" : "13.5px",
-              fontWeight: isSelected ? 700 : 500,
-              background: isSelected ? "#FFD451" : "transparent",
-              color: isSelected ? "#101010" : "#969696",
+              fontWeight: isSelected ? 600 : 500,
+              background: isSelected ? "var(--color-text, #1E3331)" : "transparent",
+              color: isSelected ? "var(--color-avorio, #F2EDE4)" : "var(--color-text-muted, #475446)",
               border: "none",
               cursor: "pointer",
               transition: "all 0.18s ease",

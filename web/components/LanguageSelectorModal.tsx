@@ -42,7 +42,7 @@ export default function LanguageSelectorModal({
             <Globe size={14} color="var(--yellow)" />
             <span>Multi-Lingual Tourist Interface</span>
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#FFF", margin: "6px 0" }}>
+          <h2 style={{ fontSize: 24, fontWeight: 600, color: "var(--color-notte, #1E3331)", fontFamily: "var(--font-mollie, Georgia, serif)", margin: "6px 0" }}>
             Select Your Preferred Language / भाषा चुनें
           </h2>
           <p style={{ fontSize: 13, color: "var(--gray-light)", margin: 0 }}>

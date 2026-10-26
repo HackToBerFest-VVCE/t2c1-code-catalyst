@@ -32,9 +32,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         justifyContent: "center",
         textAlign: "center",
         padding: "48px 24px",
-        background: "#202020",
-        border: "1px dashed #333333",
-        borderRadius: "16px",
+        background: "var(--color-bg-card, #FAF7F2)",
+        border: "1px dashed var(--color-sabbia, #E2D9CC)",
+        borderRadius: "14px",
         maxWidth: "600px",
         margin: "0 auto",
       }}
@@ -46,12 +46,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             width: "56px",
             height: "56px",
             borderRadius: "14px",
-            background: "rgba(255, 212, 81, 0.10)",
-            border: "1px solid rgba(255, 212, 81, 0.25)",
+            background: "rgba(173, 137, 88, 0.12)",
+            border: "1px solid rgba(173, 137, 88, 0.28)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#FFD451",
+            color: "var(--color-ottone, #AD8958)",
             fontSize: "24px",
             marginBottom: "16px",
           }}
@@ -61,9 +61,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       )}
       <h3
         style={{
-          fontSize: "18px",
-          fontWeight: 700,
-          color: "#F5F5F5",
+          fontSize: "20px",
+          fontWeight: 600,
+          color: "var(--color-text, #1E3331)",
+          fontFamily: "var(--font-mollie, 'Cormorant Garamond', Georgia, serif)",
           margin: "0 0 8px 0",
         }}
       >
@@ -72,10 +73,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {description && (
         <p
           style={{
-            fontSize: "13.5px",
-            color: "#969696",
+            fontSize: "14px",
+            color: "var(--color-text-muted, #475446)",
+            fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
             maxWidth: "440px",
-            lineHeight: 1.5,
+            lineHeight: 1.55,
             margin: "0 0 20px 0",
           }}
         >
@@ -109,28 +111,28 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
 }) => {
   const variantMap = {
     error: {
-      bg: "rgba(255, 77, 77, 0.10)",
-      border: "rgba(255, 77, 77, 0.28)",
-      color: "#FF4D4D",
-      icon: <AlertCircle size={18} color="#FF4D4D" />,
+      bg: "rgba(138, 40, 40, 0.08)",
+      border: "rgba(138, 40, 40, 0.24)",
+      color: "#8A2828",
+      icon: <AlertCircle size={18} color="#8A2828" />,
     },
     warning: {
-      bg: "rgba(255, 176, 32, 0.10)",
-      border: "rgba(255, 176, 32, 0.28)",
-      color: "#FFB020",
-      icon: <AlertTriangle size={18} color="#FFB020" />,
+      bg: "rgba(166, 107, 36, 0.08)",
+      border: "rgba(166, 107, 36, 0.24)",
+      color: "#A66B24",
+      icon: <AlertTriangle size={18} color="#A66B24" />,
     },
     info: {
-      bg: "rgba(59, 130, 246, 0.10)",
-      border: "rgba(59, 130, 246, 0.28)",
-      color: "#3B82F6",
-      icon: <Info size={18} color="#3B82F6" />,
+      bg: "rgba(30, 51, 49, 0.07)",
+      border: "rgba(30, 51, 49, 0.20)",
+      color: "#1E3331",
+      icon: <Info size={18} color="#1E3331" />,
     },
     success: {
-      bg: "rgba(0, 217, 149, 0.10)",
-      border: "rgba(0, 217, 149, 0.28)",
-      color: "#00D995",
-      icon: <CheckCircle2 size={18} color="#00D995" />,
+      bg: "rgba(45, 90, 67, 0.08)",
+      border: "rgba(45, 90, 67, 0.24)",
+      color: "#2D5A43",
+      icon: <CheckCircle2 size={18} color="#2D5A43" />,
     },
   };
 
@@ -147,7 +149,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         border: `1px solid ${v.border}`,
         borderRadius: "12px",
         padding: "14px 18px",
-        fontFamily: "'DM Sans', -apple-system, sans-serif",
+        fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
       }}
       className={`tm-alert-box tm-alert-${variant} ${className}`}
       role="alert"
@@ -156,11 +158,11 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         <div style={{ marginTop: "2px", flexShrink: 0 }}>{v.icon}</div>
         <div>
           {title && (
-            <div style={{ fontSize: "14px", fontWeight: 700, color: v.color, marginBottom: "2px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: v.color, marginBottom: "2px" }}>
               {title}
             </div>
           )}
-          <div style={{ fontSize: "13px", color: "#F5F5F5", lineHeight: 1.45 }}>{message}</div>
+          <div style={{ fontSize: "13.5px", color: "var(--color-text, #1E3331)", lineHeight: 1.45 }}>{message}</div>
         </div>
       </div>
       {onRetry && (

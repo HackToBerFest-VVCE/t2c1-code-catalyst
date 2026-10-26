@@ -19,9 +19,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             alignItems: "center",
             width: "100%",
             height: "48px",
-            background: "#292929",
-            border: `1.5px solid ${error ? "#FF4D4D" : "#333333"}`,
-            borderRadius: "11px",
+            background: "var(--color-bg-card, #FAF7F2)",
+            border: `1.5px solid ${error ? "#8A2828" : "var(--color-sabbia, #E2D9CC)"}`,
+            borderRadius: "10px",
             padding: "0 38px 0 14px",
             transition: "border-color 0.18s ease",
             opacity: disabled ? 0.6 : 1,
@@ -29,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           className="tm-select-wrapper"
         >
           {leftIcon && (
-            <div style={{ color: "#969696", marginRight: "10px", display: "flex", alignItems: "center" }}>
+            <div style={{ color: "var(--color-text-muted, #475446)", marginRight: "10px", display: "flex", alignItems: "center" }}>
               {leftIcon}
             </div>
           )}
@@ -40,9 +40,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               width: "100%",
               height: "100%",
               background: "transparent",
-              color: "#F5F5F5",
+              color: "var(--color-text, #1E3331)",
               fontSize: "14px",
-              fontFamily: "'DM Sans', -apple-system, sans-serif",
+              fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
               border: "none",
               outline: "none",
               appearance: "none",

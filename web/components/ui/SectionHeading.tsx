@@ -36,26 +36,28 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
         {eyebrow && (
           <div
             style={{
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "#FFD451",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "var(--color-ottone, #AD8958)",
               textTransform: "uppercase",
-              letterSpacing: "0.1em",
+              letterSpacing: "0.14em",
               marginBottom: "8px",
+              fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
             }}
             className="tm-eyebrow"
           >
-            ✦ {eyebrow}
+            {eyebrow}
           </div>
         )}
         <h2
           style={{
-            fontSize: "26px",
-            fontWeight: 800,
-            color: "#F5F5F5",
-            letterSpacing: "-0.02em",
-            margin: "0 0 8px 0",
-            lineHeight: 1.25,
+            fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
+            fontWeight: 600,
+            color: "var(--color-text, #1E3331)",
+            letterSpacing: "-0.015em",
+            margin: "0 0 10px 0",
+            lineHeight: 1.15,
+            fontFamily: "var(--font-mollie, 'Cormorant Garamond', 'Playfair Display', Georgia, serif)",
           }}
           className="tm-title"
         >
@@ -64,10 +66,11 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
         {subtitle && (
           <p
             style={{
-              fontSize: "14px",
-              color: "#969696",
+              fontSize: "15px",
+              color: "var(--color-text-muted, #475446)",
               margin: 0,
-              lineHeight: 1.5,
+              lineHeight: 1.6,
+              fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
             }}
             className="tm-subtitle"
           >

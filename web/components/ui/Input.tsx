@@ -19,9 +19,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             alignItems: "center",
             width: "100%",
             height: "48px",
-            background: "#292929",
-            border: `1.5px solid ${error ? "#FF4D4D" : "#333333"}`,
-            borderRadius: "11px",
+            background: "var(--color-bg-card, #FAF7F2)",
+            border: `1.5px solid ${error ? "#8A2828" : "var(--color-sabbia, #E2D9CC)"}`,
+            borderRadius: "10px",
             padding: "0 14px",
             gap: "10px",
             transition: "border-color 0.18s ease, box-shadow 0.18s ease",
@@ -30,7 +30,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className="tm-input-wrapper"
         >
           {leftIcon && (
-            <div style={{ color: "#969696", display: "flex", alignItems: "center", flexShrink: 0 }}>
+            <div style={{ color: "var(--color-text-muted, #475446)", display: "flex", alignItems: "center", flexShrink: 0 }}>
               {leftIcon}
             </div>
           )}
@@ -42,9 +42,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               width: "100%",
               height: "100%",
               background: "transparent",
-              color: "#F5F5F5",
+              color: "var(--color-text, #1E3331)",
               fontSize: "14px",
-              fontFamily: "'DM Sans', -apple-system, sans-serif",
+              fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
               border: "none",
               outline: "none",
               padding: 0,

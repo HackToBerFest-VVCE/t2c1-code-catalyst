@@ -28,24 +28,24 @@ export const IconBox: React.FC<IconBoxProps> = ({
 
   const variantStyles: Record<string, React.CSSProperties> = {
     gold: {
-      background: "rgba(255, 212, 81, 0.12)",
-      border: "1px solid rgba(255, 212, 81, 0.28)",
-      color: "#FFD451",
+      background: "rgba(173, 137, 88, 0.12)",
+      border: "1px solid rgba(173, 137, 88, 0.30)",
+      color: "var(--color-ottone, #AD8958)",
     },
     emerald: {
-      background: "rgba(0, 217, 149, 0.12)",
-      border: "1px solid rgba(0, 217, 149, 0.28)",
-      color: "#00D995",
+      background: "rgba(45, 90, 67, 0.10)",
+      border: "1px solid rgba(45, 90, 67, 0.28)",
+      color: "var(--color-oliva, #2D5A43)",
     },
     neutral: {
-      background: "#292929",
-      border: "1px solid #333333",
-      color: "#F5F5F5",
+      background: "var(--color-bg-alt, #E5DED3)",
+      border: "1px solid var(--color-sabbia, #D8CBB8)",
+      color: "var(--color-text, #1E3331)",
     },
     dark: {
-      background: "#1A1A1A",
-      border: "1px solid #2B2B2B",
-      color: "#969696",
+      background: "var(--color-text, #1E3331)",
+      border: "1px solid var(--color-text, #1E3331)",
+      color: "var(--color-avorio, #F2EDE4)",
     },
   };
 

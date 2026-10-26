@@ -25,18 +25,18 @@ export const FilterChip: React.FC<FilterChipProps> = ({
         alignItems: "center",
         gap: "6px",
         height: "36px",
-        padding: "0 14px",
+        padding: "0 16px",
         borderRadius: "9999px",
         fontSize: "13px",
-        fontWeight: active ? 700 : 500,
-        background: active ? "#FFD451" : "#202020",
-        color: active ? "#101010" : "#969696",
-        border: `1px solid ${active ? "#FFD451" : "#333333"}`,
+        fontWeight: active ? 600 : 500,
+        background: active ? "var(--color-cta, #652733)" : "var(--color-bg-card, #FAF7F2)",
+        color: active ? "var(--color-avorio, #F2EDE4)" : "var(--color-text-muted, #475446)",
+        border: `1px solid ${active ? "var(--color-cta, #652733)" : "var(--color-sabbia, #E2D9CC)"}`,
         cursor: "pointer",
         transition: "all 0.18s ease",
         userSelect: "none",
         whiteSpace: "nowrap",
-        fontFamily: "'DM Sans', -apple-system, sans-serif",
+        fontFamily: "var(--font-jost, 'Jost', -apple-system, sans-serif)",
         ...style,
       }}
       className={`tm-filter-chip ${active ? "active" : ""} ${className}`}
@@ -50,9 +50,9 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             fontSize: "11px",
             padding: "1px 6px",
             borderRadius: "9999px",
-            background: active ? "rgba(16, 16, 16, 0.18)" : "#292929",
-            color: active ? "#101010" : "#F5F5F5",
-            fontWeight: 700,
+            background: active ? "rgba(242, 237, 228, 0.25)" : "var(--color-bg-alt, #E5DED3)",
+            color: active ? "#F2EDE4" : "var(--color-text, #1E3331)",
+            fontWeight: 600,
           }}
         >
           {count}
