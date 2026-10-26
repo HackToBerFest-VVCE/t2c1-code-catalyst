@@ -4355,6 +4355,235 @@ export default function Home() {
         </div>
       )}
 
+      {/* ══ Q'IN SABA SIGNATURE EDITORIAL PRE-FOOTER (India, thoughtfully yours) ══ */}
+      <section className="editorial-prefooter" aria-label="Footer Editorial Navigation">
+        <div className="editorial-prefooter__inner">
+          {/* Left Content & Navigation Columns */}
+          <div className="editorial-prefooter__left">
+            <h2 className="editorial-prefooter__title">
+              India, thoughtfully yours.
+            </h2>
+
+            <button
+              type="button"
+              className="editorial-prefooter__plan-link"
+              onClick={() => {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                setTimeout(() => {
+                  document.getElementById("gallery-section")?.scrollIntoView({ behavior: "smooth" });
+                }, 60);
+              }}
+            >
+              <span>PLAN YOUR JOURNEY</span>
+              <span className="editorial-plan-arrow">→</span>
+            </button>
+
+            {/* 3 Columns: EXPLORE, FOLLOW, LANGUAGE */}
+            <div className="editorial-prefooter__cols">
+              {/* Column 1: EXPLORE (matching the requested navigation updates) */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">EXPLORE</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <button
+                      type="button"
+                      className="editorial-link-btn"
+                      onClick={() => {
+                        setActiveTab("discover");
+                        setPlannerCity(null);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                      Discovery
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="editorial-link-btn"
+                      onClick={() => {
+                        setActiveTab("discover");
+                        setPlannerCity(null);
+                        setTimeout(() => {
+                          document.getElementById("gallery-section")?.scrollIntoView({ behavior: "smooth" });
+                        }, 60);
+                      }}
+                    >
+                      Gallery
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="editorial-link-btn"
+                      onClick={() => setIsLangModalOpen(true)}
+                    >
+                      Language
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="editorial-link-btn"
+                      onClick={() => setIsAccountModalOpen(true)}
+                    >
+                      Account Details
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 2: FOLLOW */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">FOLLOW</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <a
+                      href="https://instagram.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="editorial-link-btn"
+                    >
+                      Instagram
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="editorial-link-btn"
+                    >
+                      Facebook
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 3: LANGUAGE */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">LANGUAGE</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <button
+                      type="button"
+                      className={`editorial-link-btn ${language === "en" ? "active" : ""}`}
+                      onClick={() => handleSelectLang("en")}
+                    >
+                      English
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className={`editorial-link-btn ${language === "hi" ? "active" : ""}`}
+                      onClick={() => handleSelectLang("hi")}
+                    >
+                      हिन्दी (Hindi)
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className={`editorial-link-btn ${language === "kn" ? "active" : ""}`}
+                      onClick={() => handleSelectLang("kn")}
+                    >
+                      ಕನ್ನಡ (Kannada)
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Signature Silhouette Artwork in Brunello */}
+          <div className="editorial-prefooter__right" aria-hidden="true">
+            <svg
+              className="editorial-prefooter__art"
+              viewBox="0 0 420 520"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Overhead contour line */}
+              <path
+                d="M-80 30 Q120 10 260 60 T420 75"
+                stroke="#652733"
+                strokeWidth="1.2"
+                strokeOpacity="0.65"
+                fill="none"
+              />
+              <path
+                d="M200 45 Q280 8 360 85"
+                stroke="#652733"
+                strokeWidth="1"
+                strokeOpacity="0.5"
+                fill="none"
+              />
+
+              {/* Headband / Tiara Halo */}
+              <path
+                d="M280 115 C295 90 325 80 365 72"
+                stroke="#652733"
+                strokeWidth="1.8"
+                fill="none"
+              />
+              <path
+                d="M290 125 C310 98 340 88 380 80"
+                stroke="#652733"
+                strokeWidth="1"
+                strokeOpacity="0.7"
+                fill="none"
+              />
+
+              {/* Flowing Silhouette Figure in deep Brunello */}
+              <path
+                d="M320 85 C310 105 295 125 285 155 C272 195 268 240 270 280 C272 315 280 350 300 380 C310 395 328 410 345 415 C330 405 315 390 305 370 C292 345 288 310 288 280 C288 245 295 210 310 180 C322 155 340 135 360 120 C368 115 372 108 375 100 C365 92 340 85 320 85 Z"
+                fill="#652733"
+              />
+              <path
+                d="M335 105 C330 115 322 135 315 160 C305 200 300 245 305 290 C310 335 325 380 350 415 C365 435 372 445 372 460 C372 440 362 420 350 395 C335 365 325 330 322 290 C320 250 325 210 335 175 C342 150 355 130 370 115 Z"
+                fill="#652733"
+              />
+
+              {/* Facial Profile Contours (Forehead, Nose, Lips, Chin, Neck) */}
+              <path
+                d="M360 120 C365 130 372 142 376 150 C382 158 392 165 396 172 C398 176 395 180 390 182 C386 183 384 186 386 190 C388 193 392 195 396 197 C400 199 400 203 397 205 C392 208 387 212 390 216 C393 219 398 220 397 224 C395 228 385 235 382 242 C378 250 374 265 370 285 C366 310 365 345 368 380 C370 415 372 455 372 470 C370 440 366 405 362 370 C360 335 360 300 364 275 C366 260 370 248 375 240 C368 235 360 220 358 200 C356 180 360 160 368 140 C372 132 370 125 360 120 Z"
+                fill="#652733"
+              />
+
+              {/* Eyebrow & Eyelash Arch */}
+              <path
+                d="M375 160 Q388 155 395 165"
+                stroke="#652733"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M382 172 Q390 170 395 175"
+                stroke="#652733"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+
+              {/* Lip Contour in Deep Brunello */}
+              <path
+                d="M386 208 Q396 205 394 212 Q388 214 386 208 Z"
+                fill="#652733"
+              />
+
+              {/* Flowing Back Hair Cascades */}
+              <path
+                d="M335 150 C310 185 290 230 280 280 C270 330 270 380 280 420 C285 440 295 460 308 475 C295 455 285 435 278 410 C268 370 268 320 278 275 C288 230 308 190 335 150 Z"
+                fill="#652733"
+              />
+            </svg>
+          </div>
+        </div>
+      </section>
+
       {/* ══ Q'IN SABA LUXURY FOOTER ══ */}
       <footer className="site-footer">
         {/* Kinetic Marquee Track */}

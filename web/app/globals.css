@@ -1449,6 +1449,167 @@ img, video {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   Q'IN SABA SIGNATURE EDITORIAL PRE-FOOTER (India, thoughtfully yours)
+   ══════════════════════════════════════════════════════════════════════════ */
+.editorial-prefooter {
+  background: var(--color-sabbia);
+  border-top: 1px solid rgba(173, 137, 88, 0.28);
+  padding: 88px 0 72px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.editorial-prefooter__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  align-items: center;
+  gap: 48px;
+  position: relative;
+}
+
+.editorial-prefooter__left {
+  display: flex;
+  flex-direction: column;
+}
+
+.editorial-prefooter__title {
+  font-family: var(--font-mollie), serif;
+  font-size: clamp(2.8rem, 4.6vw, 4.4rem);
+  color: var(--color-notte);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  margin: 0 0 20px 0;
+}
+
+.editorial-prefooter__plan-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--color-brunello);
+  padding: 0 0 4px 0;
+  margin-bottom: 56px;
+  width: fit-content;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-brunello);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.editorial-prefooter__plan-link:hover {
+  color: var(--color-notte);
+  border-bottom-color: var(--color-notte);
+}
+
+.editorial-plan-arrow {
+  transition: transform 0.2s ease;
+}
+
+.editorial-prefooter__plan-link:hover .editorial-plan-arrow {
+  transform: translateX(4px);
+}
+
+.editorial-prefooter__cols {
+  display: flex;
+  gap: 72px;
+  flex-wrap: wrap;
+}
+
+.editorial-nav-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 110px;
+}
+
+.editorial-col-heading {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brunello);
+  margin-bottom: 20px;
+  display: block;
+}
+
+.editorial-col-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editorial-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.95rem;
+  color: var(--color-notte);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(30, 51, 49, 0.35);
+  transition: all 0.2s ease;
+}
+
+.editorial-link-btn:hover {
+  color: var(--color-brunello);
+  text-decoration-color: var(--color-brunello);
+}
+
+.editorial-link-btn.active {
+  font-weight: 600;
+  color: var(--color-brunello);
+  text-decoration-color: var(--color-brunello);
+}
+
+.editorial-prefooter__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  height: 100%;
+  pointer-events: none;
+}
+
+.editorial-prefooter__art {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  max-height: 440px;
+}
+
+@media (max-width: 900px) {
+  .editorial-prefooter__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 0 24px;
+  }
+  .editorial-prefooter__cols {
+    gap: 40px;
+  }
+  .editorial-prefooter__right {
+    justify-content: center;
+  }
+  .editorial-prefooter__art {
+    max-width: 260px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    MODAL OVERLAYS & DIALOGS
    ══════════════════════════════════════════════════════════════════════════ */
 .modal-backdrop {
