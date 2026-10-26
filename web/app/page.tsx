@@ -59,6 +59,7 @@ type MainTab = "discover" | "agents" | "price" | "safety" | "records";
 
 type DestinationItem = {
   id: string; name: string; country: string; flag: string;
+  state?: string;
   price: string; tag: string; tagline: string; tripTitle: string;
   duration: string; activityLevel: string; accommodation: string;
   bestSeason: string; description: string; heroImg: string;
@@ -476,6 +477,30 @@ const DESTINATIONS: DestinationItem[] = [
 
 const ALL_TAGS = ["All", "Heritage", "Trending", "Budget Friendly"];
 
+// ─── Indian States & Union Territories Mapping ──────────────────────────────
+const DESTINATION_STATES: Record<string, string> = {
+  mysuru: "Karnataka",
+  jaipur: "Rajasthan",
+  goa: "Goa",
+  delhi: "Delhi NCR",
+  bangalore: "Karnataka",
+  kerala: "Kerala",
+  varanasi: "Uttar Pradesh",
+  hampi: "Karnataka",
+  ladakh: "Ladakh (UT)",
+  coorg: "Karnataka",
+  udaipur: "Rajasthan",
+  agra: "Uttar Pradesh",
+  mumbai: "Maharashtra",
+  amritsar: "Punjab",
+  rishikesh: "Uttarakhand",
+  jaisalmer: "Rajasthan",
+  srinagar: "Jammu & Kashmir",
+  andaman: "Andaman & Nicobar",
+  darjeeling: "West Bengal",
+  meghalaya: "Meghalaya",
+};
+
 // ─── Dynamic AI Destination Generator for ANY User Search ───────────────────
 function createCustomDestination(query: string): DestinationItem {
   const clean = query.trim().charAt(0).toUpperCase() + query.trim().slice(1);
@@ -484,8 +509,9 @@ function createCustomDestination(query: string): DestinationItem {
     name: clean,
     country: "India",
     flag: "🇮🇳",
+    state: "India",
     price: "From ₹4,500",
-    tag: "Curated Pick",
+    tag: "Curated",
     tagline: `Curated Indian cultural heritage, verified transit passes, and price protection for ${clean}.`,
     tripTitle: `Discover & Experience ${clean}`,
     duration: "3 days",
@@ -2674,50 +2700,112 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="destinations-grid">
-                  {filteredDests.map(dest => (
-                    <div
-                      key={dest.id}
-                      className={`dest-card ${selectedDest.id === dest.id ? "selected" : ""}`}
-                      onClick={() => handleAiSearchDestination(dest.name, dest.heroImg)}
-                    >
-                      <div className="dest-card-photo">
-                        <img
-                          src={dest.heroImg}
-                          alt={dest.name}
-                          loading="lazy"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = FALLBACK_HERO;
-                          }}
-                        />
-                      </div>
-                      <div className="dest-card-overlay" />
-                      <div className="dest-card-badge">
-                        <Star size={10} /> {dest.tag}
-                      </div>
-                      <div className="dest-card-body">
-                        <div className="dest-card-name">{dest.name}</div>
-                        <div className="dest-card-price">{dest.price}</div>
-                        <p className="dest-card-desc">{dest.tagline}</p>
-
-                        <div style={{
-                          marginTop: 12,
-                          paddingTop: 10,
-                          borderTop: "1px solid rgba(255,255,255,0.08)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          fontSize: 12,
-                          color: "var(--yellow)",
-                          fontWeight: 700,
-                        }}>
-                          <span>Plan & Customize Trip</span>
-                          <ArrowRight size={14} />
-                        </div>
-                      </div>
+                {filteredDests.length === 0 ? (
+                  <div className="dest-empty-state">
+                    <div className="dest-empty-icon-wrap">
+                      <Compass size={32} color="var(--primary-gold)" />
                     </div>
-                  ))}
-                </div>
+                    <h3 className="dest-empty-title">No destinations found</h3>
+                    <p className="dest-empty-desc">
+                      {searchQuery
+                        ? `We couldn't find any destinations matching "${searchQuery}". Try searching for another city, landmark, or reset your filters.`
+                        : "No destinations currently match this category filter. Try selecting 'All' or a different category."}
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-pill-reset"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setFilterTag("All");
+                      }}
+                    >
+                      <RotateCcw size={14} />
+                      <span>Reset Filters & Search</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="destinations-grid">
+                    {filteredDests.map(dest => {
+                      const stateName = dest.state || DESTINATION_STATES[dest.id] || "India";
+                      const isSelected = selectedDest.id === dest.id;
+                      const isSearchingThis = isAiSearchingCity && aiSearchingCityName.toLowerCase() === dest.name.toLowerCase();
+                      const categoryLabel = dest.tag === "Heritage Pick" ? "Heritage" : dest.tag;
+
+                      return (
+                        <article
+                          key={dest.id}
+                          className={`dest-card ${isSelected ? "selected" : ""}`}
+                          onClick={() => {
+                            setSelectedDest(dest);
+                            handleAiSearchDestination(dest.name, dest.heroImg);
+                          }}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`Explore ${dest.name}, ${stateName}`}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedDest(dest);
+                              handleAiSearchDestination(dest.name, dest.heroImg);
+                            }
+                          }}
+                        >
+                          <div className="dest-card-photo-wrap">
+                            <img
+                              src={dest.heroImg}
+                              alt={`${dest.name}, ${stateName}`}
+                              loading="lazy"
+                              className="dest-card-img"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                              }}
+                            />
+                            <div className="dest-card-photo-overlay" />
+                            <div className="dest-card-badges-top">
+                              {categoryLabel && (
+                                <span className="dest-card-category-pill">
+                                  {categoryLabel}
+                                </span>
+                              )}
+                              {isSelected && (
+                                <span className="dest-card-selected-pill">
+                                  <Check size={11} strokeWidth={2.5} /> Active
+                                </span>
+                              )}
+                            </div>
+                            {dest.price && (
+                              <span className="dest-card-price-pill">
+                                {dest.price}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="dest-card-content">
+                            <div className="dest-card-location">
+                              <MapPin size={13} color="var(--primary-gold)" />
+                              <span>{stateName}, India</span>
+                            </div>
+
+                            <h3 className="dest-card-title">{dest.name}</h3>
+
+                            <p className="dest-card-desc">{dest.tagline}</p>
+
+                            <div className="dest-card-footer">
+                              <span className="dest-card-action">
+                                <span>Explore destination</span>
+                                {isSearchingThis ? (
+                                  <Loader2 size={15} className="animate-spin" color="var(--primary-gold)" />
+                                ) : (
+                                  <ArrowRight size={15} className="action-arrow" />
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </>
           )}
