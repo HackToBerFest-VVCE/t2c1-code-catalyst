@@ -2628,7 +2628,7 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={() => setSearchQuery("")}
-                            style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: "0 4px" }}
+                            style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", minWidth: 36, minHeight: 36, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                             title="Clear search"
                             aria-label="Clear search"
                           >
@@ -2685,18 +2685,22 @@ export default function Home() {
 
                     {/* AI Verification Pulse Banner during search */}
                     {isAiSearchingCity && (
-                      <div style={{
-                        marginTop: 4,
-                        padding: "10px 18px",
-                        borderRadius: 14,
-                        background: "rgba(0, 217, 149, 0.12)",
-                        border: "1.5px solid rgba(0, 217, 149, 0.4)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        fontSize: 13,
-                        color: "#FFF",
-                      }}>
+                      <div
+                        role="status"
+                        aria-live="polite"
+                        style={{
+                          marginTop: 4,
+                          padding: "10px 18px",
+                          borderRadius: 14,
+                          background: "rgba(0, 217, 149, 0.12)",
+                          border: "1.5px solid rgba(0, 217, 149, 0.4)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          fontSize: 13,
+                          color: "#FFF",
+                        }}
+                      >
                         <Loader2 size={16} className="animate-spin" color="var(--emerald-green)" />
                         <span>
                           Solana AI Concierge <strong>{selectedAgent?.displayName || "Touristमित्र AI Concierge"}</strong> is retrieving & authenticating verified places for <strong>{aiSearchingCityName}</strong> on Solana Devnet...
@@ -2915,6 +2919,7 @@ export default function Home() {
                   <a
                     href="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
                     target="_blank" rel="noreferrer"
+                    aria-label="View Touristमित्र Registry Program on Solana Explorer"
                     style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
                   >
                     <span>1DREGF...B2p</span>
@@ -2926,6 +2931,7 @@ export default function Home() {
                   <a
                     href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
                     target="_blank" rel="noreferrer"
+                    aria-label="View Metaplex Agent Attestation Program on Solana Explorer"
                     style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
                   >
                     <span>A7yU8i...VSzN</span>
@@ -3289,7 +3295,7 @@ export default function Home() {
                 </div>
 
                 {priceValidationError && (
-                  <div className="price-validation-msg" role="alert">
+                  <div className="price-validation-msg" role="alert" aria-live="assertive">
                     <AlertCircle size={14} />
                     <span>{priceValidationError}</span>
                   </div>
@@ -3316,7 +3322,7 @@ export default function Home() {
 
               {/* Price Checker Results */}
               {priceResult && !priceResult.error && (
-                <div className="price-result-card">
+                <div className="price-result-card" role="region" aria-live="polite" aria-label="Price benchmark calculation results">
                   <div className={`price-result-header ${priceResult.verdictKey || (priceResult.verdict === "Fair" ? "within" : "above")}`}>
                     <div className="result-verdict-icon">
                       {priceResult.verdictKey === "within" || priceResult.verdict === "Fair" || priceResult.verdictKey === "below" ? (
@@ -3792,7 +3798,7 @@ export default function Home() {
 
                       {/* Explicit Warning Banner when Over-Budget */}
                       {isOverBudget && (
-                        <div className="budget-alert-banner">
+                        <div className="budget-alert-banner" role="alert" aria-live="assertive">
                           <AlertTriangle size={20} className="budget-alert-icon" />
                           <div>
                             <div className="budget-alert-title">
@@ -3883,7 +3889,7 @@ export default function Home() {
                             </div>
 
                             {/* Amount & Category Inputs */}
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                            <div className="budget-input-split-row">
                               <div className="budget-form-field">
                                 <label className="budget-field-label" htmlFor="expense-amount-input">Amount *</label>
                                 <div className="budget-input-wrapper">
@@ -3923,7 +3929,7 @@ export default function Home() {
 
                             {/* Validation Error Message */}
                             {expenseValidationError && (
-                              <div className="price-validation-msg">
+                              <div className="price-validation-msg" role="alert" aria-live="assertive">
                                 <AlertCircle size={14} />
                                 <span>{expenseValidationError}</span>
                               </div>
@@ -4165,6 +4171,8 @@ export default function Home() {
 
               {verifyStatus && (
                 <div
+                  role="status"
+                  aria-live="polite"
                   className={`status-box ${verifyResultState === "success" ? "status-green" : "status-red"}`}
                   style={{ marginTop: 14, fontSize: 13, display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 14px", borderRadius: 10 }}
                 >
@@ -4318,7 +4326,9 @@ export default function Home() {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setConsultModalOpen(false)}
+                aria-label="Close Agent Consultation modal"
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   border: "none",
@@ -4326,6 +4336,8 @@ export default function Home() {
                   color: "var(--gray)",
                   cursor: "pointer",
                   padding: 8,
+                  minWidth: 44,
+                  minHeight: 44,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -4361,6 +4373,7 @@ export default function Home() {
                   <a
                     href={`https://explorer.solana.com/address/${consultAgent.mintAddress}?cluster=devnet`}
                     target="_blank" rel="noreferrer"
+                    aria-label="View agent on Solana Devnet Explorer"
                     style={{ color: "var(--yellow)", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
                   >
                     <span>Explorer</span>
@@ -4471,13 +4484,17 @@ export default function Home() {
 
             {/* Live Agent Execution Pipeline Status */}
             {agentSearchLoading && (
-              <div style={{
-                background: "rgba(0, 0, 0, 0.4)",
-                border: "1px solid rgba(20, 241, 149, 0.3)",
-                borderRadius: 14,
-                padding: "16px 20px",
-                marginBottom: 20,
-              }}>
+              <div
+                role="status"
+                aria-live="polite"
+                style={{
+                  background: "rgba(0, 0, 0, 0.4)",
+                  border: "1px solid rgba(20, 241, 149, 0.3)",
+                  borderRadius: 14,
+                  padding: "16px 20px",
+                  marginBottom: 20,
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                   <Loader2 size={16} className="animate-spin" color="#14F195" />
                   <span style={{ fontSize: 13, fontWeight: 700, color: "#14F195" }}>
