@@ -1766,6 +1766,7 @@ export default function Home() {
                       placeholder={`+ Add another specific spot or market in ${plannerCity.name}...`}
                       value={customAttractionInput}
                       onChange={e => setCustomAttractionInput(e.target.value)}
+                      aria-label={`Add another specific spot or market in ${plannerCity.name}`}
                       onKeyDown={e => {
                         if (e.key === "Enter" && customAttractionInput.trim()) {
                           const newId = `custom-${Date.now()}`;
@@ -1790,6 +1791,7 @@ export default function Home() {
                     <button
                       className="btn-dark"
                       style={{ width: "auto", padding: "0 22px", borderRadius: 12 }}
+                      aria-label="Add custom spot to itinerary"
                       onClick={() => {
                         if (customAttractionInput.trim()) {
                           const newId = `custom-${Date.now()}`;
@@ -1874,6 +1876,7 @@ export default function Home() {
                       className="budget-input"
                       value={budgetAmount || ""}
                       onChange={e => setBudgetAmount(Math.max(0, Number(e.target.value)))}
+                      aria-label="Target trip budget amount"
                     />
                   </div>
 
@@ -2627,6 +2630,7 @@ export default function Home() {
                             onClick={() => setSearchQuery("")}
                             style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: "0 4px" }}
                             title="Clear search"
+                            aria-label="Clear search"
                           >
                             ✕
                           </button>
@@ -3864,8 +3868,9 @@ export default function Home() {
                           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             {/* Expense Name Input */}
                             <div className="budget-form-field">
-                              <label className="budget-field-label">Expense Name *</label>
+                              <label className="budget-field-label" htmlFor="expense-name-input">Expense Name *</label>
                               <input
+                                id="expense-name-input"
                                 className="field-input"
                                 placeholder="e.g. Metro rail pass, Palace entry, Local thali"
                                 value={newExpName}
@@ -3873,16 +3878,18 @@ export default function Home() {
                                   setNewExpName(e.target.value);
                                   if (expenseValidationError) setExpenseValidationError("");
                                 }}
+                                aria-label="Expense Name"
                               />
                             </div>
 
                             {/* Amount & Category Inputs */}
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                               <div className="budget-form-field">
-                                <label className="budget-field-label">Amount *</label>
+                                <label className="budget-field-label" htmlFor="expense-amount-input">Amount *</label>
                                 <div className="budget-input-wrapper">
                                   <span className="budget-currency-symbol">{currencySymbol}</span>
                                   <input
+                                    id="expense-amount-input"
                                     className="field-input budget-input-with-symbol"
                                     placeholder="0.00"
                                     type="number"
@@ -3893,16 +3900,19 @@ export default function Home() {
                                       setNewExpAmount(e.target.value);
                                       if (expenseValidationError) setExpenseValidationError("");
                                     }}
+                                    aria-label="Expense Amount"
                                   />
                                 </div>
                               </div>
 
                               <div className="budget-form-field">
-                                <label className="budget-field-label">Category</label>
+                                <label className="budget-field-label" htmlFor="expense-category-select">Category</label>
                                 <select
+                                  id="expense-category-select"
                                   className="field-input"
                                   value={newExpCat}
                                   onChange={e => setNewExpCat(e.target.value)}
+                                  aria-label="Expense Category"
                                 >
                                   {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => (
                                     <option key={c} value={c}>{c}</option>
@@ -4108,6 +4118,7 @@ export default function Home() {
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <input
+                  id="verify-hash-input"
                   className="field-input"
                   placeholder="Paste certificate hash or transaction signature..."
                   value={verifyHashInput}
@@ -4115,6 +4126,7 @@ export default function Home() {
                     setVerifyHashInput(e.target.value);
                     if (verifyStatus) setVerifyStatus("");
                   }}
+                  aria-label="Certificate hash or transaction signature"
                   style={{ flex: 1, minWidth: 260 }}
                 />
                 <button
@@ -4361,15 +4373,17 @@ export default function Home() {
             {/* Query Form */}
             <form onSubmit={handleAgentSearch} style={{ marginBottom: 20 }}>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "var(--gray-light)", marginBottom: 6 }}>
+                <label htmlFor="agent-search-query-input" style={{ display: "block", fontSize: 13, fontWeight: 700, color: "var(--gray-light)", marginBottom: 6 }}>
                   Destination or Travel Query for this Agent:
                 </label>
                 <div style={{ display: "flex", gap: 10 }}>
                   <input
+                    id="agent-search-query-input"
                     className="field-input"
                     placeholder="e.g. Hampi, Jaipur, Coorg, Varanasi, Goa, Ooty, Paris..."
                     value={agentSearchQuery}
                     onChange={e => setAgentSearchQuery(e.target.value)}
+                    aria-label="Destination or travel query"
                     style={{ flex: 1, fontSize: 14 }}
                   />
                   <button
@@ -4421,11 +4435,13 @@ export default function Home() {
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <div style={{ flex: 1, minWidth: 140 }}>
-                  <label style={{ display: "block", fontSize: 12, color: "var(--gray)", marginBottom: 4 }}>Trip Duration</label>
+                  <label htmlFor="agent-search-duration-select" style={{ display: "block", fontSize: 12, color: "var(--gray)", marginBottom: 4 }}>Trip Duration</label>
                   <select
+                    id="agent-search-duration-select"
                     className="field-input"
                     value={agentSearchDuration}
                     onChange={e => setAgentSearchDuration(e.target.value)}
+                    aria-label="Trip duration"
                     style={{ padding: "8px 12px" }}
                   >
                     <option value="1">1 Day Express</option>
@@ -4436,11 +4452,13 @@ export default function Home() {
                   </select>
                 </div>
                 <div style={{ flex: 1, minWidth: 140 }}>
-                  <label style={{ display: "block", fontSize: 12, color: "var(--gray)", marginBottom: 4 }}>Travel Pace</label>
+                  <label htmlFor="agent-search-pace-select" style={{ display: "block", fontSize: 12, color: "var(--gray)", marginBottom: 4 }}>Travel Pace</label>
                   <select
+                    id="agent-search-pace-select"
                     className="field-input"
                     value={agentSearchPace}
                     onChange={e => setAgentSearchPace(e.target.value)}
+                    aria-label="Travel pace"
                     style={{ padding: "8px 12px" }}
                   >
                     <option value="moderate">Moderate (Balanced)</option>

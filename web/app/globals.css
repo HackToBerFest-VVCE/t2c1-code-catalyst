@@ -1055,43 +1055,210 @@ img {
 }
 
 /* ══════════════════════════════════════════════════
-   BUTTONS
+   STANDARDIZED BUTTON SYSTEM (PROMPT 11)
 ══════════════════════════════════════════════════ */
-.btn-yellow {
+
+/* Common Interactive Base */
+button, .btn-primary, .btn-secondary, .btn-tertiary, .btn-destructive,
+.btn-yellow, .btn-dark, .btn-sm-dark, .btn-hero-yellow, .btn-gold-primary,
+.btn-price-primary, .btn-agent-primary, .btn-outline-secondary {
+  font-family: inherit;
+  border-radius: var(--radius-btn, 11px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+button:focus-visible,
+.btn-primary:focus-visible, .btn-secondary:focus-visible, .btn-tertiary:focus-visible, .btn-destructive:focus-visible,
+.btn-yellow:focus-visible, .btn-dark:focus-visible, .btn-sm-dark:focus-visible,
+.btn-hero-yellow:focus-visible, .btn-gold-primary:focus-visible, .btn-price-primary:focus-visible,
+.btn-agent-primary:focus-visible, .btn-outline-secondary:focus-visible,
+.field-input:focus-visible, .filter-pill:focus-visible, .dest-filter-chip:focus-visible {
+  outline: 2px solid var(--primary-gold, #FFD451);
+  outline-offset: 2px;
+}
+
+/* 1. Primary: Gold background and dark text */
+.btn-primary, .btn-yellow, .btn-hero-yellow, .btn-gold-primary, .btn-price-primary, .btn-agent-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: var(--btn-h-md);
-  background: var(--yellow);
+  min-height: var(--btn-h-md, 44px);
+  height: var(--btn-h-md, 44px);
+  background: var(--primary-gold, #FFD451);
   color: #101010;
   font-size: 14px;
   font-weight: 700;
-  padding: 0 22px;
-  border-radius: var(--radius-btn);
-  transition: all 0.2s ease;
-  width: 100%;
+  padding: 0 20px;
+  border: none;
 }
-.btn-yellow:hover { background: var(--yellow-hover); transform: translateY(-1px); }
-.btn-yellow:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.btn-dark {
+
+.btn-primary:hover:not(:disabled), .btn-yellow:hover:not(:disabled),
+.btn-hero-yellow:hover:not(:disabled), .btn-gold-primary:hover:not(:disabled),
+.btn-price-primary:hover:not(:disabled), .btn-agent-primary:hover:not(:disabled) {
+  background: var(--primary-gold-hover, #FFDE7A);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 212, 81, 0.25);
+  color: #101010;
+}
+
+.btn-primary:active:not(:disabled), .btn-yellow:active:not(:disabled),
+.btn-hero-yellow:active:not(:disabled), .btn-gold-primary:active:not(:disabled),
+.btn-price-primary:active:not(:disabled), .btn-agent-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-primary:disabled, .btn-yellow:disabled, .btn-hero-yellow:disabled,
+.btn-gold-primary:disabled, .btn-price-primary:disabled, .btn-agent-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 2. Secondary: Charcoal background with a subtle border */
+.btn-secondary, .btn-dark, .btn-hero-secondary, .btn-outline-secondary, .btn-agent-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: var(--btn-h-md);
-  background: var(--dark-surface);
-  color: var(--white);
-  font-size: 14px;
+  min-height: var(--btn-h-md, 44px);
+  height: var(--btn-h-md, 44px);
+  background: var(--dark-surface, #202020);
+  color: var(--text-primary, #F5F5F5);
+  font-size: 13.5px;
   font-weight: 600;
-  padding: 0 22px;
-  border-radius: var(--radius-btn);
-  border: 1px solid var(--dark-border);
-  transition: all 0.2s ease;
-  width: 100%;
+  padding: 0 18px;
+  border: 1px solid var(--border-color, #333333);
 }
-.btn-dark:hover { border-color: #555; background: var(--dark-elevated); }
-.btn-dark:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary:hover:not(:disabled), .btn-dark:hover:not(:disabled),
+.btn-hero-secondary:hover:not(:disabled), .btn-outline-secondary:hover:not(:disabled),
+.btn-agent-secondary:hover:not(:disabled) {
+  background: #2a2a2a;
+  border-color: #555555;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active:not(:disabled), .btn-dark:active:not(:disabled),
+.btn-hero-secondary:active:not(:disabled), .btn-outline-secondary:active:not(:disabled),
+.btn-agent-secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-secondary:disabled, .btn-dark:disabled, .btn-hero-secondary:disabled,
+.btn-outline-secondary:disabled, .btn-agent-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Compact / Small */
+.btn-sm-dark, .btn-sm-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--btn-h-sm, 36px);
+  min-height: var(--btn-h-sm, 36px);
+  padding: 0 14px;
+  background: #252525;
+  border: 1px solid var(--border-color, #333333);
+  color: var(--text-primary, #F5F5F5);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.btn-sm-dark:hover:not(:disabled), .btn-sm-secondary:hover:not(:disabled) {
+  background: #2d2d2d;
+  border-color: #555555;
+  color: #FFFFFF;
+}
+
+.btn-sm-dark:disabled, .btn-sm-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 3. Tertiary: Text-only action */
+.btn-tertiary, .btn-text-action, .btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #969696);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.btn-tertiary:hover:not(:disabled), .btn-text-action:hover:not(:disabled), .btn-link:hover:not(:disabled) {
+  color: var(--primary-gold, #FFD451);
+  background: rgba(255, 212, 81, 0.08);
+}
+
+.btn-tertiary:disabled, .btn-text-action:disabled, .btn-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 4. Destructive: Restrained red treatment for destructive operations */
+.btn-destructive, .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--btn-h-md, 44px);
+  height: var(--btn-h-md, 44px);
+  padding: 0 16px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  color: #FF6B6B;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-destructive:hover:not(:disabled), .btn-danger:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.18);
+  border-color: rgba(255, 107, 107, 0.45);
+  color: #FF8E8E;
+  transform: translateY(-1px);
+}
+
+.btn-destructive:disabled, .btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Standardized Icon Buttons */
+.clickable-icon-btn, .btn-icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary, #969696);
+  padding: 0;
+}
+
+.clickable-icon-btn:hover:not(:disabled), .btn-icon-sm:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #555555;
+  color: var(--text-primary, #F5F5F5);
+}
 
 /* ══════════════════════════════════════════════════
    AI CONCIERGE AGENT CARDS
@@ -1554,35 +1721,219 @@ img {
   letter-spacing: 0.06em;
   margin-bottom: 6px;
 }
-.field-input {
+/* ══════════════════════════════════════════════════
+   STANDARDIZED INPUTS & FORMS (PROMPT 11)
+══════════════════════════════════════════════════ */
+.field-input, input[type="text"].field-input, input[type="number"].field-input,
+input[type="email"].field-input, select.field-input, textarea.field-input {
   width: 100%;
-  height: var(--input-height);
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-input);
+  height: var(--input-height, 48px);
+  min-height: var(--input-height, 48px);
+  background: var(--input-bg, #292929);
+  border: 1px solid var(--border-color, #333333);
+  border-radius: var(--radius-input, 11px);
   padding: 0 16px;
-  color: var(--text-primary);
+  color: var(--text-primary, #F5F5F5);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
-.field-input:focus {
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 0 2px rgba(255, 212, 81, 0.18);
-}
-.field-input::placeholder { color: #666; }
 
-/* ── Status / Alert Boxes ── */
+.field-input:hover:not(:disabled):not(:focus) {
+  border-color: #555555;
+}
+
+.field-input:focus, .field-input:focus-visible {
+  border-color: var(--primary-gold, #FFD451);
+  box-shadow: 0 0 0 2px rgba(255, 212, 81, 0.22);
+}
+
+.field-input:disabled {
+  background: #1c1c1c !important;
+  border-color: #2b2b2b !important;
+  color: #666666 !important;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.field-input[readonly] {
+  background: #1e1e1e;
+  border-color: #333333;
+  color: #a0a0a0;
+  cursor: default;
+}
+
+.field-input.invalid, .field-input:invalid {
+  border-color: #FF6B6B !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2) !important;
+}
+
+.field-input::placeholder {
+  color: #666666;
+}
+
+.field-label, .input-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary, #969696);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.input-error-msg, .field-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #FF6B6B;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════════════════════
+   STANDARDIZED BADGES & STATUS INDICATORS (PROMPT 11)
+══════════════════════════════════════════════════ */
+/* 1. Green: Actual verified, connected, or active status */
+.badge-green, .status-green, .badge-verified, .badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--emerald-green, #00D995);
+  background: rgba(0, 217, 149, 0.12);
+  border: 1px solid rgba(0, 217, 149, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* 2. Gold: Important category or selected state where appropriate */
+.badge-gold, .status-yellow, .badge-selected, .badge-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-gold, #FFD451);
+  background: rgba(255, 212, 81, 0.12);
+  border: 1px solid rgba(255, 212, 81, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* 3. Gray: Neutral metadata */
+.badge-gray, .status-dark, .badge-metadata, .badge-neutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #969696);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* 4. Red: Genuine error or failure state */
+.badge-red, .status-red, .badge-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* Status / Alert Boxes */
 .status-box {
   border-radius: 12px;
   padding: 12px 16px;
   font-size: 13px;
   line-height: 1.5;
 }
-.status-yellow { background: rgba(248,208,87,0.1); border: 1px solid rgba(248,208,87,0.25); color: var(--yellow); }
-.status-green { background: rgba(76,175,125,0.1); border: 1px solid rgba(76,175,125,0.25); color: var(--success); }
-.status-red { background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.25); color: #E05555; }
-.status-dark { background: var(--dark-elevated); border: 1px solid var(--dark-border); color: var(--gray-light); }
+
+/* Status Dots */
+.status-dot-green {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--emerald-green, #00D995);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-yellow {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary-gold, #FFD451);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-red {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FF6B6B;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-gray {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #777777;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Standardized Filters */
+.filter-pill, .dest-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 20px;
+  background: #252525;
+  color: var(--text-secondary, #969696);
+  border: 1px solid var(--border-color, #333333);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.filter-pill:hover, .dest-filter-chip:hover {
+  border-color: #555555;
+  color: var(--text-primary, #F5F5F5);
+}
+
+.filter-pill.selected, .filter-pill.active,
+.dest-filter-chip.selected, .dest-filter-chip.active {
+  background: var(--primary-gold, #FFD451);
+  color: #101010;
+  border-color: var(--primary-gold, #FFD451);
+  font-weight: 700;
+}
 
 /* ── Fair Price Checker Form & Results ── */
 .price-input-wrapper {
