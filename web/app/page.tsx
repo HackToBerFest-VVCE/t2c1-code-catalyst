@@ -4653,14 +4653,47 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Editorial Navigation Links */}
+        {/* Editorial Navigation Links (Matching Header Layout in Image 2) */}
         <div className="site-footer__inner" style={{ justifyContent: "center" }}>
           <div className="site-footer__links">
-            <button type="button" onClick={() => setActiveTab("discover")} className="site-footer__link">Discover</button>
-            <button type="button" onClick={() => setActiveTab("agents")} className="site-footer__link">Concierge</button>
-            <button type="button" onClick={() => setActiveTab("price")} className="site-footer__link">Fair Price</button>
-            <button type="button" onClick={() => setActiveTab("safety")} className="site-footer__link">Safety</button>
-            <button type="button" onClick={() => setActiveTab("records")} className="site-footer__link">Certified Records</button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="site-footer__link"
+            >
+              DISCOVERY
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                setTimeout(() => {
+                  document.getElementById("gallery-section")?.scrollIntoView({ behavior: "smooth" });
+                }, 60);
+              }}
+              className="site-footer__link"
+            >
+              GALLERY
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsLangModalOpen(true)}
+              className="site-footer__link"
+            >
+              LANGUAGE
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAccountModalOpen(true)}
+              className="site-footer__link"
+            >
+              ACCOUNT
+            </button>
           </div>
         </div>
       </footer>
