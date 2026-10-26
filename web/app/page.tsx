@@ -112,7 +112,7 @@ const DESTINATIONS: DestinationItem[] = [
   },
   {
     id: "goa", name: "Goa", country: "India", flag: "🇮🇳",
-    price: "From ₹7,500", tag: "Budget Friendly",
+    price: "From ₹7,500", tag: "Trending",
     tagline: "Sun, sea, Portuguese history, and India's most vibrant beach culture.",
     tripTitle: "Beaches & Bougainvillea", duration: "5 days",
     activityLevel: "Easy", accommodation: "Beach Resorts & Boutique Stays",
@@ -332,7 +332,7 @@ const DESTINATIONS: DestinationItem[] = [
   },
   {
     id: "amritsar", name: "Amritsar", country: "India", flag: "🇮🇳",
-    price: "From ₹3,900", tag: "Heritage Pick",
+    price: "From ₹3,900", tag: "Budget Friendly",
     tagline: "The Golden Temple, community langar hospitality, and patriotic Wagah border pride.",
     tripTitle: "Sacred Gold & Punjabi Heritage", duration: "2 days",
     activityLevel: "Easy", accommodation: "Heritage Hotels near Golden Temple",
