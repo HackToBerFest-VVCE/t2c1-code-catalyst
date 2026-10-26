@@ -49,6 +49,7 @@ import {
   type LanguageCode,
 } from "../lib/i18n";
 import LanguageSelectorModal from "../components/LanguageSelectorModal";
+import AccountModal from "../components/AccountModal";
 import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
 import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
@@ -60,7 +61,7 @@ import {
 } from "../lib/offline-pass-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type MainTab = "discover" | "agents" | "price" | "safety" | "records";
+export type MainTab = "discover" | "agents" | "price" | "safety" | "records";
 
 type DestinationItem = {
   id: string; name: string; country: string; flag: string;
@@ -697,6 +698,12 @@ export default function Home() {
   const [language, setLanguage] = useState<LanguageCode>("en");
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
   const t = useMemo(() => getTranslation(language), [language]);
+
+  // ── Account & Solana Travel Hub Modal State ──
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+
+  // ── Visual Gallery Category Filter State ──
+  const [galleryCategory, setGalleryCategory] = useState<string>("All");
 
   // ── Remote Area Offline Pass & Gmail Dispatch State ──
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -1467,6 +1474,27 @@ export default function Home() {
     return matched;
   }, [filterTag, searchQuery]);
 
+  // Curated visual gallery destinations filtered by category mood (No typing required)
+  const filteredGalleryDests = React.useMemo(() => {
+    if (galleryCategory === "All") return DESTINATIONS;
+    if (galleryCategory === "Heritage Citadels") {
+      return DESTINATIONS.filter(d => d.tag.toLowerCase().includes("heritage") || ["jaipur", "agra", "hampi", "delhi"].includes(d.id));
+    }
+    if (galleryCategory === "Sacred Waters") {
+      return DESTINATIONS.filter(d => d.tag.toLowerCase().includes("spiritual") || ["varanasi", "rishikesh", "amritsar", "haridwar"].includes(d.id));
+    }
+    if (galleryCategory === "Himalayan Vistas") {
+      return DESTINATIONS.filter(d => ["ladakh", "manali", "shimla", "srinagar", "darjeeling"].includes(d.id) || d.tag.toLowerCase().includes("mountain"));
+    }
+    if (galleryCategory === "Coastal Tropics") {
+      return DESTINATIONS.filter(d => ["kerala", "goa", "andaman", "pondicherry", "kochi"].includes(d.id) || d.tag.toLowerCase().includes("coastal"));
+    }
+    if (galleryCategory === "Royal Palaces") {
+      return DESTINATIONS.filter(d => ["udaipur", "mysore", "jodhpur", "jaipur"].includes(d.id) || d.tag.toLowerCase().includes("royal"));
+    }
+    return DESTINATIONS;
+  }, [galleryCategory]);
+
   // Smoothly reload detail panel and sync destination when user searches
   useEffect(() => {
     if (filteredDests.length > 0 && !filteredDests.some(d => d.id === selectedDest.id)) {
@@ -1481,12 +1509,43 @@ export default function Home() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ══ NAVIGATION ══ */}
+      {/* ══ MINIMALIST EDITORIAL NAVIGATION (Q'IN SABA REFERENCE LAYOUT) ══ */}
       <nav className="navbar" aria-label="Main Navigation">
         <div className="nav-inner">
-          {/* Brand */}
+          {/* Left Navigation: DISCOVERY & GALLERY */}
+          <div className="nav-editorial-left">
+            <button
+              type="button"
+              className={`nav-editorial-link ${activeTab === "discover" && !plannerCity ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              DISCOVERY
+            </button>
+            <button
+              type="button"
+              className="nav-editorial-link"
+              onClick={() => {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                setTimeout(() => {
+                  const el = document.getElementById("gallery-section");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }, 60);
+              }}
+            >
+              GALLERY
+            </button>
+          </div>
+
+          {/* Center Brand Wordmark: Touristमित्रम् (No logo icon, no clock on left) */}
           <div
-            className="nav-brand"
+            className="nav-editorial-brand"
             role="button"
             tabIndex={0}
             onClick={() => {
@@ -1501,204 +1560,90 @@ export default function Home() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
             }}
-            aria-label="Touristमित्र Home"
+            aria-label="Touristमित्रम् Home"
           >
-            <div className="nav-logo-wrap">
-              <img
-                src="/logo-icon.png"
-                alt="Touristमित्र Logo"
-                style={{
-                  height: 34,
-                  width: 34,
-                  borderRadius: 8,
-                  objectFit: "contain",
-                }}
-              />
-            </div>
-            <div className="nav-brand-text">
-              <span className="nav-brand-tourist">Tourist</span>
-              <span className="nav-brand-matram">मित्रम्</span>
-            </div>
-            <div className="nav-brand-badge">
-              <span className="nav-badge-dot" />
-              <span>Verified Platform</span>
-            </div>
+            <span className="brand-word-en">Tourist</span>
+            <span className="brand-word-hi">मित्रम्</span>
           </div>
 
-          {/* Q'in Saba Signature Clock: "Now in India" */}
-          <div className="site-header__clock" title="Current time across India">
-            <span className="site-header__clock-dot" aria-hidden="true" />
-            <span>Now in India {liveTime ? `· ${liveTime}` : ""}</span>
-          </div>
-
-          {/* Desktop Tabs - Discover, Concierge, Fair Price, Safety, Certified Records */}
-          <div className="nav-tabs" role="tablist">
-            {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
-              <button
-                key={tab}
-                role="tab"
-                aria-selected={activeTab === tab}
-                className={`nav-tab ${activeTab === tab ? "active" : ""}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab === "discover" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <Compass size={18} strokeWidth={2} />
-                    <span>{plannerCity ? plannerCity.name : t.navDiscover}</span>
-                  </span>
-                )}
-                {tab === "agents" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <Headset size={18} strokeWidth={2} />
-                    <span>{t.navConcierge}</span>
-                    <span className="nav-counter-pill">
-                      4
-                    </span>
-                  </span>
-                )}
-                {tab === "price" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <IndianRupee size={18} strokeWidth={2} />
-                    <span>{t.navPrice}</span>
-                  </span>
-                )}
-                {tab === "safety" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <ShieldCheck size={18} strokeWidth={2} />
-                    <span>{t.navSafety}</span>
-                  </span>
-                )}
-                {tab === "records" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <LinkIcon size={18} strokeWidth={2} />
-                    <span>{t.navRecords}</span>
-                    {savedRecords.length > 0 && (
-                      <span className="nav-counter-pill">
-                        {savedRecords.length}
-                      </span>
-                    )}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Right: Status Controls, Language, Traveler Status & Wallet */}
-          <div className="nav-right">
-            {/* Solana Devnet Status Pill - Healthy green dot only when connection is actually healthy */}
+          {/* Right Navigation: LANGUAGE, ACCOUNT, and Quick Switcher */}
+          <div className="nav-editorial-right">
             <button
               type="button"
-              className="nav-solana-badge"
-              onClick={() => setActiveTab("records")}
-              title="Click to view Solana Devnet Contract & Records"
-              aria-label="Solana Devnet Network Status"
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: isDevnetHealthy ? "var(--success)" : "#FF4D4D",
-                }}
-              />
-              <span>Solana Devnet</span>
-            </button>
-
-            {/* Language Selector Button */}
-            <button
-              type="button"
-              className="nav-lang-btn"
+              className="nav-editorial-link"
               onClick={() => setIsLangModalOpen(true)}
-              title={t.selectLanguage}
-              aria-label={t.selectLanguage}
+              aria-label="Select Language"
             >
-              <Globe size={14} color="var(--primary-gold)" />
-              <span>{SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || "English"}</span>
+              LANGUAGE
             </button>
 
-            {/* Traveler Status Selector */}
-            {travelerType === "indian" ? (
-              <button
-                type="button"
-                className="nav-traveler-pill indian"
-                onClick={() => setIsPersonaModalOpen(true)}
-                title="Click to switch between Indian Citizen and Foreign Traveler"
-                aria-label="Switch traveler type"
-              >
-                <span>🇮🇳</span>
-                <span className="nav-traveler-label">{t.indianCitizen}</span>
-                <span className="nav-traveler-switch">{t.change}</span>
-              </button>
-            ) : travelerType === "foreign" ? (
-              <button
-                type="button"
-                className="nav-traveler-pill foreign"
-                onClick={() => setIsPersonaModalOpen(true)}
-                title="Click to view Visa requirements or change country"
-                aria-label="Foreign traveler status"
-              >
-                <Globe size={14} color="var(--primary-gold)" />
-                <span className="nav-traveler-label">{foreignCountry}</span>
-                <span className="nav-traveler-visa-badge">{t.visaGuide}</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="nav-traveler-pill"
-                onClick={() => setIsPersonaModalOpen(true)}
-                aria-label="Select traveler status"
-              >
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>🇮🇳 / <Globe size={13} /></span>
-                <span className="nav-traveler-label">Citizen Status</span>
-              </button>
-            )}
-            <WalletMultiButton />
+            <button
+              type="button"
+              className={`nav-editorial-link ${isAccountModalOpen ? "active" : ""}`}
+              onClick={() => setIsAccountModalOpen(true)}
+              aria-label="Account and travel hub"
+            >
+              ACCOUNT
+            </button>
+
+            {/* Quick Language Switcher: EN / HI / KN (matching EN / IT / ES in reference) */}
+            <div className="nav-lang-quick-switch" aria-label="Quick language switcher">
+              {(["en", "hi", "kn"] as LanguageCode[]).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  className={`lang-code-btn ${language === code ? "active" : ""}`}
+                  onClick={() => handleSelectLang(code)}
+                  title={SUPPORTED_LANGUAGES.find(l => l.code === code)?.name}
+                >
+                  {code.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Navigation Tabs (scrollable horizontal strip) */}
+      {/* Mobile Navigation Tabs (Scrollable luxury strip) */}
       <nav className="mobile-tabs" aria-label="Mobile Navigation">
-        {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
-          <button
-            key={tab}
-            role="tab"
-            aria-selected={activeTab === tab}
-            className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab === "discover" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Compass size={15} />
-                <span>{plannerCity ? plannerCity.name : t.navDiscover}</span>
-              </span>
-            )}
-            {tab === "agents" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Headset size={15} />
-                <span>{t.navConcierge}</span>
-              </span>
-            )}
-            {tab === "price" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <IndianRupee size={15} />
-                <span>{t.navPrice}</span>
-              </span>
-            )}
-            {tab === "safety" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <ShieldCheck size={15} />
-                <span>{t.navSafety}</span>
-              </span>
-            )}
-            {tab === "records" && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <LinkIcon size={15} />
-                <span>{t.navRecords}</span>
-              </span>
-            )}
-          </button>
-        ))}
+        <button
+          role="tab"
+          aria-selected={activeTab === "discover" && !plannerCity}
+          className={`mobile-tab-btn ${activeTab === "discover" && !plannerCity ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("discover");
+            setPlannerCity(null);
+          }}
+        >
+          DISCOVERY
+        </button>
+        <button
+          role="tab"
+          className="mobile-tab-btn"
+          onClick={() => {
+            setActiveTab("discover");
+            setPlannerCity(null);
+            setTimeout(() => {
+              document.getElementById("gallery-section")?.scrollIntoView({ behavior: "smooth" });
+            }, 60);
+          }}
+        >
+          GALLERY
+        </button>
+        <button
+          role="tab"
+          className="mobile-tab-btn"
+          onClick={() => setIsLangModalOpen(true)}
+        >
+          LANGUAGE ({language.toUpperCase()})
+        </button>
+        <button
+          role="tab"
+          className="mobile-tab-btn"
+          onClick={() => setIsAccountModalOpen(true)}
+        >
+          ACCOUNT &amp; HUB
+        </button>
       </nav>
 
       {/* ══════════════════════════════════════════════════════════════ */}
@@ -2914,6 +2859,115 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </section>
+
+              {/* ══════════════════════════════════════════════════════════ */}
+              {/* DEDICATED DESTINATION GALLERY (Direct Visual Selection)     */}
+              {/* ══════════════════════════════════════════════════════════ */}
+              <section className="gallery-section page-section" id="gallery-section">
+                <div className="gallery-header">
+                  <div className="gallery-kicker">
+                    <span className="gallery-kicker-dot" />
+                    <span>Visual Discovery · No Search Typing Required</span>
+                    <span className="gallery-kicker-dot" />
+                  </div>
+                  <h2 className="gallery-title">The Grand Gallery of India</h2>
+                  <p className="gallery-sub">
+                    Select any destination photograph below to instantly configure your personalized journey. Customize costs, explore iconic sights, choose transit passes, and cryptographically verify on Solana without typing in a search bar.
+                  </p>
+                </div>
+
+                {/* Category Mood Filter Pills */}
+                <div className="gallery-filter-bar" role="tablist" aria-label="Gallery Categories">
+                  {["All", "Heritage Citadels", "Sacred Waters", "Himalayan Vistas", "Coastal Tropics", "Royal Palaces"].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="tab"
+                      aria-selected={galleryCategory === cat}
+                      className={`gallery-pill ${galleryCategory === cat ? "active" : ""}`}
+                      onClick={() => setGalleryCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Gallery Visual Grid */}
+                <div className="gallery-grid">
+                  {filteredGalleryDests.map((dest) => {
+                    const stateName = dest.state || DESTINATION_STATES[dest.id] || "India";
+                    return (
+                      <article
+                        key={`gallery-card-${dest.id}`}
+                        className="gallery-card"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleSelectDestination(dest.name, dest.heroImg)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSelectDestination(dest.name, dest.heroImg);
+                          }
+                        }}
+                        aria-label={`Select ${dest.name}, ${stateName} and open customizer wizard`}
+                      >
+                        <div className="gallery-card-media">
+                          <img
+                            src={dest.heroImg}
+                            alt={`${dest.name}, ${stateName}`}
+                            className="gallery-card-img"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                            }}
+                          />
+                          <div className="gallery-card-gradient" />
+
+                          {/* Top Badges */}
+                          <div className="gallery-card-badges-top">
+                            <span className="gallery-card-category-pill">
+                              {dest.tag}
+                            </span>
+                            {dest.price && (
+                              <span className="gallery-card-price-pill">
+                                {dest.price}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Overlay Content */}
+                          <div className="gallery-card-overlay-content">
+                            <div className="gallery-card-location">
+                              <MapPin size={13} color="var(--color-ottone)" />
+                              <span>{stateName}, India</span>
+                            </div>
+
+                            <h3 className="gallery-card-title">{dest.name}</h3>
+
+                            <p className="gallery-card-desc">{dest.tagline}</p>
+
+                            {dest.stops && dest.stops.length > 0 && (
+                              <div className="gallery-card-sights-row">
+                                {dest.stops.slice(0, 3).map((stop, sIdx) => (
+                                  <span key={sIdx} className="gallery-card-sight-chip">
+                                    {stop.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bottom 1-Click Action Bar */}
+                        <div className="gallery-card-action-bar">
+                          <span>Customize Trip &amp; Costs</span>
+                          <ArrowRight size={16} />
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </section>
 
@@ -4482,6 +4536,22 @@ export default function Home() {
         onClose={() => setIsLangModalOpen(false)}
         currentLang={language}
         onSelectLang={handleSelectLang}
+      />
+
+      {/* Account & Solana Travel Hub Modal */}
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isDevnetHealthy={isDevnetHealthy}
+        savedRecordsCount={savedRecords.length}
+        onOpenLanguageModal={() => setIsLangModalOpen(true)}
+        onOpenPersonaModal={() => setIsPersonaModalOpen(true)}
+        language={language}
+        travelerType={travelerType}
+        foreignCountry={foreignCountry}
+        selectedCurrency={selectedCurrency}
       />
 
       {/* Send Itinerary to Gmail Modal */}
