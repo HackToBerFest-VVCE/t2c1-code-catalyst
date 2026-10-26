@@ -49,7 +49,7 @@
   /* Restrained shadow */
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 
-  --nav-h: 68px;
+  --nav-h: 64px;
 }
 
 /* ── Custom Luxury Travel Waypoint Cursors ── */
@@ -115,10 +115,11 @@ img {
   top: 0; left: 0; right: 0;
   height: var(--nav-h);
   z-index: 200;
-  background: rgba(17, 17, 17, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(16, 16, 16, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .nav-inner {
   max-width: 1400px;
@@ -127,119 +128,173 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
-  gap: 24px;
+  padding: 0 24px;
+  gap: 16px;
 }
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
   text-decoration: none;
-  transition: opacity 0.2s ease;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
 .nav-brand:hover {
-  opacity: 0.95;
+  opacity: 0.92;
+}
+.nav-brand:focus-visible {
+  outline: 2px solid var(--primary-gold);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 .nav-logo-wrap {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 12px rgba(248, 208, 87, 0.25));
-  transition: transform 0.25s ease;
-}
-.nav-brand:hover .nav-logo-wrap {
-  transform: scale(1.05) rotate(2deg);
+  flex-shrink: 0;
 }
 .nav-brand-text {
   display: flex;
   align-items: baseline;
-  font-size: 21px;
-  font-weight: 850;
+  font-size: 19px;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
 }
 .nav-brand-tourist {
-  color: var(--white);
+  color: var(--text-primary);
   font-weight: 900;
 }
 .nav-brand-matram {
-  color: var(--yellow);
+  color: var(--primary-gold);
   font-weight: 900;
-  margin-left: 1px;
-  filter: drop-shadow(0 0 10px rgba(248, 208, 87, 0.4));
+  margin-left: 2px;
 }
 .nav-brand-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 10px;
-  font-weight: 700;
-  background: rgba(248,208,87,0.12);
-  color: var(--yellow);
-  border: 1px solid rgba(248,208,87,0.3);
-  padding: 3px 9px;
-  border-radius: 20px;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
 }
 .nav-badge-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #14F195;
-  box-shadow: 0 0 6px #14F195;
+  background: var(--success);
 }
 .nav-tabs {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
   justify-content: center;
 }
 .nav-tab {
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: var(--gray-light);
+  color: var(--text-secondary);
   background: transparent;
-  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease;
   white-space: nowrap;
 }
-.nav-tab:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+.nav-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+.nav-tab:focus-visible {
+  outline: 2px solid var(--primary-gold);
+  outline-offset: 2px;
+}
 .nav-tab.active {
-  color: var(--dark);
-  background: var(--yellow);
+  color: #101010;
+  background: var(--primary-gold);
   font-weight: 700;
+  border-color: transparent;
+}
+.nav-tab.active svg {
+  color: #101010;
+}
+.nav-counter-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+.nav-tab.active .nav-counter-pill {
+  background: rgba(16, 16, 16, 0.15);
+  color: #101010;
 }
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-shrink: 0;
+}
+.nav-solana-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  height: 34px;
+}
+.nav-solana-badge:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: #444;
+}
+.nav-solana-badge:focus-visible {
+  outline: 2px solid var(--primary-gold);
+  outline-offset: 2px;
 }
 
 /* Wallet adapter button override */
 .wallet-adapter-button {
-  background: transparent !important;
-  border: 1.5px solid var(--dark-border) !important;
-  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 9px !important;
   font-family: 'DM Sans', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 12.5px !important;
   font-weight: 600 !important;
-  height: 38px !important;
-  padding: 0 16px !important;
-  color: var(--white) !important;
-  transition: all 0.2s ease !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  color: var(--text-primary) !important;
+  transition: all 0.15s ease !important;
 }
 .wallet-adapter-button:hover {
-  background: var(--dark-elevated) !important;
-  border-color: var(--yellow) !important;
-  color: var(--yellow) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: #444 !important;
 }
-.wallet-adapter-button-trigger { background: var(--yellow) !important; color: #000 !important; border: none !important; }
+.wallet-adapter-button-trigger {
+  background: var(--primary-gold) !important;
+  color: #101010 !important;
+  border: none !important;
+}
 
 /* ══════════════════════════════════════════════════
    HERO SECTION
@@ -1058,36 +1113,51 @@ img {
 
 /* Mobile hamburger nav tabs */
 @media (max-width: 900px) {
+  .nav-tabs { display: none !important; }
+  .nav-solana-badge { display: none !important; }
   .mobile-tabs {
     display: flex;
     overflow-x: auto;
     gap: 6px;
-    padding: 12px 20px;
-    background: var(--dark-surface);
-    border-bottom: 1px solid var(--dark-border);
+    padding: 8px 16px;
+    background: #141414;
+    border-bottom: 1px solid var(--border-color);
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   .mobile-tabs::-webkit-scrollbar { display: none; }
   .mobile-tab {
     flex-shrink: 0;
-    padding: 7px 16px;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
     font-weight: 600;
-    background: var(--dark-elevated);
-    color: var(--gray-light);
-    border: 1.5px solid var(--dark-border);
+    background: var(--dark-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
     white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .mobile-tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .mobile-tab:focus-visible {
+    outline: 2px solid var(--primary-gold);
+    outline-offset: 2px;
   }
   .mobile-tab.active {
-    background: var(--yellow);
-    color: var(--dark);
-    border-color: var(--yellow);
+    background: var(--primary-gold);
+    color: #101010;
+    border-color: transparent;
+    font-weight: 700;
+  }
+  .mobile-tab.active svg {
+    color: #101010;
   }
 }
 @media (min-width: 901px) {
-  .mobile-tabs { display: none; }
+  .mobile-tabs { display: none !important; }
 }
 
 /* ══════════════════════════════════════════════════
@@ -2380,47 +2450,53 @@ img {
 .nav-traveler-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  padding: 6px 14px;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  padding: 0 12px;
+  height: 36px;
   font-size: 12px;
-  color: #FFF;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .nav-traveler-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--yellow);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #444;
+}
+
+.nav-traveler-pill:focus-visible {
+  outline: 2px solid var(--primary-gold);
+  outline-offset: 2px;
 }
 
 .nav-traveler-pill.indian {
-  border-color: rgba(20, 241, 149, 0.4);
+  border-color: rgba(0, 217, 149, 0.4);
 }
 
 .nav-traveler-pill.foreign {
-  border-color: rgba(248, 208, 87, 0.4);
+  border-color: rgba(255, 212, 81, 0.4);
 }
 
 .nav-traveler-label {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .nav-traveler-switch {
   font-size: 10px;
-  color: var(--gray-light);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
   padding: 2px 6px;
   border-radius: 6px;
 }
 
 .nav-traveler-visa-badge {
   font-size: 10px;
-  font-weight: 800;
-  color: #0C0E12;
-  background: var(--yellow);
+  font-weight: 700;
+  color: #101010;
+  background: var(--primary-gold);
   padding: 2px 6px;
   border-radius: 6px;
 }
@@ -2495,20 +2571,26 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  padding: 0 12px;
+  height: 36px;
   font-size: 12px;
-  font-weight: 700;
-  color: #FFF;
+  font-weight: 600;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .nav-lang-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--yellow);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #444;
+}
+
+.nav-lang-btn:focus-visible {
+  outline: 2px solid var(--primary-gold);
+  outline-offset: 2px;
 }
 
 .lang-grid {

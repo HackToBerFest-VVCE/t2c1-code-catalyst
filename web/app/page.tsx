@@ -29,7 +29,7 @@ import {
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
   Mail, Download, WifiOff, Printer, X, Send, Award,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
-  Heart, AlertTriangle, AlertCircle, ShieldAlert
+  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon
 } from "lucide-react";
 import {
   getCuratedCityData,
@@ -515,6 +515,7 @@ export default function Home() {
   const [selectedDest, setSelectedDest] = useState<DestinationItem>(DESTINATIONS[0]);
   const [heroThumb, setHeroThumb] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [isDevnetHealthy, setIsDevnetHealthy] = useState<boolean>(true);
 
   // ── Bespoke Trip Customizer Wizard State ──
   const [plannerCity, setPlannerCity] = useState<CuratedCity | null>(null);
@@ -1082,16 +1083,19 @@ export default function Home() {
     try {
       const res = await fetch("/api/agents?query=travel", { cache: "no-store" });
       const data = await res.json();
-      if (data.data?.agents?.length) {
+      if (res.ok && data.data?.agents?.length) {
         setAgents(data.data.agents);
         setSelectedAgent((prev: any) => prev || data.data.agents[0]);
         setAgentStatus(`Connected to Solana Devnet — ${data.data.agents.length} certified travel concierges online`);
+        setIsDevnetHealthy(true);
       } else {
         setAgents([]);
         setAgentStatus("Network query returned 0 concierges. Try refreshing.");
+        setIsDevnetHealthy(false);
       }
     } catch (e: any) {
       setAgentStatus("Network connection error: " + e.message);
+      setIsDevnetHealthy(false);
     } finally {
       setAgentsLoading(false);
     }
@@ -1281,28 +1285,36 @@ export default function Home() {
   return (
     <>
       {/* ══ NAVIGATION ══ */}
-      <nav className="navbar">
+      <nav className="navbar" aria-label="Main Navigation">
         <div className="nav-inner">
           {/* Brand */}
           <div
             className="nav-brand"
-            style={{ cursor: "pointer" }}
+            role="button"
+            tabIndex={0}
             onClick={() => {
               setActiveTab("discover");
               setPlannerCity(null);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setActiveTab("discover");
+                setPlannerCity(null);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            aria-label="Touristमित्र Home"
           >
             <div className="nav-logo-wrap">
               <img
                 src="/logo-icon.png"
-                alt="Touristमित्रम् Logo"
+                alt="Touristमित्र Logo"
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 12,
+                  height: 34,
+                  width: 34,
+                  borderRadius: 8,
                   objectFit: "contain",
-                  boxShadow: "0 2px 12px rgba(248, 208, 87, 0.35)",
                 }}
               />
             </div>
@@ -1316,11 +1328,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop Tabs - Always visible to easily access all Solana & AI Agent features */}
-          <div className="nav-tabs">
+          {/* Desktop Tabs - Discover, Concierge, Fair Price, Safety, Certified Records */}
+          <div className="nav-tabs" role="tablist">
             {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
               <button
                 key={tab}
+                role="tab"
+                aria-selected={activeTab === tab}
                 className={`nav-tab ${activeTab === tab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -1334,7 +1348,7 @@ export default function Home() {
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                     <Headset size={18} strokeWidth={2} />
                     <span>{t.navConcierge}</span>
-                    <span style={{ fontSize: 10, padding: "2px 6px", background: "rgba(0, 217, 149, 0.2)", color: "var(--success)", borderRadius: 10, fontWeight: 700 }}>
+                    <span className="nav-counter-pill">
                       4
                     </span>
                   </span>
@@ -1353,10 +1367,10 @@ export default function Home() {
                 )}
                 {tab === "records" && (
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <FileCheck size={18} strokeWidth={2} />
+                    <LinkIcon size={18} strokeWidth={2} />
                     <span>{t.navRecords}</span>
                     {savedRecords.length > 0 && (
-                      <span style={{ marginLeft: 2, fontSize: 10, padding: "2px 6px", background: "rgba(0, 217, 149, 0.2)", color: "var(--success)", borderRadius: 10, fontWeight: 700 }}>
+                      <span className="nav-counter-pill">
                         {savedRecords.length}
                       </span>
                     )}
@@ -1366,46 +1380,47 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Right: Language, Traveler Status & Wallet */}
-          <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Solana Devnet Status Pill */}
-            <div
+          {/* Right: Status Controls, Language, Traveler Status & Wallet */}
+          <div className="nav-right">
+            {/* Solana Devnet Status Pill - Healthy green dot only when connection is actually healthy */}
+            <button
+              type="button"
               className="nav-solana-badge"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "rgba(20, 241, 149, 0.08)",
-                border: "1px solid rgba(20, 241, 149, 0.28)",
-                borderRadius: 20,
-                padding: "6px 12px",
-                fontSize: 12,
-                color: "#14F195",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
               onClick={() => setActiveTab("records")}
               title="Click to view Solana Devnet Contract & Records"
+              aria-label="Solana Devnet Network Status"
             >
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#14F195", boxShadow: "0 0 8px #14F195" }} />
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: isDevnetHealthy ? "var(--success)" : "#FF4D4D",
+                }}
+              />
               <span>Solana Devnet</span>
-            </div>
+            </button>
 
             {/* Language Selector Button */}
             <button
+              type="button"
               className="nav-lang-btn"
               onClick={() => setIsLangModalOpen(true)}
               title={t.selectLanguage}
+              aria-label={t.selectLanguage}
             >
-              <Globe size={13} color="var(--yellow)" />
+              <Globe size={14} color="var(--primary-gold)" />
               <span>{SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || "English"}</span>
             </button>
 
+            {/* Traveler Status Selector */}
             {travelerType === "indian" ? (
               <button
+                type="button"
                 className="nav-traveler-pill indian"
                 onClick={() => setIsPersonaModalOpen(true)}
                 title="Click to switch between Indian Citizen and Foreign Traveler"
+                aria-label="Switch traveler type"
               >
                 <span>🇮🇳</span>
                 <span className="nav-traveler-label">{t.indianCitizen}</span>
@@ -1413,18 +1428,22 @@ export default function Home() {
               </button>
             ) : travelerType === "foreign" ? (
               <button
+                type="button"
                 className="nav-traveler-pill foreign"
                 onClick={() => setIsPersonaModalOpen(true)}
                 title="Click to view Visa requirements or change country"
+                aria-label="Foreign traveler status"
               >
-                <Globe size={15} color="var(--yellow)" />
+                <Globe size={14} color="var(--primary-gold)" />
                 <span className="nav-traveler-label">{foreignCountry}</span>
                 <span className="nav-traveler-visa-badge">{t.visaGuide}</span>
               </button>
             ) : (
               <button
+                type="button"
                 className="nav-traveler-pill"
                 onClick={() => setIsPersonaModalOpen(true)}
+                aria-label="Select traveler status"
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>🇮🇳 / <Globe size={13} /></span>
                 <span className="nav-traveler-label">Citizen Status</span>
@@ -1435,47 +1454,49 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Mobile Tabs (scrollable) - Always available */}
-      <div className="mobile-tabs" style={{ paddingTop: "calc(var(--nav-h) + 0px)" }}>
+      {/* Mobile Navigation Tabs (scrollable horizontal strip) */}
+      <nav className="mobile-tabs" aria-label="Mobile Navigation">
         {(["discover", "agents", "price", "safety", "records"] as MainTab[]).map(tab => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
             className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab === "discover" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Compass size={16} />
+                <Compass size={15} />
                 <span>{plannerCity ? plannerCity.name : t.navDiscover}</span>
               </span>
             )}
             {tab === "agents" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <Headset size={16} />
+                <Headset size={15} />
                 <span>{t.navConcierge}</span>
               </span>
             )}
             {tab === "price" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <IndianRupee size={16} />
+                <IndianRupee size={15} />
                 <span>{t.navPrice}</span>
               </span>
             )}
             {tab === "safety" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <ShieldCheck size={16} />
+                <ShieldCheck size={15} />
                 <span>{t.navSafety}</span>
               </span>
             )}
             {tab === "records" && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <FileCheck size={16} />
+                <LinkIcon size={15} />
                 <span>{t.navRecords}</span>
               </span>
             )}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: DISCOVER                                                 */}
