@@ -1,19 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap');
 
-/* ── CSS Variables ── */
+/* ── Touristमित्र Design System Variables ── */
 :root {
-  --yellow: #F8D057;
-  --yellow-hover: #e8c040;
-  --gray: #7A7A7A;
-  --gray-light: #A3A3A3;
-  --dark: #1B1B1B;
-  --dark-surface: #222222;
-  --dark-elevated: #2A2A2A;
+  /* Color tokens */
+  --page-bg: #101010;
+  --pure-dark: #101010;
+  --card-bg: #202020;
+  --dark-surface: #202020;
+  --dark: #1A1A1A;
+  --input-bg: #292929;
+  --dark-elevated: #292929;
+  
+  --primary-gold: #FFD451;
+  --yellow: #FFD451;
+  --yellow-hover: #E6BC3D;
+  --primary-gold-hover: #E6BC3D;
+  
+  --emerald-green: #00D995;
+  --success: #00D995;
+  --warning: #FFB020;
+  --error: #FF4D4D;
+  --info: #3B82F6;
+  
+  --text-primary: #F5F5F5;
+  --white: #F5F5F5;
+  --text-secondary: #969696;
+  --gray: #969696;
+  --gray-light: #B5B5B5;
+  --text-muted: #666666;
+  
   --dark-border: #333333;
-  --pure-dark: #111111;
-  --white: #FFFFFF;
-  --success: #4CAF7D;
-  --error: #E05555;
+  --border-color: #333333;
+  --border-subtle: #2A2A2A;
+
+  /* Sizing and radii */
+  --radius-sm: 8px;
+  --radius-btn: 11px;
+  --radius-card: 16px;
+  --radius-input: 11px;
+  --radius-full: 9999px;
+
+  --input-height: 48px;
+  --btn-h-sm: 36px;
+  --btn-h-md: 44px;
+  --btn-h-lg: 48px;
+  --icon-container-size: 42px;
+
+  /* Restrained shadow */
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+
   --nav-h: 68px;
 }
 
@@ -648,12 +683,13 @@ img {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: var(--btn-h-md);
   background: var(--yellow);
-  color: #1B1B1B;
+  color: #101010;
   font-size: 14px;
   font-weight: 700;
-  padding: 13px 24px;
-  border-radius: 12px;
+  padding: 0 22px;
+  border-radius: var(--radius-btn);
   transition: all 0.2s ease;
   width: 100%;
 }
@@ -664,13 +700,14 @@ img {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: var(--btn-h-md);
   background: var(--dark-surface);
   color: var(--white);
   font-size: 14px;
   font-weight: 600;
-  padding: 13px 24px;
-  border-radius: 12px;
-  border: 1.5px solid var(--dark-border);
+  padding: 0 22px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--dark-border);
   transition: all 0.2s ease;
   width: 100%;
 }
@@ -687,13 +724,14 @@ img {
 }
 .agent-card {
   background: var(--dark-surface);
-  border: 1.5px solid var(--dark-border);
-  border-radius: 20px;
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  transition: border-color 0.2s, transform 0.2s;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .agent-card:hover { border-color: #555; transform: translateY(-3px); }
 .agent-card.verified-card { border-color: var(--yellow); }
@@ -805,8 +843,9 @@ img {
 }
 .feature-card {
   background: var(--dark-surface);
-  border: 1.5px solid var(--dark-border);
-  border-radius: 20px;
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
   padding: 28px;
 }
 .feature-card-icon {
@@ -842,16 +881,21 @@ img {
 }
 .field-input {
   width: 100%;
-  background: var(--dark-elevated);
-  border: 1.5px solid var(--dark-border);
-  border-radius: 10px;
-  padding: 11px 14px;
-  color: var(--white);
+  height: var(--input-height);
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-input);
+  padding: 0 16px;
+  color: var(--text-primary);
   font-size: 14px;
-  transition: border-color 0.2s;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field-input:focus { border-color: var(--yellow); }
-.field-input::placeholder { color: #555; }
+.field-input:focus {
+  border-color: var(--primary-gold);
+  box-shadow: 0 0 0 2px rgba(255, 212, 81, 0.18);
+}
+.field-input::placeholder { color: #666; }
 
 /* ── Status / Alert Boxes ── */
 .status-box {

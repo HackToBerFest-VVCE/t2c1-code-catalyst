@@ -6,4 +6,5 @@ node_modules/
 .env.local
 web/.env.local
 target/
+*.tsbuildinfo
 .DS_Store
