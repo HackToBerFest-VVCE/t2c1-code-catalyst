@@ -85,7 +85,7 @@ export function SendEmailModal({
 
   const handleCopySummary = () => {
     if (!plan) return;
-    const summary = `Touristमत्रम् Certified Itinerary for ${plan.city} (${plan.numDays} Days)\n` +
+    const summary = `YatraSetu Certified Itinerary for ${plan.city} (${plan.numDays} Days)\n` +
       `Total Budget: ${plan.totalBudget.toLocaleString()} ${plan.currency}\n` +
       `Transit Pass: ${plan.transitPass}\n` +
       `Certificate: ${certificateId || plan.certificateId || "CERTIFIED"}\n\n` +

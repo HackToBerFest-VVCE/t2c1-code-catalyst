@@ -592,7 +592,7 @@ function createCustomDestination(query: string): DestinationItem {
     activityLevel: "Moderate",
     accommodation: "Boutique Havelis & 4-Star Stays",
     bestSeason: "Oct – Mar / Ideal Season",
-    description: `Explore the vibrant culture, historical monuments, and authentic sights of ${clean}, India. Verified by Touristमत्रम् travel concierges with transparent benchmark pricing and tamper-proof digital travel certification.`,
+    description: `Explore the vibrant culture, historical monuments, and authentic sights of ${clean}, India. Verified by YatraSetu travel concierges with transparent benchmark pricing and tamper-proof digital travel certification.`,
     heroImg: "/images/destinations/mysore-palace.jpg",
     thumbs: [
       "/images/destinations/mysore-palace.jpg",
@@ -1171,7 +1171,7 @@ export default function Home() {
           budget: selectedCurrency === "INR" ? "6500" : "80",
           currency: selectedCurrency,
           pace: agentSearchPace,
-          agentName: consultAgent?.displayName || consultAgent?.name || "Touristमत्रम् Heritage & Travel Concierge",
+          agentName: consultAgent?.displayName || consultAgent?.name || "YatraSetu Heritage & Travel Concierge",
           identityPda: consultAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
         }),
       });
@@ -1550,7 +1550,7 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Center Brand Wordmark: Touristमित्रम् (No logo icon, no clock on left) */}
+          {/* Center Brand Wordmark: YatraSetu (No logo icon, no clock on left) */}
           <div
             className="nav-editorial-brand"
             role="button"
@@ -1567,10 +1567,10 @@ export default function Home() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
             }}
-            aria-label="Touristमित्रम् Home"
+            aria-label="YatraSetu Home"
           >
-            <span className="brand-word-en">Tourist</span>
-            <span className="brand-word-hi">मित्रम्</span>
+            <span className="brand-word-en">Yatra</span>
+            <span className="brand-word-hi">Setu</span>
           </div>
 
           {/* Right Navigation: LANGUAGE, ACCOUNT, and Quick Switcher */}
@@ -1713,7 +1713,7 @@ export default function Home() {
                   boxShadow: "var(--shadow-subtle)",
                 }}>
                   <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--color-verified)" }} />
-                  <span>Sourced &amp; Verified by Solana AI Concierge: <strong>{selectedAgent?.displayName || "Touristमित्रम् Heritage Concierge"}</strong></span>
+                  <span>Sourced &amp; Verified by Solana AI Concierge: <strong>{selectedAgent?.displayName || "YatraSetu Heritage Concierge"}</strong></span>
                   <span style={{ color: "var(--color-ottone)", fontWeight: 600 }}>({selectedAgent?.reputation?.trustScore || 99.4}% Trust)</span>
                 </div>
 
@@ -1791,7 +1791,7 @@ export default function Home() {
                     </div>
                     <h2 className="wizard-title">{t.selectSights} {plannerCity.name}</h2>
                     <p className="wizard-subtitle">
-                      Curated sights and benchmark timings verified by <strong>{selectedAgent?.displayName || "Touristमत्रम् AI Concierge"}</strong>. Choose your landmarks to optimize the day-by-day route.
+                      Curated sights and benchmark timings verified by <strong>{selectedAgent?.displayName || "YatraSetu AI Concierge"}</strong>. Choose your landmarks to optimize the day-by-day route.
                     </p>
                   </div>
 
@@ -2474,7 +2474,7 @@ export default function Home() {
                           <div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                               <span style={{ fontFamily: "var(--font-mollie)", fontSize: "1.3rem", fontWeight: 600, color: "var(--color-notte)" }}>
-                                {selectedAgent?.displayName || "Touristमित्रम् Heritage & Travel Concierge"}
+                                {selectedAgent?.displayName || "YatraSetu Heritage & Travel Concierge"}
                               </span>
                               <span style={{ fontSize: 11, background: "rgba(45, 90, 67, 0.08)", color: "var(--color-verified)", border: "1px solid rgba(45, 90, 67, 0.22)", padding: "2px 8px", borderRadius: 10, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
                                 <CheckCircle2 size={11} /> Verified on Solana Devnet
@@ -3050,7 +3050,7 @@ export default function Home() {
                   <span style={{ color: "var(--color-oliva)" }}>Registry Program:</span>
                   <CopyAddress
                     value="1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p"
-                    label="Touristमित्र Registry Program ID"
+                    label="YatraSetu Registry Program ID"
                     startChars={6}
                     endChars={4}
                     colorTheme="gold"
@@ -4613,16 +4613,16 @@ export default function Home() {
         <div className="site-footer__marquee" aria-hidden="true">
           <div className="site-footer__marquee-track">
             <span className="site-footer__wordmark">
-              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
             </span>
             <span className="site-footer__wordmark">
-              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
             </span>
             <span className="site-footer__wordmark">
-              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
             </span>
             <span className="site-footer__wordmark">
-              Touristमित्रम् · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
+              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
             </span>
           </div>
         </div>

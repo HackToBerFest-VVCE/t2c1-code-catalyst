@@ -1,16 +1,12 @@
-# Touristमित्र (ProofTrip)
+# YatraSetu
 
 Travel assistant and price protection platform for tourists in India, built with Next.js and Solana.
-
-- **Event:** HackToBerFest 2026 (VVCE)
-- **Team:** Code Catalyst
-- **Members:** Suresh Kishor Savant, Gahana B G
 
 ---
 
 ## Overview
 
-Touristमित्र helps travelers explore India safely by providing AI-assisted itinerary planning, verified local travel concierges, fair price checks to prevent overcharging, emergency contacts, and tamper-proof digital trip agreements certified on Solana Devnet.
+YatraSetu helps travelers explore India safely by providing AI-assisted itinerary planning, verified local travel concierges, fair price checks to prevent overcharging, emergency contacts, and tamper-proof digital trip agreements certified on Solana Devnet.
 
 ---
 

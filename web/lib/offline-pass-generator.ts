@@ -1,4 +1,4 @@
-// ─── Touristमत्रम्: Offline Remote Travel Pass & Itinerary Email Generator ───
+// ─── YatraSetu: Offline Remote Travel Pass & Itinerary Email Generator ───
 
 export interface ItineraryStop {
   time: string;
@@ -99,7 +99,7 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Remote Travel Pass - ${escapeHtml(plan.city)} - Touristमत्रम्</title>
+  <title>Offline Remote Travel Pass - ${escapeHtml(plan.city)} - YatraSetu</title>
   <style>
     :root {
       --bg: #0D1117;
@@ -465,7 +465,7 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
 
     <!-- Header Section -->
     <div class="header-card">
-      <div class="brand-eyebrow">Touristमत्रम् · Verified Travel Concierge</div>
+      <div class="brand-eyebrow">YatraSetu · Verified Travel Concierge</div>
       <h1 class="city-title">${escapeHtml(plan.city)}, India ${plan.country === "India" || !plan.country ? "🇮🇳" : ""}</h1>
       <p style="color: var(--text-muted); font-size: 13.5px;">
         Curated offline emergency itinerary and guaranteed price agreement. Keep this file in your phone or downloads folder when traveling through valleys, mountain passes, and remote areas with zero cell reception.
@@ -621,7 +621,7 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
 
     <!-- Footer -->
     <div style="text-align: center; margin-top: 30px; font-size: 11px; color: var(--text-muted); padding-bottom: 20px;">
-      Touristमत्रम् · Incredible India Digital Travel Concierge Network · Keep this offline copy safe during your journey.
+      YatraSetu · Incredible India Digital Travel Concierge Network · Keep this offline copy safe during your journey.
     </div>
 
   </div>
@@ -686,7 +686,7 @@ export function generateItineraryEmailHTML(plan: ItineraryPlan, options: PassGen
     <!-- Header Banner -->
     <div style="background-color: #161B22; border-top: 4px solid #F8D057; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 16px; border: 1px solid #30363D;">
       <div style="font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #F8D057; margin-bottom: 4px;">
-        Touristमत्रम् · Verified Travel Concierge
+        YatraSetu · Verified Travel Concierge
       </div>
       <h1 style="font-size: 24px; font-weight: 900; color: #FFFFFF; margin: 4px 0 8px 0;">
         Your Tailored Travel Plan for ${escapeHtml(plan.city)}, India 🇮🇳
@@ -763,7 +763,7 @@ export function generateItineraryEmailHTML(plan: ItineraryPlan, options: PassGen
 
     <!-- Guarantee Footer -->
     <div style="text-align: center; padding: 16px; font-size: 11px; color: #8B949E;">
-      🛡️ Certified Travel Agreement · Guaranteed Price Integrity · Touristमत्रम् Solana Network<br>
+      🛡️ Certified Travel Agreement · Guaranteed Price Integrity · YatraSetu Solana Network<br>
       Have a memorable and safe journey exploring India!
     </div>
 
