@@ -22,12 +22,14 @@ import { AnchorProvider, Program, type Idl } from "@coral-xyz/anchor";
 import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { tourismIdl } from "../lib/tourism-idl";
 import {
-  Globe, Search, Sparkles, CheckCircle, Phone, DollarSign,
+  Globe, Search, Sparkles, CheckCircle, CheckCircle2, Phone, DollarSign,
   ExternalLink, Loader2, ArrowRight, ArrowLeft, Plus, RefreshCw, Lock,
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
   Mail, Download, WifiOff, Printer, X, Send, Award,
+  Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
+  Heart, AlertTriangle, AlertCircle, ShieldAlert
 } from "lucide-react";
 import {
   getCuratedCityData,
@@ -1083,7 +1085,7 @@ export default function Home() {
       if (data.data?.agents?.length) {
         setAgents(data.data.agents);
         setSelectedAgent((prev: any) => prev || data.data.agents[0]);
-        setAgentStatus(`✓ Connected to Solana Devnet — ${data.data.agents.length} certified travel concierges online`);
+        setAgentStatus(`Connected to Solana Devnet — ${data.data.agents.length} certified travel concierges online`);
       } else {
         setAgents([]);
         setAgentStatus("Network query returned 0 concierges. Try refreshing.");
@@ -1322,23 +1324,39 @@ export default function Home() {
                 className={`nav-tab ${activeTab === tab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : `🗺 ${t.navDiscover}`)}
+                {tab === "discover" && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <Compass size={18} strokeWidth={2} />
+                    <span>{plannerCity ? plannerCity.name : t.navDiscover}</span>
+                  </span>
+                )}
                 {tab === "agents" && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                    <span>🤖</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <Headset size={18} strokeWidth={2} />
                     <span>{t.navConcierge}</span>
-                    <span style={{ fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
+                    <span style={{ fontSize: 10, padding: "2px 6px", background: "rgba(0, 217, 149, 0.2)", color: "var(--success)", borderRadius: 10, fontWeight: 700 }}>
                       4
                     </span>
                   </span>
                 )}
-                {tab === "price" && `💰 ${t.navPrice}`}
-                {tab === "safety" && `🛡 ${t.navSafety}`}
+                {tab === "price" && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <IndianRupee size={18} strokeWidth={2} />
+                    <span>{t.navPrice}</span>
+                  </span>
+                )}
+                {tab === "safety" && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <ShieldCheck size={18} strokeWidth={2} />
+                    <span>{t.navSafety}</span>
+                  </span>
+                )}
                 {tab === "records" && (
-                  <span>
-                    🔗 {t.navRecords}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <FileCheck size={18} strokeWidth={2} />
+                    <span>{t.navRecords}</span>
                     {savedRecords.length > 0 && (
-                      <span style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px", background: "rgba(20, 241, 149, 0.2)", color: "#14F195", borderRadius: 10, fontWeight: 700 }}>
+                      <span style={{ marginLeft: 2, fontSize: 10, padding: "2px 6px", background: "rgba(0, 217, 149, 0.2)", color: "var(--success)", borderRadius: 10, fontWeight: 700 }}>
                         {savedRecords.length}
                       </span>
                     )}
@@ -1399,7 +1417,7 @@ export default function Home() {
                 onClick={() => setIsPersonaModalOpen(true)}
                 title="Click to view Visa requirements or change country"
               >
-                <span>🌐</span>
+                <Globe size={15} color="var(--yellow)" />
                 <span className="nav-traveler-label">{foreignCountry}</span>
                 <span className="nav-traveler-visa-badge">{t.visaGuide}</span>
               </button>
@@ -1408,7 +1426,7 @@ export default function Home() {
                 className="nav-traveler-pill"
                 onClick={() => setIsPersonaModalOpen(true)}
               >
-                <span>🇮🇳 / 🌐</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>🇮🇳 / <Globe size={13} /></span>
                 <span className="nav-traveler-label">Citizen Status</span>
               </button>
             )}
@@ -1425,11 +1443,36 @@ export default function Home() {
             className={`mobile-tab ${activeTab === tab ? "active" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
-            {tab === "discover" && (plannerCity ? `🗺 ${plannerCity.name}` : `🗺 ${t.navDiscover}`)}
-            {tab === "agents" && `🤖 ${t.navConcierge}`}
-            {tab === "price" && `💰 ${t.navPrice}`}
-            {tab === "safety" && `🛡 ${t.navSafety}`}
-            {tab === "records" && `🔗 ${t.navRecords} (${savedRecords.length})`}
+            {tab === "discover" && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Compass size={16} />
+                <span>{plannerCity ? plannerCity.name : t.navDiscover}</span>
+              </span>
+            )}
+            {tab === "agents" && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Headset size={16} />
+                <span>{t.navConcierge}</span>
+              </span>
+            )}
+            {tab === "price" && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <IndianRupee size={16} />
+                <span>{t.navPrice}</span>
+              </span>
+            )}
+            {tab === "safety" && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <ShieldCheck size={16} />
+                <span>{t.navSafety}</span>
+              </span>
+            )}
+            {tab === "records" && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <FileCheck size={16} />
+                <span>{t.navRecords}</span>
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -1542,8 +1585,8 @@ export default function Home() {
                   <div className="wizard-header">
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
                       <span className="wizard-step-label">Step 1 of 5 · Destination Curation</span>
-                      <span style={{ fontSize: 11, background: "rgba(20, 241, 149, 0.15)", color: "#14F195", border: "1px solid rgba(20, 241, 149, 0.3)", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>
-                        ✓ Authenticated by Solana AI Registry
+                      <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.15)", color: "var(--success)", border: "1px solid rgba(0, 217, 149, 0.3)", padding: "2px 8px", borderRadius: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <CheckCircle2 size={12} /> Authenticated by Solana AI Registry
                       </span>
                     </div>
                     <h2 className="wizard-title">{t.selectSights} {plannerCity.name}</h2>
@@ -1740,7 +1783,7 @@ export default function Home() {
                         setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
                       }}
                     >
-                      <div className="tier-icon">🎒</div>
+                      <div className="tier-icon"><Wallet size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Backpacker / Economy</div>
                       <div className="tier-estimate">~{convertAmount(35 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
                       <p className="tier-desc">Social boutique hostels, local thalis & authentic street eateries, city bus/metro transit pass.</p>
@@ -1753,10 +1796,10 @@ export default function Home() {
                         setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
                       }}
                     >
-                      <div className="tier-icon">🧳</div>
+                      <div className="tier-icon"><Hotel size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Comfort / Explorer (Recommended)</div>
                       <div className="tier-estimate">~{convertAmount(95 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
-                      <p className="tier-desc">3-4★ heritage stays, sit-down dining, day transit passes, all museum audio guides included.</p>
+                      <p className="tier-desc">3–4 Star heritage stays, sit-down dining, day transit passes, all museum audio guides included.</p>
                     </div>
                     <div
                       className={`budget-tier-card ${budgetTier === "luxury" ? "selected" : ""}`}
@@ -1766,10 +1809,10 @@ export default function Home() {
                         setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
                       }}
                     >
-                      <div className="tier-icon">👑</div>
+                      <div className="tier-icon"><Award size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Luxury / Royal</div>
                       <div className="tier-estimate">~{convertAmount(240 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
-                      <p className="tier-desc">5★ palace suites & villas, private chauffeured AC cabs, fine dining & VIP entry passes.</p>
+                      <p className="tier-desc">5-Star palace suites & villas, private chauffeured AC cabs, fine dining & VIP entry passes.</p>
                     </div>
                   </div>
 
@@ -1874,8 +1917,8 @@ export default function Home() {
                       <div className="ticket-barcode-col">
                         <div className="barcode-visual" />
                         <div className="barcode-number">REF-{plannerCity.id.toUpperCase()}-2026</div>
-                        <div style={{ fontSize: 11, color: "var(--success)", fontWeight: 800, marginTop: 4 }}>
-                          ✓ VERIFIED CITY TRANSIT
+                        <div style={{ fontSize: 11, color: "var(--success)", fontWeight: 800, marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <CheckCircle2 size={12} /> VERIFIED CITY TRANSIT
                         </div>
                       </div>
                     </div>
@@ -1944,7 +1987,7 @@ export default function Home() {
                       className={`crowd-option-card ${crowdTolerance === "tranquil" ? "selected" : ""}`}
                       onClick={() => setCrowdTolerance("tranquil")}
                     >
-                      <div className="crowd-option-icon">🍃</div>
+                      <div className="crowd-option-icon"><Leaf size={24} color="var(--success)" /></div>
                       <div className="crowd-option-title">Tranquil & Less Crowded</div>
                       <p className="crowd-option-desc">
                         Schedule visits at early morning opening slots (08:30 AM), quiet side streets, and serene viewpoints away from tour buses.
@@ -1954,7 +1997,7 @@ export default function Home() {
                       className={`crowd-option-card ${crowdTolerance === "balanced" ? "selected" : ""}`}
                       onClick={() => setCrowdTolerance("balanced")}
                     >
-                      <div className="crowd-option-icon">⚖️</div>
+                      <div className="crowd-option-icon"><Clock size={24} color="var(--yellow)" /></div>
                       <div className="crowd-option-title">Balanced Optimal Flow (Recommended)</div>
                       <p className="crowd-option-desc">
                         Hit famous landmarks right at opening to beat long queues, then explore relaxed local cafés and neighborhoods in the afternoon.
@@ -1964,7 +2007,7 @@ export default function Home() {
                       className={`crowd-option-card ${crowdTolerance === "vibrant" ? "selected" : ""}`}
                       onClick={() => setCrowdTolerance("vibrant")}
                     >
-                      <div className="crowd-option-icon">🔥</div>
+                      <div className="crowd-option-icon"><Flame size={24} color="#FF7B72" /></div>
                       <div className="crowd-option-title">Comfortable with Crowds / Iconic Vibe</div>
                       <p className="crowd-option-desc">
                         I love the buzzing evening atmosphere, packed bazaars, and vibrant landmark scenes. Ready for peak energy.
@@ -1979,7 +2022,7 @@ export default function Home() {
                       className={`crowd-option-card ${travelPace === "leisurely" ? "selected" : ""}`}
                       onClick={() => setTravelPace("leisurely")}
                     >
-                      <div className="crowd-option-icon">☕</div>
+                      <div className="crowd-option-icon"><Coffee size={24} color="var(--yellow)" /></div>
                       <div className="crowd-option-title">Leisurely & Relaxed</div>
                       <p className="crowd-option-desc">1–2 sights per day with extended café breaks, strolls, and zero rushing.</p>
                     </div>
@@ -1987,7 +2030,7 @@ export default function Home() {
                       className={`crowd-option-card ${travelPace === "explorer" ? "selected" : ""}`}
                       onClick={() => setTravelPace("explorer")}
                     >
-                      <div className="crowd-option-icon">⚡</div>
+                      <div className="crowd-option-icon"><Zap size={24} color="var(--yellow)" /></div>
                       <div className="crowd-option-title">Active Explorer</div>
                       <p className="crowd-option-desc">3–4 sights per day, full-day schedule, seeing the absolute maximum.</p>
                     </div>
@@ -1997,15 +2040,15 @@ export default function Home() {
                   <div className="field-label" style={{ marginBottom: 12 }}>Who is traveling?</div>
                   <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
                     {[
-                      { id: "solo", label: "Solo Explorer", icon: "👤" },
-                      { id: "couple", label: "Couple / Romantic", icon: "💑" },
-                      { id: "family", label: "Family with Kids", icon: "👨‍👩‍👧" },
-                      { id: "friends", label: "Friends Group", icon: "👥" },
+                      { id: "solo", label: "Solo Explorer", icon: <Users size={16} /> },
+                      { id: "couple", label: "Couple / Romantic", icon: <Heart size={16} color="#FF7B72" /> },
+                      { id: "family", label: "Family with Kids", icon: <Users size={16} /> },
+                      { id: "friends", label: "Friends Group", icon: <Users size={16} /> },
                     ].map(p => (
                       <button
                         key={p.id}
                         className={`pill-btn ${travelParty === p.id ? "active" : ""}`}
-                        style={{ padding: "10px 20px", fontSize: 14 }}
+                        style={{ padding: "10px 20px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
                         onClick={() => setTravelParty(p.id as any)}
                       >
                         <span>{p.icon}</span>
@@ -2104,7 +2147,7 @@ export default function Home() {
                       <div>
                         <div style={{ fontSize: 11, color: "var(--gray-light)", textTransform: "uppercase", fontWeight: 700 }}>Pace & Crowd</div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: "var(--yellow)" }}>
-                          {generatedPlan.crowd === "tranquil" ? "🍃 Tranquil" : generatedPlan.crowd === "vibrant" ? "🔥 Vibrant" : "⚖️ Balanced"} · {generatedPlan.pace === "leisurely" ? "Relaxed" : "Explorer"}
+                          {generatedPlan.crowd === "tranquil" ? "Tranquil Flow" : generatedPlan.crowd === "vibrant" ? "Vibrant Flow" : "Balanced Flow"} · {generatedPlan.pace === "leisurely" ? "Relaxed Pace" : "Explorer Pace"}
                         </div>
                       </div>
                       <div>
@@ -2216,20 +2259,19 @@ export default function Home() {
                         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                           <div style={{
                             width: 46, height: 46, borderRadius: 12,
-                            background: "rgba(20, 241, 149, 0.15)",
-                            border: "1px solid rgba(20, 241, 149, 0.35)",
+                            background: "rgba(0, 217, 149, 0.15)",
+                            border: "1px solid rgba(0, 217, 149, 0.35)",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 24,
                           }}>
-                            🤖
+                            <Headset size={24} color="var(--success)" />
                           </div>
                           <div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                               <span style={{ fontSize: 16, fontWeight: 900, color: "#FFF" }}>
                                 {selectedAgent?.displayName || "Touristमत्रम् Heritage & Travel Concierge"}
                               </span>
-                              <span style={{ fontSize: 11, background: "rgba(20, 241, 149, 0.22)", color: "#14F195", padding: "2px 8px", borderRadius: 10, fontWeight: 700 }}>
-                                ● Verified on Solana Devnet
+                              <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.22)", color: "var(--success)", padding: "2px 8px", borderRadius: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                <CheckCircle2 size={11} /> Verified on Solana Devnet
                               </span>
                             </div>
                             <div style={{ fontSize: 12, color: "var(--gray-light)", marginTop: 4 }}>
@@ -2249,7 +2291,7 @@ export default function Home() {
                             {verifyingAsset === (selectedAgent?.mintAddress || "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn") ? (
                               <><Loader2 size={12} className="animate-spin" /> Verifying...</>
                             ) : verifiedAsset === (selectedAgent?.mintAddress || "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn") ? (
-                              <><CheckCircle size={12} color="#14F195" /> Verified Active</>
+                              <><CheckCircle2 size={12} color="var(--success)" /> Verified Active</>
                             ) : (
                               <><CheckCircle size={12} /> Verify Agent On-Chain</>
                             )}
@@ -2282,7 +2324,10 @@ export default function Home() {
 
                       {customCommitTx && (
                         <div className="status-box status-green" style={{ marginBottom: 16, fontSize: 13 }}>
-                          <div style={{ fontWeight: 800, marginBottom: 4 }}>✓ Travel Agreement Certified & Price Locked!</div>
+                          <div style={{ fontWeight: 800, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                            <CheckCircle2 size={16} color="var(--success)" />
+                            <span>Travel Agreement Certified & Price Locked!</span>
+                          </div>
                           <div style={{ fontSize: 12, color: "var(--yellow)" }}>
                             Certificate Reference: <code style={{ color: "#FFF" }}>{customCommitTx.startsWith("CERT-") ? customCommitTx : `CERT-${customCommitTx.slice(0, 16).toUpperCase()}`}</code>
                           </div>
@@ -2339,11 +2384,15 @@ export default function Home() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", marginTop: 12 }}>
                         <span>
                           {mounted && wallet.publicKey ? (
-                            <span style={{ color: "var(--success)", fontWeight: 600 }}>
-                              🟢 Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}
+                            <span style={{ color: "var(--success)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                              <CheckCircle2 size={13} color="var(--success)" />
+                              <span>Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}</span>
                             </span>
                           ) : (
-                            <span>🛡️ Instant Travel Protection Active · Zero setup required</span>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                              <ShieldCheck size={14} color="var(--yellow)" />
+                              <span>Instant Travel Protection Active · Zero setup required</span>
+                            </span>
                           )}
                         </span>
                         {mounted && !wallet.publicKey && (
@@ -2647,9 +2696,10 @@ export default function Home() {
                   <a
                     href="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
                     target="_blank" rel="noreferrer"
-                    style={{ color: "var(--yellow)", fontFamily: "monospace", textDecoration: "underline" }}
+                    style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
                   >
-                    1DREGF...B2p ↗
+                    <span>1DREGF...B2p</span>
+                    <ExternalLink size={10} />
                   </a>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -2657,9 +2707,10 @@ export default function Home() {
                   <a
                     href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
                     target="_blank" rel="noreferrer"
-                    style={{ color: "var(--yellow)", fontFamily: "monospace", textDecoration: "underline" }}
+                    style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
                   >
-                    A7yU8i...VSzN ↗
+                    <span>A7yU8i...VSzN</span>
+                    <ExternalLink size={10} />
                   </a>
                 </div>
               </div>
@@ -2669,7 +2720,10 @@ export default function Home() {
           {/* If destination is active, show context */}
           {plannerCity && (
             <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Active Trip Customizer: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing certified tourism concierges ready to authenticate your route.</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <MapPin size={16} color="var(--yellow)" />
+                <span>Active Trip Customizer: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing certified tourism concierges ready to authenticate your route.</span>
+              </span>
               <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
                 Back to Step 5
               </button>
@@ -2713,9 +2767,8 @@ export default function Home() {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "var(--yellow)",
-                fontSize: 22,
               }}>
-                ⚡
+                <Sparkles size={22} color="var(--yellow)" />
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#FFF" }}>
@@ -2748,7 +2801,7 @@ export default function Home() {
             </div>
           ) : agents.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">🤖</div>
+              <div className="empty-state-icon"><Headset size={40} color="var(--yellow)" /></div>
               <h3>No concierges found</h3>
               <p>The network query returned 0 results. Try clicking Refresh.</p>
             </div>
@@ -2769,17 +2822,20 @@ export default function Home() {
                     }}
                   >
                     <div className="agent-card-top">
-                      <div className="agent-icon" style={{ fontSize: 24 }}>
-                        {i === 0 ? "🏛️" : i === 1 ? "✈️" : i === 2 ? "🕉️" : "🥾"}
+                      <div className="agent-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {i === 0 ? <Compass size={22} color="var(--yellow)" /> :
+                         i === 1 ? <Plane size={22} color="var(--yellow)" /> :
+                         i === 2 ? <MapPin size={22} color="var(--yellow)" /> :
+                                   <ShieldCheck size={22} color="var(--yellow)" />}
                       </div>
                       <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                         {isAssigned && (
-                          <span style={{ fontSize: 11, background: "rgba(20, 241, 149, 0.25)", color: "#14F195", padding: "3px 8px", borderRadius: 12, fontWeight: 700 }}>
-                            ★ Active Concierge
+                          <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.25)", color: "var(--success)", padding: "3px 8px", borderRadius: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <Sparkles size={11} /> Active Concierge
                           </span>
                         )}
-                        <span className="agent-badge-verified" style={{ background: "rgba(20, 241, 149, 0.15)", color: "#14F195", border: "1px solid rgba(20, 241, 149, 0.3)" }}>
-                          <CheckCircle size={11} /> Solana Devnet Verified
+                        <span className="agent-badge-verified" style={{ background: "rgba(0, 217, 149, 0.15)", color: "var(--success)", border: "1px solid rgba(0, 217, 149, 0.3)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <CheckCircle2 size={11} /> Solana Devnet Verified
                         </span>
                       </div>
                     </div>
@@ -2852,8 +2908,8 @@ export default function Home() {
                         fontSize: 11.5,
                         margin: "10px 0",
                       }}>
-                        <div style={{ color: "#14F195", fontWeight: 700, marginBottom: 4 }}>
-                          ✓ On-Chain Devnet Attestation Verified:
+                        <div style={{ color: "var(--success)", fontWeight: 700, marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                          <CheckCircle2 size={12} /> On-Chain Devnet Attestation Verified:
                         </div>
                         <div style={{ color: "var(--gray-light)" }}>Program: Metaplex Agent Registry ({verifyData.programId?.slice(0, 8)}...)</div>
                         <div style={{ color: "var(--gray-light)" }}>PDA Owner: {verifyData.identityPda?.slice(0, 12)}... (PASS)</div>
@@ -2900,7 +2956,11 @@ export default function Home() {
                           color: isAssigned ? "#14F195" : undefined,
                         }}
                       >
-                        {isAssigned ? "✓ Assigned" : "Select Agent"}
+                        {isAssigned ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <Check size={12} /> Assigned
+                          </span>
+                        ) : "Select Agent"}
                       </button>
 
                       {agent.mintAddress && (
@@ -2929,7 +2989,10 @@ export default function Home() {
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
           {plannerCity && (
             <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Benchmarked against verified 2024–2025 municipal rates.</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <MapPin size={16} color="var(--yellow)" />
+                <span>Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Benchmarked against verified 2024–2025 municipal rates.</span>
+              </span>
               <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
                 Back to Plan
               </button>
@@ -2944,7 +3007,7 @@ export default function Home() {
           </div>
           <div className="two-col-grid">
             <div className="feature-card">
-              <div className="feature-card-icon"><DollarSign size={20} /></div>
+              <div className="feature-card-icon"><IndianRupee size={22} color="var(--yellow)" /></div>
               <div className="feature-card-title">Check Price Fairness</div>
               <p className="feature-card-sub">Enter what you were quoted and we'll compare it against typical local rates.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -2968,12 +3031,20 @@ export default function Home() {
                   <input className="field-input" type="number" value={priceQuote} onChange={e => setPriceQuote(e.target.value)} placeholder="450" />
                 </div>
                 <button className="btn-yellow" onClick={checkPrice} disabled={priceLoading}>
-                  {priceLoading ? <><Loader2 size={15} className="animate-spin" /><span>Checking...</span></> : <><DollarSign size={15} /><span>Check Price</span></>}
+                  {priceLoading ? <><Loader2 size={15} className="animate-spin" /><span>Checking...</span></> : <><IndianRupee size={15} /><span>Check Price</span></>}
                 </button>
               </div>
               {priceResult && !priceResult.error && (
-                <div className={`status-box ${priceResult.verdict === "Fair" ? "status-green" : "status-red"}`} style={{ marginTop: 16, fontSize: 14, fontWeight: 700 }}>
-                  {priceResult.verdict === "Fair" ? "✓ Fair Price" : "⚠ Possibly Overpriced"} — Reference: {priceResult.reference} | Your quote: {priceResult.quote}
+                <div className={`status-box ${priceResult.verdict === "Fair" ? "status-green" : "status-red"}`} style={{ marginTop: 16, fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
+                  {priceResult.verdict === "Fair" ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <CheckCircle2 size={16} color="var(--success)" /> Fair Price
+                    </span>
+                  ) : (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <AlertTriangle size={16} color="var(--error)" /> Possibly Overpriced
+                    </span>
+                  )} — Reference: {priceResult.reference} | Your quote: {priceResult.quote}
                 </div>
               )}
             </div>
@@ -3003,7 +3074,10 @@ export default function Home() {
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
           {plannerCity && (
             <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <MapPin size={16} color="var(--yellow)" />
+                <span>Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
+              </span>
               <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
                 Back to Plan
               </button>
@@ -3019,7 +3093,7 @@ export default function Home() {
           <div className="two-col-grid">
             {/* Emergency Contacts */}
             <div className="feature-card">
-              <div className="feature-card-icon"><Phone size={20} /></div>
+              <div className="feature-card-icon"><Phone size={22} color="var(--yellow)" /></div>
               <div className="feature-card-title">Emergency Helplines</div>
               <p className="feature-card-sub">
                 Official emergency contacts for {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : "your destination"}.
@@ -3039,7 +3113,7 @@ export default function Home() {
 
             {/* Budget Tracker */}
             <div className="feature-card">
-              <div className="feature-card-icon"><Receipt size={20} /></div>
+              <div className="feature-card-icon"><Wallet size={22} color="var(--yellow)" /></div>
               <div className="feature-card-title">Trip Expense Tracker</div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <span style={{ fontSize: 13, color: "var(--gray)" }}>
@@ -3091,7 +3165,10 @@ export default function Home() {
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
           {plannerCity && !customCommitTx && (
             <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>📍 Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <MapPin size={16} color="var(--yellow)" />
+                <span>Customized plan for <strong>{plannerCity.name}</strong> is in progress. Ready to lock certified pricing.</span>
+              </span>
               <button className="btn-sm-yellow" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
                 Proceed to Step 5 to Lock Agreement
               </button>
@@ -3150,7 +3227,7 @@ export default function Home() {
 
           {savedRecords.length === 0 ? (
             <div className="empty-state" style={{ padding: "48px 24px", maxWidth: 640, margin: "0 auto 32px", textAlign: "center" }}>
-              <div className="empty-state-icon">🔗</div>
+              <div className="empty-state-icon"><FileCheck size={40} color="var(--yellow)" /></div>
               <h3 style={{ fontSize: 20, fontWeight: 800, color: "#FFF", marginBottom: 8 }}>No Agreements Recorded in this Session</h3>
               <p style={{ color: "var(--gray)", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
                 Go to <strong>Discover</strong>, pick your destination, customize your 5-step trip, and click <strong>"Lock & Certify Travel Agreement"</strong> in Step 5 to mint an on-chain commitment with your assigned Solana AI Agent.
@@ -3164,7 +3241,7 @@ export default function Home() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {savedRecords.map((rec, i) => (
                 <div key={i} className="record-card">
-                  <div className="record-icon">✓</div>
+                  <div className="record-icon"><FileCheck size={18} color="var(--success)" /></div>
                   <div className="record-body">
                     <div className="record-dest">{rec.dest} — Certified Travel Agreement</div>
                     <div className="record-hash">Certificate ID: {rec.tx.startsWith("CERT-") ? rec.tx : `CERT-${rec.tx.slice(0, 16).toUpperCase()}`} · Hash: {rec.hash}</div>
@@ -3201,9 +3278,9 @@ export default function Home() {
                 style={{ width: "auto", padding: "0 20px", whiteSpace: "nowrap" }}
                 onClick={() => {
                   if (verifyHashInput.length >= 32) {
-                    setVerifyStatus("✓ Authentic Digital Certificate — Signature verified with guaranteed price integrity on Solana Devnet");
+                    setVerifyStatus("Authentic Digital Certificate — Signature verified with guaranteed price integrity on Solana Devnet");
                   } else {
-                    setVerifyStatus("✗ Invalid Certificate: please provide a valid certificate signature or 32+ char hash");
+                    setVerifyStatus("Invalid Certificate: please provide a valid certificate signature or 32+ char hash");
                   }
                 }}
               >
@@ -3211,8 +3288,9 @@ export default function Home() {
               </button>
             </div>
             {verifyStatus && (
-              <div className={`status-box ${verifyStatus.startsWith("✓") ? "status-green" : "status-red"}`} style={{ marginTop: 12, fontSize: 13 }}>
-                {verifyStatus}
+              <div className={`status-box ${verifyStatus.startsWith("Authentic") ? "status-green" : "status-red"}`} style={{ marginTop: 12, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+                {verifyStatus.startsWith("Authentic") ? <CheckCircle2 size={16} color="var(--success)" /> : <AlertCircle size={16} color="var(--error)" />}
+                <span>{verifyStatus}</span>
               </div>
             )}
           </div>
@@ -3324,9 +3402,8 @@ export default function Home() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 24,
                 }}>
-                  🤖
+                  <Headset size={26} color="var(--success)" />
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -3336,13 +3413,16 @@ export default function Home() {
                     <span style={{
                       fontSize: 10.5,
                       fontWeight: 800,
-                      background: "rgba(20, 241, 149, 0.15)",
-                      color: "#14F195",
-                      border: "1px solid rgba(20, 241, 149, 0.35)",
+                      background: "rgba(0, 217, 149, 0.15)",
+                      color: "var(--success)",
+                      border: "1px solid rgba(0, 217, 149, 0.35)",
                       padding: "3px 8px",
                       borderRadius: 12,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
                     }}>
-                      ✓ Devnet Registered
+                      <CheckCircle2 size={11} /> Devnet Registered
                     </span>
                   </div>
                   <div style={{ fontSize: 12.5, color: "var(--yellow)", marginTop: 3 }}>
@@ -3512,14 +3592,17 @@ export default function Home() {
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 12 }}>
-                  <div style={{ color: agentSearchStage >= 1 ? "#14F195" : "var(--gray)" }}>
-                    {agentSearchStage > 1 ? "✓" : "⏳"} Step 1: Querying Devnet RPC for Agent Identity PDA ({consultAgent?.identityPda?.slice(0, 8)}...)... {agentSearchStage > 1 ? "PASS" : "Running"}
+                  <div style={{ color: agentSearchStage >= 1 ? "var(--success)" : "var(--gray)", display: "flex", alignItems: "center", gap: 6 }}>
+                    {agentSearchStage > 1 ? <CheckCircle2 size={13} color="var(--success)" /> : <Loader2 size={13} className="animate-spin" />}
+                    <span>Step 1: Querying Devnet RPC for Agent Identity PDA ({consultAgent?.identityPda?.slice(0, 8)}...)... {agentSearchStage > 1 ? "PASS" : "Running"}</span>
                   </div>
-                  <div style={{ color: agentSearchStage >= 2 ? "#14F195" : "var(--gray)" }}>
-                    {agentSearchStage > 2 ? "✓" : "⏳"} Step 2: Auditing SEAL Tier-1 Trust Score ({consultAgent?.reputation?.trustScore || 99.4}%) & validation records... {agentSearchStage > 2 ? "PASS" : "Running"}
+                  <div style={{ color: agentSearchStage >= 2 ? "var(--success)" : "var(--gray)", display: "flex", alignItems: "center", gap: 6 }}>
+                    {agentSearchStage > 2 ? <CheckCircle2 size={13} color="var(--success)" /> : <Loader2 size={13} className="animate-spin" />}
+                    <span>Step 2: Auditing SEAL Tier-1 Trust Score ({consultAgent?.reputation?.trustScore || 99.4}%) & validation records... {agentSearchStage > 2 ? "PASS" : "Running"}</span>
                   </div>
-                  <div style={{ color: agentSearchStage >= 3 ? "#14F195" : "var(--gray)" }}>
-                    {agentSearchStage >= 3 ? "✓" : "⏳"} Step 3: Compiling verified attractions, transit fares & municipal rates for {agentSearchQuery}...
+                  <div style={{ color: agentSearchStage >= 3 ? "var(--success)" : "var(--gray)", display: "flex", alignItems: "center", gap: 6 }}>
+                    {agentSearchStage >= 3 ? <CheckCircle2 size={13} color="var(--success)" /> : <Loader2 size={13} className="animate-spin" />}
+                    <span>Step 3: Compiling verified attractions, transit fares & municipal rates for {agentSearchQuery}...</span>
                   </div>
                 </div>
               </div>
@@ -3537,8 +3620,9 @@ export default function Home() {
                   marginBottom: 16,
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>
-                      📍 {agentSearchResult.destination}
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <MapPin size={18} color="var(--yellow)" />
+                      <span>{agentSearchResult.destination}</span>
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: "var(--yellow)" }}>
                       {agentSearchResult.duration} · Budget: {selectedCurrency === "INR" ? "₹" : "$"}{agentSearchResult.budget}
@@ -3624,8 +3708,9 @@ export default function Home() {
                     padding: "14px 18px",
                     marginBottom: 20,
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "#14F195", marginBottom: 8 }}>
-                      🛡️ Verified Agent Safety & Fare Advice:
+                    <div style={{ fontSize: 13, fontWeight: 800, color: "var(--success)", marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <ShieldCheck size={16} color="var(--success)" />
+                      <span>Verified Agent Safety & Fare Advice:</span>
                     </div>
                     <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--gray-light)", lineHeight: 1.6 }}>
                       {agentSearchResult.tips.map((tip: string, idx: number) => (
@@ -3651,7 +3736,9 @@ export default function Home() {
                   gap: 8,
                 }}>
                   <div>
-                    <span style={{ color: "#14F195", fontWeight: 700 }}>✓ Verified by: </span>
+                    <span style={{ color: "var(--success)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <CheckCircle2 size={13} color="var(--success)" /> Verified by:{" "}
+                    </span>
                     <span>{agentSearchResult.agent?.name}</span>
                     <span style={{ marginLeft: 6 }}>({agentSearchResult.agent?.validationStatus})</span>
                   </div>

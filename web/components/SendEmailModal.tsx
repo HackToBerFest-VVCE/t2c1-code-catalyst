@@ -89,7 +89,7 @@ export function SendEmailModal({
       `Transit Pass: ${plan.transitPass}\n` +
       `Certificate: ${certificateId || plan.certificateId || "CERTIFIED"}\n\n` +
       plan.days.map(d => `Day ${d.dayNumber} (${d.theme}):\n` + d.stops.map(s => `  • ${s.time} - ${s.name} (${s.costDisplay})`).join("\n")).join("\n\n") +
-      `\n\n🚨 24/7 Tourist Helpline: 1363 | Emergency: 112`;
+      `\n\nTourist Helpline: 1363 | Emergency: 112`;
 
     navigator.clipboard.writeText(summary);
     setCopied(true);
@@ -178,8 +178,9 @@ export function SendEmailModal({
                     onBlur={(e) => (e.target.style.borderColor = "var(--dark-border)")}
                   />
                 </div>
-                <div style={{ fontSize: 11, color: "var(--gray-light)", marginTop: 6 }}>
-                  ✨ Optimized for Gmail mobile and desktop with instant offline caching and star view.
+                <div style={{ fontSize: 11, color: "var(--gray-light)", marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                  <Sparkles size={12} color="var(--yellow)" />
+                  <span>Optimized for Gmail mobile and desktop with instant offline caching and star view.</span>
                 </div>
               </div>
 
@@ -251,9 +252,11 @@ export function SendEmailModal({
               borderRadius: 12, padding: "14px", textAlign: "left", fontSize: 12,
               marginBottom: 20,
             }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, alignItems: "center" }}>
                 <span style={{ color: "var(--gray-light)" }}>Status:</span>
-                <span style={{ color: "#4CAF7D", fontWeight: 700 }}>✓ Delivered to Inbox</span>
+                <span style={{ color: "var(--success)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <CheckCircle size={13} color="var(--success)" /> Delivered to Inbox
+                </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                 <span style={{ color: "var(--gray-light)" }}>Certificate ID:</span>

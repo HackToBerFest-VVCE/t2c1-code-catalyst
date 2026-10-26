@@ -482,7 +482,7 @@ export default function EarthGlobe({
       || { name: locatingCity, country: "Global Destination", flag: "🌍", lat: 20.5937, lon: 78.9629, tagline: "Global exploration coordinates", priceUSD: 60 };
 
     setSatelliteLock({ name: dest.name, lat: dest.lat, lon: dest.lon });
-    setHudStatus(`🛰️ SATELLITE LOCK: ${dest.name.toUpperCase()} · ${dest.lat.toFixed(2)}° N, ${dest.lon.toFixed(2)}° E`);
+    setHudStatus(`SATELLITE LOCK: ${dest.name.toUpperCase()} · ${dest.lat.toFixed(2)}° N, ${dest.lon.toFixed(2)}° E`);
     setIsTransitioning(true);
 
     const state = sceneRef.current;

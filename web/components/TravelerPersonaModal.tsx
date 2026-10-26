@@ -122,7 +122,9 @@ export default function TravelerPersonaModal({
                 className={`persona-option-card foreign ${currentType === "foreign" ? "selected" : ""}`}
                 onClick={() => setStep("foreign_details")}
               >
-                <div className="persona-card-flag">🌐</div>
+                <div className="persona-card-flag" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Globe size={24} color="var(--yellow)" />
+                </div>
                 <div className="persona-card-head">
                   <h3>Foreign Traveler</h3>
                   <span className="persona-tag-pill yellow">International Tourist</span>
@@ -174,8 +176,8 @@ export default function TravelerPersonaModal({
                     onChange={e => setSearchCountry(e.target.value)}
                   />
                   {searchCountry && (
-                    <button onClick={() => setSearchCountry("")} style={{ background: "none", border: "none", color: "var(--gray)", cursor: "pointer" }}>
-                      ✕
+                    <button onClick={() => setSearchCountry("")} style={{ background: "none", border: "none", color: "var(--gray)", cursor: "pointer", display: "flex", alignItems: "center" }} aria-label="Clear search">
+                      <X size={14} />
                     </button>
                   )}
                 </div>

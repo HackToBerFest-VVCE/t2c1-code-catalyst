@@ -87,7 +87,7 @@ export default function LanguageSelectorModal({
         {/* International Languages Section */}
         <div>
           <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "var(--success)", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-            <span>🌐</span>
+            <Globe size={15} color="var(--success)" />
             <span>International Tourist Languages · 1363 Helpline Supported</span>
           </div>
           <div className="lang-grid">

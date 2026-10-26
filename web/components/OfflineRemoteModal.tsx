@@ -145,7 +145,9 @@ export function OfflineRemoteModal({
           display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8,
         }}>
           <div>
-            <strong style={{ color: "#FF7B72" }}>🚨 Emergency SOS: </strong>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#FF7B72", fontWeight: 700, marginRight: 6 }}>
+              <PhoneCall size={14} color="#FF7B72" /> Emergency SOS:
+            </span>
             <span style={{ color: "#FFF" }}>Tourist Helpline: <strong>1363</strong> · Police/Disaster: <strong>112</strong></span>
           </div>
           <span style={{ color: "#7EE787", fontSize: 11, fontWeight: 700 }}>Works Without Data</span>
