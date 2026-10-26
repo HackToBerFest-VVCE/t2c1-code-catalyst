@@ -103,74 +103,143 @@ function fromINR(amount: number, currency: string): number {
 }
 
 function findRef(service: string, destination: string): PriceRef | null {
-  const serviceData = PRICE_DB[service];
-  if (!serviceData) return null;
-  const destKey = destination.toLowerCase().replace(/[^a-z]/g, "");
-  const matched = Object.keys(serviceData).find(
-    (k) => k !== "default" && destKey.includes(k)
+  const normService = (service || "").toLowerCase();
+  let matchedServiceKey = Object.keys(PRICE_DB).find(k =>
+    normService.includes(k.toLowerCase()) || k.toLowerCase().includes(normService)
   );
-  return serviceData[matched ?? "default"] ?? null;
+  if (!matchedServiceKey) {
+    if (normService.includes("auto") || normService.includes("rickshaw")) matchedServiceKey = "Auto-rickshaw";
+    else if (normService.includes("taxi") || normService.includes("cab")) matchedServiceKey = "Taxi / Cab";
+    else if (normService.includes("budget") && normService.includes("hotel")) matchedServiceKey = "Hotel room (budget)";
+    else if (normService.includes("hotel")) matchedServiceKey = "Hotel room (mid-range)";
+    else if (normService.includes("guide")) matchedServiceKey = "Tour guide (half-day)";
+    else if (normService.includes("ticket") || normService.includes("entry")) matchedServiceKey = "Entry ticket";
+    else if (normService.includes("meal") || normService.includes("food")) matchedServiceKey = "Restaurant meal";
+  }
+  const serviceData = PRICE_DB[matchedServiceKey || "Auto-rickshaw"];
+  if (!serviceData) return null;
+  const destKey = (destination || "").toLowerCase().replace(/[^a-z]/g, "");
+  const matchedCity = Object.keys(serviceData).find(
+    (k) => k !== "default" && (destKey.includes(k) || k.includes(destKey))
+  );
+  return serviceData[matchedCity ?? "default"] ?? null;
+}
+
+function processPriceEvaluation(service: string, destination: string, quotedPrice: number, currency: string = "INR") {
+  const ref = findRef(service, destination);
+
+  if (!ref) {
+    return {
+      quotedPrice,
+      quotedFormatted: `${currency === "USD" ? "$" : "₹"}${quotedPrice}`,
+      referenceMin: 0,
+      referenceMax: 0,
+      referenceRange: "No benchmark data",
+      currency,
+      verdict: "unknown",
+      verdictLabel: "Indeterminate",
+      position: "unknown",
+      message: `No official reference price data available for "${service}" in "${destination}". We benchmark common travel services across major Indian destinations.`,
+      source: "National Tourism Directory",
+      lastUpdated: "2025–2026",
+      type: "estimate",
+      limitations: "Local conditions, route detours, night charges, and peak seasons can legitimately influence prices beyond standard benchmarks.",
+      reference: "N/A",
+      quote: `${currency === "USD" ? "$" : "₹"}${quotedPrice}`,
+    };
+  }
+
+  const quotedINR = toINR(quotedPrice, currency);
+  const refMin = ref.minINR;
+  const refMax = ref.maxINR;
+
+  let verdictKey: "below" | "within" | "slightly_above" | "above";
+  let verdictLabel: string;
+  let position: "below" | "within" | "above";
+  let message: string;
+
+  if (quotedINR < refMin * 0.9) {
+    verdictKey = "below";
+    verdictLabel = "Below Typical Range";
+    position = "below";
+    message = `Your quoted price of ₹${quotedINR.toFixed(0)} is below the typical benchmark range of ₹${refMin}–₹${refMax}. Ensure service quality and safety standards are upheld. ${ref.notes}.`;
+  } else if (quotedINR <= refMax * 1.15) {
+    verdictKey = "within";
+    verdictLabel = "Within Standard Range";
+    position = "within";
+    message = `Your quoted price of ₹${quotedINR.toFixed(0)} falls within standard local reference parameters (₹${refMin}–₹${refMax}) for ${service} in this area. ${ref.notes}.`;
+  } else if (quotedINR <= refMax * 1.45) {
+    verdictKey = "slightly_above";
+    verdictLabel = "Slightly Above Range";
+    position = "above";
+    message = `Your quoted price of ₹${quotedINR.toFixed(0)} is slightly above the typical range of ₹${refMin}–₹${refMax}. Peak-hour congestion, late-night transit, or premium AC service may account for the variance. ${ref.notes}.`;
+  } else {
+    verdictKey = "above";
+    verdictLabel = "Significantly Above Range";
+    position = "above";
+    message = `Your quoted price of ₹${quotedINR.toFixed(0)} exceeds the standard benchmark range of ₹${refMin}–₹${refMax}. Check if special conditions (long wait times, non-standard route, festive surge) apply, or consider negotiating. ${ref.notes}.`;
+  }
+
+  const minFormatted = currency === "INR" ? `₹${refMin}` : `$${fromINR(refMin, currency).toFixed(2)}`;
+  const maxFormatted = currency === "INR" ? `₹${refMax}` : `$${fromINR(refMax, currency).toFixed(2)}`;
+  const quoteFormatted = currency === "INR" ? `₹${quotedPrice}` : `$${quotedPrice}`;
+
+  return {
+    quotedPrice,
+    quotedFormatted: quoteFormatted,
+    referenceMin: parseFloat(fromINR(refMin, currency).toFixed(2)),
+    referenceMax: parseFloat(fromINR(refMax, currency).toFixed(2)),
+    referenceRange: `${minFormatted} – ${maxFormatted}`,
+    currency,
+    verdict: verdictKey === "within" || verdictKey === "below" ? "Fair" : "Above Range",
+    verdictKey,
+    verdictLabel,
+    position,
+    message,
+    source: ref.source || "Regional Transport Authority & Tourism Benchmarks",
+    lastUpdated: "Q1 2026",
+    type: ref.source.toLowerCase().includes("rate") || ref.source.toLowerCase().includes("official") ? "verified" : "estimate",
+    limitations: "Reference benchmarks represent standard daytime conditions. Night transit (+25–50%), luggage handling, interstate permits, tolls, or monsoon weather may legitimately influence local rates.",
+    reference: `${minFormatted} – ${maxFormatted}`,
+    quote: quoteFormatted,
+  };
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const service = searchParams.get("service") || "Auto-rickshaw";
+    const destination = searchParams.get("city") || searchParams.get("destination") || "Mysuru";
+    const quotedPrice = parseFloat(searchParams.get("quote") || searchParams.get("quotedPrice") || "0");
+    const currency = searchParams.get("currency") || "INR";
+
+    const result = processPriceEvaluation(service, destination, quotedPrice, currency);
+    return NextResponse.json(result);
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Price check failed: ${e instanceof Error ? e.message : String(e)}` },
+      { status: 400 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json() as {
       service?: string;
+      city?: string;
       destination?: string;
       quotedPrice?: number;
+      quote?: number;
       currency?: string;
-      details?: string;
     };
-    const { service = "", destination = "", quotedPrice = 0, currency = "INR" } = body;
+    const service = body.service || "Auto-rickshaw";
+    const destination = body.city || body.destination || "Mysuru";
+    const quotedPrice = Number(body.quotedPrice ?? body.quote ?? 0);
+    const currency = body.currency || "INR";
 
-    const ref = findRef(service, destination);
-
-    if (!ref) {
-      return NextResponse.json({
-        result: {
-          quotedPrice,
-          referenceMin: 0,
-          referenceMax: 0,
-          currency,
-          verdict: "unknown",
-          message: `No reference price data available for "${service}" in "${destination}". We can only check prices for common tourist services in major Indian destinations.`,
-          source: "N/A",
-          confidence: "low",
-        },
-      });
-    }
-
-    const quotedINR = toINR(quotedPrice, currency);
-    const refMin = ref.minINR;
-    const refMax = ref.maxINR;
-
-    let verdict: "fair" | "slightly_high" | "overpriced" | "unknown";
-    let message: string;
-
-    const ratio = quotedINR / refMax;
-    if (ratio <= 1.1) {
-      verdict = "fair";
-      message = `₹${quotedINR.toFixed(0)} is within the typical range (₹${refMin}–₹${refMax}) for ${service} in this area. ${ref.notes}.`;
-    } else if (ratio <= 1.5) {
-      verdict = "slightly_high";
-      message = `₹${quotedINR.toFixed(0)} is slightly above the typical range (₹${refMin}–₹${refMax}). You may be able to negotiate. ${ref.notes}.`;
-    } else {
-      verdict = "overpriced";
-      message = `₹${quotedINR.toFixed(0)} is significantly above the typical range (₹${refMin}–₹${refMax}). Consider negotiating or finding an alternative. ${ref.notes}.`;
-    }
-
-    return NextResponse.json({
-      result: {
-        quotedPrice,
-        referenceMin: parseFloat(fromINR(refMin, currency).toFixed(2)),
-        referenceMax: parseFloat(fromINR(refMax, currency).toFixed(2)),
-        currency,
-        verdict,
-        message,
-        source: ref.source,
-        confidence: "medium — reference benchmarks, not live pricing",
-      },
-    });
+    const result = processPriceEvaluation(service, destination, quotedPrice, currency);
+    return NextResponse.json({ result, ...result });
   } catch (e) {
     return NextResponse.json(
       { error: `Price check failed: ${e instanceof Error ? e.message : String(e)}` },

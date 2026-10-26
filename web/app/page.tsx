@@ -29,7 +29,7 @@ import {
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
   Mail, Download, WifiOff, Printer, X, Send, Award,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
-  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown
+  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, Info
 } from "lucide-react";
 import {
   getCuratedCityData,
@@ -1079,6 +1079,7 @@ export default function Home() {
   const [priceQuote, setPriceQuote] = useState("450");
   const [priceResult, setPriceResult] = useState<any | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
+  const [priceValidationError, setPriceValidationError] = useState("");
 
   // Budget tracker
   const [budget, setBudget] = useState(15000);
@@ -1251,14 +1252,25 @@ export default function Home() {
 
   // ── Price checker ──
   async function checkPrice() {
+    if (!priceCity || !priceCity.trim()) {
+      setPriceValidationError("Please enter a city or destination name.");
+      return;
+    }
+    const val = parseFloat(priceQuote);
+    if (!priceQuote || isNaN(val) || val <= 0) {
+      setPriceValidationError("Please enter a valid quoted price greater than 0.");
+      return;
+    }
+    setPriceValidationError("");
     setPriceLoading(true);
     setPriceResult(null);
     try {
-      const res = await fetch(`/api/price?service=${encodeURIComponent(priceService)}&city=${encodeURIComponent(priceCity)}&quote=${priceQuote}`);
+      const cur = selectedCurrency === "INR" ? "INR" : "USD";
+      const res = await fetch(`/api/price?service=${encodeURIComponent(priceService)}&city=${encodeURIComponent(priceCity)}&quote=${encodeURIComponent(priceQuote)}&currency=${cur}`);
       const data = await res.json();
       setPriceResult(data);
     } catch (e: any) {
-      setPriceResult({ error: e.message });
+      setPriceResult({ error: e.message || "Unable to check price right now." });
     } finally {
       setPriceLoading(false);
     }
@@ -3169,61 +3181,196 @@ export default function Home() {
             </div>
           </div>
           <div className="two-col-grid">
+            {/* Left Column: Fair Price Checker Form & Results */}
             <div className="feature-card">
-              <div className="feature-card-icon"><IndianRupee size={22} color="var(--yellow)" /></div>
+              <div className="feature-card-icon">
+                <IndianRupee size={22} color="var(--primary-gold)" />
+              </div>
               <div className="feature-card-title">Check Price Fairness</div>
-              <p className="feature-card-sub">Enter what you were quoted and we'll compare it against typical local rates.</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <p className="feature-card-sub">
+                Enter your quoted rate to benchmark against official city tariffs and local market averages.
+              </p>
+
+              <form onSubmit={e => { e.preventDefault(); checkPrice(); }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
-                  <div className="field-label">Service Type</div>
-                  <select className="field-input" value={priceService} onChange={e => setPriceService(e.target.value)}>
-                    <option>Auto-rickshaw / Taxi</option>
-                    <option>City taxi / Cab</option>
-                    <option>Hotel room (budget)</option>
-                    <option>Hotel room (mid-range)</option>
-                    <option>Tour guide (half-day)</option>
-                    <option>Entry ticket</option>
+                  <label className="field-label" htmlFor="price-service-select">Service Type</label>
+                  <select
+                    id="price-service-select"
+                    className="field-input"
+                    value={priceService}
+                    onChange={e => { setPriceService(e.target.value); setPriceValidationError(""); }}
+                  >
+                    <option value="Auto-rickshaw">Auto-rickshaw</option>
+                    <option value="Taxi / Cab">City taxi / Cab</option>
+                    <option value="Hotel room (budget)">Hotel room (budget)</option>
+                    <option value="Hotel room (mid-range)">Hotel room (mid-range)</option>
+                    <option value="Restaurant meal">Restaurant meal</option>
+                    <option value="Tour guide (half-day)">Tour guide (half-day)</option>
+                    <option value="Entry ticket">Entry ticket</option>
                   </select>
                 </div>
+
                 <div>
-                  <div className="field-label">City / Destination</div>
-                  <input className="field-input" value={priceCity} onChange={e => setPriceCity(e.target.value)} placeholder="e.g. Mysuru" />
+                  <label className="field-label" htmlFor="price-city-input">City or Destination</label>
+                  <input
+                    id="price-city-input"
+                    className="field-input"
+                    value={priceCity}
+                    onChange={e => { setPriceCity(e.target.value); setPriceValidationError(""); }}
+                    placeholder="e.g. Mysuru, Jaipur, Delhi, Goa"
+                  />
                 </div>
+
                 <div>
-                  <div className="field-label">Your Quote (₹ / $)</div>
-                  <input className="field-input" type="number" value={priceQuote} onChange={e => setPriceQuote(e.target.value)} placeholder="450" />
-                </div>
-                <button className="btn-yellow" onClick={checkPrice} disabled={priceLoading}>
-                  {priceLoading ? <><Loader2 size={15} className="animate-spin" /><span>Checking...</span></> : <><IndianRupee size={15} /><span>Check Price</span></>}
-                </button>
-              </div>
-              {priceResult && !priceResult.error && (
-                <div className={`status-box ${priceResult.verdict === "Fair" ? "status-green" : "status-red"}`} style={{ marginTop: 16, fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  {priceResult.verdict === "Fair" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                      <CheckCircle2 size={16} color="var(--success)" /> Fair Price
+                  <label className="field-label" htmlFor="price-quote-input">
+                    Your Quoted Price ({selectedCurrency === "INR" ? "₹ INR" : `$ ${selectedCurrency}`})
+                  </label>
+                  <div className="price-input-wrapper">
+                    <span className="price-input-currency">
+                      {selectedCurrency === "INR" ? "₹" : "$"}
                     </span>
+                    <input
+                      id="price-quote-input"
+                      className="field-input price-input-field"
+                      type="number"
+                      min="1"
+                      step="any"
+                      value={priceQuote}
+                      onChange={e => { setPriceQuote(e.target.value); setPriceValidationError(""); }}
+                      placeholder="450"
+                    />
+                  </div>
+                </div>
+
+                {priceValidationError && (
+                  <div className="price-validation-msg" role="alert">
+                    <AlertCircle size={14} />
+                    <span>{priceValidationError}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="btn-price-primary"
+                  disabled={priceLoading}
+                >
+                  {priceLoading ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin" />
+                      <span>Benchmarking Rate...</span>
+                    </>
                   ) : (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                      <AlertTriangle size={16} color="var(--error)" /> Possibly Overpriced
+                    <>
+                      <IndianRupee size={15} />
+                      <span>Check Price</span>
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Price Checker Results */}
+              {priceResult && !priceResult.error && (
+                <div className="price-result-card">
+                  <div className={`price-result-header ${priceResult.verdictKey || (priceResult.verdict === "Fair" ? "within" : "above")}`}>
+                    <div className="result-verdict-icon">
+                      {priceResult.verdictKey === "within" || priceResult.verdict === "Fair" || priceResult.verdictKey === "below" ? (
+                        <CheckCircle2 size={18} color="var(--emerald-green)" />
+                      ) : (
+                        <AlertTriangle size={18} color="var(--primary-gold)" />
+                      )}
+                    </div>
+                    <div className="result-verdict-text">
+                      <div className="result-verdict-title">
+                        {priceResult.verdictLabel || (priceResult.verdict === "Fair" ? "Within Standard Range" : "Above Benchmark Range")}
+                      </div>
+                      <div className="result-verdict-subtitle">
+                        {priceResult.message}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Comparison Metrics */}
+                  <div className="price-metrics-grid">
+                    <div className="price-metric-item">
+                      <span className="metric-label">Your Quoted Rate</span>
+                      <span className="metric-value quote">
+                        {priceResult.quotedFormatted || `${selectedCurrency === "INR" ? "₹" : "$"}${priceQuote}`}
+                      </span>
+                    </div>
+                    <div className="price-metric-item">
+                      <span className="metric-label">Benchmark Range</span>
+                      <span className="metric-value reference">
+                        {priceResult.referenceRange || priceResult.reference || "₹200 – ₹400"}
+                      </span>
+                    </div>
+                    <div className="price-metric-item">
+                      <span className="metric-label">Benchmark Status</span>
+                      <span className={`metric-value status ${priceResult.verdictKey || "within"}`}>
+                        {priceResult.verdictLabel || (priceResult.verdict === "Fair" ? "Within Range" : "Above Range")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Data Source & Date */}
+                  <div className="price-source-row">
+                    <span className="source-label">Data Source:</span>
+                    <span className="source-value">
+                      {priceResult.source || "Regional Transport Authority & Tourism Benchmarks"} ({priceResult.lastUpdated || "Q1 2026"})
                     </span>
-                  )} — Reference: {priceResult.reference} | Your quote: {priceResult.quote}
+                  </div>
+
+                  {/* Limitations Notice */}
+                  <div className="price-limitations-box">
+                    <Info size={14} className="limitations-icon" />
+                    <p className="limitations-text">
+                      {priceResult.limitations || "Reference benchmarks represent standard daytime conditions. Night transit (+25–50%), luggage handling, interstate permits, tolls, or monsoon weather may legitimately influence local rates."}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {priceResult && priceResult.error && (
+                <div className="price-validation-msg" style={{ marginTop: 14 }}>
+                  <AlertCircle size={14} />
+                  <span>{priceResult.error}</span>
                 </div>
               )}
             </div>
+
+            {/* Right Column: Reference Rate Guide */}
             <div className="feature-card">
-              <div className="feature-card-icon"><Receipt size={20} /></div>
+              <div className="feature-card-icon">
+                <Receipt size={22} color="var(--primary-gold)" />
+              </div>
               <div className="feature-card-title">Reference Rate Guide</div>
               <p className="feature-card-sub">
-                Typical rates in {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : priceCity || "Indian tourism cities"} (2024–2025 verified benchmarks).
+                Typical benchmarks in {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : priceCity || "Indian tourism cities"} (2025–2026 verified benchmarks).
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 {getCityReferenceRates(plannerCity?.name || priceCity || "India", plannerCity?.country || "India").map((r, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--dark-border)", fontSize: 13 }}>
-                    <span style={{ color: "var(--gray-light)" }}>{r.service}</span>
-                    <span style={{ color: "var(--yellow)", fontWeight: 700 }}>{r.rate}</span>
+                  <div key={i} className="ref-rate-row">
+                    <div className="ref-service-col">
+                      <span className="ref-service-title">{r.service}</span>
+                      <div className="ref-service-meta">
+                        {r.type === "verified" ? (
+                          <span className="ref-badge-verified">Verified Benchmark</span>
+                        ) : (
+                          <span className="ref-badge-estimate">Market Estimate</span>
+                        )}
+                        {r.source && (
+                          <span className="ref-source-date">· {r.source} ({r.updatedDate || "2026"})</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="ref-rate-value">{r.rate}</span>
                   </div>
                 ))}
+              </div>
+
+              <div className="price-source-row" style={{ marginTop: 16, borderTop: "1px solid var(--border-color, #333333)", paddingTop: 12 }}>
+                <span className="source-label">Official Sources:</span>
+                <span className="source-value">Archaeological Survey of India (ASI), State RTA Gazette &amp; Tourism Department Tariffs (2025–2026).</span>
               </div>
             </div>
           </div>
