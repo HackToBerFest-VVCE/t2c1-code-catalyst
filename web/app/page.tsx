@@ -52,6 +52,7 @@ import LanguageSelectorModal from "../components/LanguageSelectorModal";
 import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
 import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
+import CopyAddress from "../components/CopyAddress";
 import {
   downloadOfflinePassFile,
   printOfflinePass,
@@ -2381,8 +2382,17 @@ export default function Home() {
                                 <CheckCircle2 size={11} /> Verified on Solana Devnet
                               </span>
                             </div>
-                            <div style={{ fontSize: 12, color: "var(--gray-light)", marginTop: 4 }}>
-                              Agent Identity PDA: <code style={{ color: "var(--yellow)", fontFamily: "monospace" }}>{selectedAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}</code>
+                            <div style={{ fontSize: 12, color: "var(--gray-light)", marginTop: 4, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                              <span>Agent Identity PDA:</span>
+                              <CopyAddress
+                                value={selectedAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}
+                                label="Agent Identity PDA"
+                                startChars={6}
+                                endChars={4}
+                                colorTheme="gold"
+                                compact
+                                explorerUrl={`https://explorer.solana.com/address/${selectedAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}?cluster=devnet`}
+                              />
                             </div>
                           </div>
                         </div>
@@ -2435,8 +2445,17 @@ export default function Home() {
                             <CheckCircle2 size={16} color="var(--success)" />
                             <span>Travel Agreement Certified & Price Locked!</span>
                           </div>
-                          <div style={{ fontSize: 12, color: "var(--yellow)" }}>
-                            Certificate Reference: <code style={{ color: "#FFF" }}>{customCommitTx.startsWith("CERT-") ? customCommitTx : `CERT-${customCommitTx.slice(0, 16).toUpperCase()}`}</code>
+                          <div style={{ fontSize: 12, color: "var(--yellow)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
+                            <span>Certificate Reference:</span>
+                            <CopyAddress
+                              value={customCommitTx}
+                              label="Travel Certificate Reference"
+                              startChars={8}
+                              endChars={6}
+                              colorTheme="white"
+                              compact
+                              explorerUrl={!customCommitTx.startsWith("CERT-") ? `https://explorer.solana.com/tx/${customCommitTx}?cluster=devnet` : undefined}
+                            />
                           </div>
                           {!customCommitTx.startsWith("CERT-") && (
                             <a
@@ -2491,9 +2510,18 @@ export default function Home() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--gray-light)", marginTop: 12 }}>
                         <span>
                           {mounted && wallet.publicKey ? (
-                            <span style={{ color: "var(--success)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ color: "var(--success)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                               <CheckCircle2 size={13} color="var(--success)" />
-                              <span>Wallet Connected: {wallet.publicKey.toBase58().slice(0, 4)}...{wallet.publicKey.toBase58().slice(-4)}</span>
+                              <span>Connected:</span>
+                              <CopyAddress
+                                value={wallet.publicKey.toBase58()}
+                                label="Connected Solana Wallet Address"
+                                startChars={4}
+                                endChars={4}
+                                colorTheme="emerald"
+                                compact
+                                explorerUrl={`https://explorer.solana.com/address/${wallet.publicKey.toBase58()}?cluster=devnet`}
+                              />
                             </span>
                           ) : (
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -2914,29 +2942,29 @@ export default function Home() {
                   <span style={{ color: "var(--gray)" }}>Network Cluster:</span>
                   <span style={{ color: "#14F195", fontWeight: 700 }}>Solana Devnet (Active)</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                   <span style={{ color: "var(--gray)" }}>Registry Program:</span>
-                  <a
-                    href="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
-                    target="_blank" rel="noreferrer"
-                    aria-label="View Touristमित्र Registry Program on Solana Explorer"
-                    style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
-                  >
-                    <span>1DREGF...B2p</span>
-                    <ExternalLink size={10} />
-                  </a>
+                  <CopyAddress
+                    value="1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p"
+                    label="Touristमित्र Registry Program ID"
+                    startChars={6}
+                    endChars={4}
+                    colorTheme="gold"
+                    compact
+                    explorerUrl="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
+                  />
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ color: "var(--gray)" }}>Attestation Program:</span>
-                  <a
-                    href="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
-                    target="_blank" rel="noreferrer"
-                    aria-label="View Metaplex Agent Attestation Program on Solana Explorer"
-                    style={{ color: "var(--yellow)", fontFamily: "monospace", display: "inline-flex", alignItems: "center", gap: 3, textDecoration: "underline" }}
-                  >
-                    <span>A7yU8i...VSzN</span>
-                    <ExternalLink size={10} />
-                  </a>
+                  <CopyAddress
+                    value="A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
+                    label="Metaplex Agent Attestation Program ID"
+                    startChars={6}
+                    endChars={4}
+                    colorTheme="gold"
+                    compact
+                    explorerUrl="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                  />
                 </div>
               </div>
             </div>
@@ -3103,13 +3131,27 @@ export default function Home() {
                         {agent.identityPda && (
                           <div className="agent-tech-item">
                             <span className="tech-label">Identity PDA (Devnet):</span>
-                            <code className="tech-code">{agent.identityPda}</code>
+                            <CopyAddress
+                              value={agent.identityPda}
+                              label={`${agent.name} Identity PDA`}
+                              startChars={8}
+                              endChars={6}
+                              colorTheme="gold"
+                              explorerUrl={`https://explorer.solana.com/address/${agent.identityPda}?cluster=devnet`}
+                            />
                           </div>
                         )}
                         {agent.mintAddress && (
                           <div className="agent-tech-item">
                             <span className="tech-label">Registry Asset:</span>
-                            <code className="tech-code">{agent.mintAddress}</code>
+                            <CopyAddress
+                              value={agent.mintAddress}
+                              label={`${agent.name} Metaplex Asset`}
+                              startChars={8}
+                              endChars={6}
+                              colorTheme="muted"
+                              explorerUrl={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
+                            />
                           </div>
                         )}
                         {agent.services && agent.services.length > 0 && (
@@ -4031,11 +4073,27 @@ export default function Home() {
                 <div className="records-tech-grid">
                   <div className="records-tech-item">
                     <span className="records-tech-label">Anchor Program ID</span>
-                    <span className="records-tech-value">A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN</span>
+                    <CopyAddress
+                      value="A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
+                      label="Anchor Program ID"
+                      startChars={8}
+                      endChars={6}
+                      colorTheme="gold"
+                      compact
+                      explorerUrl="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                    />
                   </div>
                   <div className="records-tech-item">
                     <span className="records-tech-label">Metaplex AI Agent PDA</span>
-                    <span className="records-tech-value">1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p</span>
+                    <CopyAddress
+                      value="1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p"
+                      label="Metaplex Agent PDA"
+                      startChars={8}
+                      endChars={6}
+                      colorTheme="gold"
+                      compact
+                      explorerUrl="https://explorer.solana.com/address/1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p?cluster=devnet"
+                    />
                   </div>
                   <div className="records-tech-item">
                     <span className="records-tech-label">Hashing Algorithm</span>
@@ -4087,8 +4145,30 @@ export default function Home() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="records-item-dest">{rec.dest} — Certified Travel Agreement</div>
-                        <div className="records-item-meta">
-                          Certificate ID: {rec.tx.startsWith("CERT-") ? rec.tx : `CERT-${rec.tx.slice(0, 16).toUpperCase()}`} · Hash: {rec.hash}
+                        <div className="records-item-meta" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "4px 0" }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <span>Tx:</span>
+                            <CopyAddress
+                              value={rec.tx}
+                              label={`Certificate ${rec.dest}`}
+                              startChars={8}
+                              endChars={6}
+                              colorTheme="gold"
+                              compact
+                              explorerUrl={!rec.tx.startsWith("CERT-") ? `https://explorer.solana.com/tx/${rec.tx}?cluster=devnet` : undefined}
+                            />
+                          </span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            <span>Hash:</span>
+                            <CopyAddress
+                              value={rec.hash}
+                              label={`SHA-256 Hash ${rec.dest}`}
+                              startChars={6}
+                              endChars={4}
+                              colorTheme="muted"
+                              compact
+                            />
+                          </span>
                         </div>
                         <div className="records-item-time">{rec.time}</div>
                       </div>
@@ -4361,11 +4441,17 @@ export default function Home() {
               flexWrap: "wrap",
               gap: 8,
             }}>
-              <div>
-                <span style={{ color: "var(--gray-light)" }}>Identity PDA: </span>
-                <code style={{ color: "var(--yellow)", fontFamily: "monospace" }}>
-                  {consultAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}
-                </code>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ color: "var(--gray-light)" }}>Identity PDA:</span>
+                <CopyAddress
+                  value={consultAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}
+                  label={`${consultAgent?.name || "Agent"} Identity PDA`}
+                  startChars={8}
+                  endChars={6}
+                  colorTheme="gold"
+                  compact
+                  explorerUrl={`https://explorer.solana.com/address/${consultAgent?.identityPda || "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP"}?cluster=devnet`}
+                />
               </div>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                 <span style={{ color: "#14F195", fontWeight: 700 }}>Program: Metaplex Agent Registry</span>
@@ -4652,8 +4738,17 @@ export default function Home() {
                     <span>{agentSearchResult.agent?.name}</span>
                     <span style={{ marginLeft: 6 }}>({agentSearchResult.agent?.validationStatus})</span>
                   </div>
-                  <div>
-                    Anchor Attestation: <code style={{ color: "var(--yellow)" }}>A7yU8i4YBUmn...VSzN</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span>Anchor Attestation:</span>
+                    <CopyAddress
+                      value="A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN"
+                      label="Anchor Attestation Program ID"
+                      startChars={8}
+                      endChars={6}
+                      colorTheme="gold"
+                      compact
+                      explorerUrl="https://explorer.solana.com/address/A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN?cluster=devnet"
+                    />
                   </div>
                 </div>
 

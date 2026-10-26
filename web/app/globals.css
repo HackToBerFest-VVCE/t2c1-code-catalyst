@@ -1527,6 +1527,25 @@ button:focus-visible,
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Click-to-copy address button */
+.copy-address-btn:hover:not(.is-copied):not(.is-error) {
+  border-color: #555555 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.copy-address-btn:focus-visible {
+  outline: 2px solid var(--primary-gold, #FFD451) !important;
+  outline-offset: 1px !important;
+}
+.copy-address-explorer-link:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--primary-gold, #FFD451) !important;
+  border-color: #555555 !important;
+}
+.copy-address-explorer-link:focus-visible {
+  outline: 2px solid var(--primary-gold, #FFD451) !important;
+  outline-offset: 1px !important;
+}
+
 .tech-services-list {
   display: flex;
   flex-wrap: wrap;

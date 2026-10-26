@@ -14,5 +14,6 @@ export * from "./FilterChip";
 export * from "./SegmentedControl";
 export * from "./IconBox";
 export * from "./FeedbackStates";
+export * from "./CopyAddress";
 export { tokens } from "@/lib/design-tokens";
 export type { DesignTokens } from "@/lib/design-tokens";

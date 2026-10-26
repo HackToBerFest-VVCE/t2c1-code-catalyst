@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Mail, Send, CheckCircle, X, AlertCircle, Eye, Loader2, Sparkles, Copy, Check } from "lucide-react";
 import { ItineraryPlan } from "@/lib/offline-pass-generator";
+import CopyAddress from "./CopyAddress";
 
 interface SendEmailModalProps {
   isOpen: boolean;
@@ -258,11 +259,16 @@ export function SendEmailModal({
                   <CheckCircle size={13} color="var(--success)" /> Delivered to Inbox
                 </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                 <span style={{ color: "var(--gray-light)" }}>Certificate ID:</span>
-                <span style={{ color: "var(--yellow)", fontFamily: "monospace" }}>
-                  {certificateId || plan.certificateId || "CERT-VERIFIED"}
-                </span>
+                <CopyAddress
+                  value={certificateId || plan?.certificateId || "CERT-VERIFIED"}
+                  label="Itinerary Certificate ID"
+                  startChars={8}
+                  endChars={6}
+                  colorTheme="gold"
+                  compact
+                />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "var(--gray-light)" }}>Delivery Notice:</span>
