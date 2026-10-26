@@ -1609,6 +1609,29 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Signature Architectural Curved Bottom Edge (Q'in Saba Reference) */}
+        <div className="nav-curve-wrapper" aria-hidden="true">
+          <svg
+            className="nav-curve-svg"
+            viewBox="0 0 1440 28"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Seamless cream fill dipping downward in center */}
+            <path
+              d="M0 0 L1440 0 L1440 1 C1060 26 380 26 0 1 Z"
+              fill="rgba(242, 237, 228, 0.98)"
+            />
+            {/* Subtle delicate architectural delimiter line */}
+            <path
+              d="M0 1 C380 26 1060 26 1440 1"
+              stroke="var(--color-sabbia)"
+              strokeWidth="1.2"
+              fill="none"
+            />
+          </svg>
+        </div>
       </nav>
 
       {/* Mobile Navigation Tabs (Scrollable luxury strip) */}
