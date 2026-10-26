@@ -112,6 +112,74 @@ const SAFETY_DB: Record<string, SafetyEntry> = {
     ],
     source: "Rajasthan Tourism Department (Oct 2025)",
   },
+  mumbai: {
+    advisory:
+      "Mumbai is one of India's safest metropolitan cities with 24/7 street life and heavy police presence. Standard precautions apply when boarding crowded local trains during peak rush hours. Kaali-peeli taxis operate strictly on digital meters.",
+    advisoryLevel: "safe",
+    emergencyNumbers: [
+      ...INDIA_EMERGENCY_NUMBERS,
+      { type: "Mumbai Police Control", number: "022-22620111", note: "Central police commissionerate" },
+      { type: "Maharashtra Tourism Help Desk", number: "022-22044040", note: "MTDC tourist desk" },
+    ],
+    tips: [
+      "Always ensure taxi meters are reset to standard flag-down when boarding kaali-peeli cabs.",
+      "Avoid traveling on train footboards during suburban rush hours.",
+      "Promenade areas like Marine Drive and Gateway of India are safe and well-lit at night.",
+      "During heavy monsoon days (July-August), check Mumbai Traffic Police advisories for low-lying waterlogging.",
+    ],
+    source: "Mumbai Police & Maharashtra Tourism (Oct 2025)",
+  },
+  varanasi: {
+    advisory:
+      "Varanasi's river ghats and sacred temple alleyways are energetic and spiritually vibrant. Confirm boat rates before boarding dawn cruises on the Ganges. Wear certified life jackets on river boats.",
+    advisoryLevel: "caution",
+    emergencyNumbers: [
+      ...INDIA_EMERGENCY_NUMBERS,
+      { type: "Varanasi Tourist Police", number: "0542-2508111", note: "UP Police Tourist Cell" },
+      { type: "UP Tourism Office", number: "0542-2505030" },
+    ],
+    tips: [
+      "Always board licensed rowboats and motorboats that provide life vests.",
+      "Beware of aggressive unsolicited 'guides' offering private cremation ghat tours or silk factory discounts.",
+      "Keep footwear in your backpack or hotel before entering major temple corridors.",
+      "Keep wallets and cameras secured in crossbody bags when walking through dense bazaar galis.",
+    ],
+    source: "UP Police Tourist Cell & Varanasi Tourism (Oct 2025)",
+  },
+  agra: {
+    advisory:
+      "Agra is safe with an intensive security perimeter surrounding the Taj Mahal and Agra Fort. The Taj Protection Force patrols all gates. Purchase monument entry tickets only through the official ASI portal or counter.",
+    advisoryLevel: "caution",
+    emergencyNumbers: [
+      ...INDIA_EMERGENCY_NUMBERS,
+      { type: "Agra Taj Protection Police", number: "0562-2421204", note: "Taj security post" },
+      { type: "UP Tourism Office Agra", number: "0562-2226431" },
+    ],
+    tips: [
+      "Buy Taj Mahal tickets only from official ASI booths or government website (asi.payumoney.com).",
+      "Drone photography is strictly prohibited near the Taj Mahal perimeter.",
+      "Hire only guides displaying official Ministry of Tourism badges.",
+      "The Taj Mahal is closed on Fridays; plan your schedule accordingly.",
+    ],
+    source: "Agra Tourist Police & Archaeological Survey of India (Oct 2025)",
+  },
+  kerala: {
+    advisory:
+      "Kerala is renowned for exceptional traveler hospitality, high literacy, and well-regulated tourism operations. For backwaters and beach activities, use government-approved houseboats and adhere to marine advisories.",
+    advisoryLevel: "safe",
+    emergencyNumbers: [
+      ...INDIA_EMERGENCY_NUMBERS,
+      { type: "Kerala Tourism 24/7 Helpline", number: "1800-425-4747", note: "Toll-free tourist desk" },
+      { type: "Kerala Coastal Police", number: "1093", note: "Coastal emergency and marine safety" },
+    ],
+    tips: [
+      "Verify that houseboats display Kerala Tourism green/gold certification stickers before boarding.",
+      "In hill stations like Munnar, follow marked trails and hire registered forest department guides.",
+      "Confirm seafood prices per kilogram before ordering at Fort Kochi and beach shacks.",
+      "Follow lifeguard flags and guidelines at Varkala and Kovalam beaches.",
+    ],
+    source: "Kerala Police & Kerala Tourism Department (Oct 2025)",
+  },
 };
 
 function findSafetyEntry(destination: string): SafetyEntry | null {

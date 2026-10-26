@@ -1742,22 +1742,478 @@ export function getCuratedCityData(cityName: string, fallbackHero?: string): Cur
   };
 }
 
+export type EmergencyCategory =
+  | "general"
+  | "police"
+  | "ambulance"
+  | "fire"
+  | "tourist"
+  | "highway"
+  | "women"
+  | "coastal";
+
 export interface HelplineContact {
+  id: string;
+  category: EmergencyCategory;
   label: string;
   number: string;
-  color: string;
+  dialNumber: string;
+  region: string;
+  source: string;
+  badge?: string;
+  note?: string;
+  color?: string;
 }
 
+export interface CitySafetyAdvisory {
+  destination: string;
+  advisoryLevel: "safe" | "caution";
+  advisory: string;
+  tips: string[];
+  source: string;
+  lastUpdated: string;
+}
+
+const PAN_INDIA_HELPLINES: HelplineContact[] = [
+  {
+    id: "erss-112",
+    category: "general",
+    label: "National Emergency Response (ERSS)",
+    number: "112",
+    dialNumber: "112",
+    region: "Pan-India (National)",
+    source: "Ministry of Home Affairs (MHA)",
+    badge: "Unified 24/7",
+    note: "All-in-one nationwide emergency dispatch integrating Police, Fire, and Ambulance.",
+    color: "#5585E0",
+  },
+  {
+    id: "tourist-1363",
+    category: "tourist",
+    label: "Incredible India Tourist Helpline",
+    number: "1800-11-1363 / 1363",
+    dialNumber: "1800111363",
+    region: "Pan-India (National)",
+    source: "Ministry of Tourism, Govt of India",
+    badge: "Toll-Free in 12 Languages",
+    note: "24/7 guidance & dispute mediation in English, Hindi, and 10 foreign languages.",
+    color: "var(--primary-gold, #FFD451)",
+  },
+  {
+    id: "police-100",
+    category: "police",
+    label: "National Police Emergency",
+    number: "100",
+    dialNumber: "100",
+    region: "Pan-India (National)",
+    source: "State & Central Police Services",
+    badge: "Immediate Dispatch",
+    note: "Immediate police dispatch and control room across all Indian states and UTs.",
+    color: "#5585E0",
+  },
+  {
+    id: "ambulance-108",
+    category: "ambulance",
+    label: "Medical Ambulance Emergency",
+    number: "108",
+    dialNumber: "108",
+    region: "Pan-India (National)",
+    source: "National Health Mission (NHM)",
+    badge: "Emergency Paramedic",
+    note: "Free government emergency medical transit and hospital trauma dispatch.",
+    color: "#FF6B6B",
+  },
+  {
+    id: "fire-101",
+    category: "fire",
+    label: "Fire & Rescue Service",
+    number: "101",
+    dialNumber: "101",
+    region: "Pan-India (National)",
+    source: "Directorate General of Fire Services",
+    badge: "24/7 Fire & Rescue",
+    note: "Firefighting services, building evacuation, and civil disaster response.",
+    color: "#FF8C42",
+  },
+  {
+    id: "women-1091",
+    category: "women",
+    label: "Women's Safety & Distress Helpline",
+    number: "1091 / 181",
+    dialNumber: "1091",
+    region: "Pan-India (National)",
+    source: "Ministry of Women & Child Development",
+    badge: "24/7 Dedicated Support",
+    note: "Dedicated helpline for women travelers facing harassment, distress, or needing transit safety escort.",
+    color: "var(--emerald-green, #00D995)",
+  },
+  {
+    id: "highway-1033",
+    category: "highway",
+    label: "National Highway Emergency Line",
+    number: "1033",
+    dialNumber: "1033",
+    region: "Pan-India (National Highways)",
+    source: "National Highways Authority of India (NHAI)",
+    badge: "Highway Patrol & Towing",
+    note: "Roadside mechanical breakdown assistance, emergency towing, and rapid ambulance on national corridors.",
+    color: "#FFD451",
+  },
+];
+
 export function getCityHelplines(cityName: string, country: string): HelplineContact[] {
-  return [
-    { label: "National Emergency Service", number: "112", color: "#5585E0" },
-    { label: "Incredible India 24x7 Tourist Helpline (12 Languages)", number: "1800-11-1363 / 1363", color: "var(--yellow)" },
-    { label: "Police Emergency", number: "100", color: "#5585E0" },
-    { label: "Medical Ambulance Service", number: "108", color: "#E05555" },
-    { label: "Women's Safety Helpline (24/7)", number: "181 / 1090", color: "#9B59B6" },
-    { label: "Fire & Rescue Brigade", number: "101", color: "#E07030" },
-    { label: "National Highway Emergency Line", number: "1033", color: "#14F195" },
-  ];
+  const norm = (cityName || "").toLowerCase();
+  const regionalContacts: HelplineContact[] = [];
+
+  if (norm.includes("mysuru") || norm.includes("mysore")) {
+    regionalContacts.push(
+      {
+        id: "mysuru-police",
+        category: "police",
+        label: "Mysuru City Police Control Room",
+        number: "0821-2418300",
+        dialNumber: "08212418300",
+        region: "Mysuru, Karnataka",
+        source: "Mysuru City Police",
+        badge: "City Police",
+        note: "Dedicated city control room for Mysuru urban zone and tourist clusters.",
+        color: "#5585E0",
+      },
+      {
+        id: "mysuru-tourism",
+        category: "tourist",
+        label: "Karnataka Tourism Info Counter (Mysuru)",
+        number: "0821-2422096",
+        dialNumber: "08212422096",
+        region: "Mysuru Heritage Belt",
+        source: "Karnataka Tourism (KSTDC)",
+        badge: "Heritage Desk",
+        note: "Official assistance at Old Exhibition Building near Mysore Palace.",
+        color: "var(--primary-gold, #FFD451)",
+      }
+    );
+  } else if (norm.includes("bangalore") || norm.includes("bengaluru")) {
+    regionalContacts.push(
+      {
+        id: "bengaluru-police",
+        category: "police",
+        label: "Bengaluru City Police Control",
+        number: "080-22943444",
+        dialNumber: "08022943444",
+        region: "Bengaluru, Karnataka",
+        source: "Bengaluru City Police",
+        badge: "City Police",
+        note: "Central police command center (Infantry Road HQ).",
+        color: "#5585E0",
+      },
+      {
+        id: "bengaluru-metro",
+        category: "general",
+        label: "Namma Metro Security Helpline",
+        number: "080-49777777",
+        dialNumber: "08049777777",
+        region: "Bengaluru Metro Transit",
+        source: "Bangalore Metro Rail Corp (BMRCL)",
+        badge: "Transit Security",
+        note: "Lost property and station security on Purple & Green lines.",
+        color: "#5585E0",
+      }
+    );
+  } else if (norm.includes("goa")) {
+    regionalContacts.push(
+      {
+        id: "goa-tourist-police",
+        category: "tourist",
+        label: "Goa Tourist Police Assistance",
+        number: "0832-2437132",
+        dialNumber: "08322437132",
+        region: "Goa State",
+        source: "Goa Police Tourist Cell",
+        badge: "Tourist Police",
+        note: "Assistance with beach safety, taxi meter complaints, and licensed guides.",
+        color: "var(--primary-gold, #FFD451)",
+      },
+      {
+        id: "goa-coastguard",
+        category: "coastal",
+        label: "Indian Coast Guard Maritime Rescue (Goa)",
+        number: "1554",
+        dialNumber: "1554",
+        region: "Goa Coastal Waters",
+        source: "Indian Coast Guard HQ Goa",
+        badge: "Maritime Rescue",
+        note: "Maritime search & rescue, rough monsoon surf emergencies, and vessel distress.",
+        color: "#4DA8DA",
+      }
+    );
+  } else if (norm.includes("delhi")) {
+    regionalContacts.push(
+      {
+        id: "delhi-police",
+        category: "police",
+        label: "Delhi Police Command & Control Room",
+        number: "011-23490000",
+        dialNumber: "01123490000",
+        region: "NCT of Delhi",
+        source: "Delhi Police Headquarters",
+        badge: "Apex Command",
+        note: "Central control room covering New Delhi and historical districts.",
+        color: "#5585E0",
+      },
+      {
+        id: "delhi-tourist",
+        category: "tourist",
+        label: "Delhi Tourist Police Assistance Unit",
+        number: "011-23364513",
+        dialNumber: "01123364513",
+        region: "Delhi Monument Corridors",
+        source: "Delhi Police Tourist Cell",
+        badge: "Tourist Police",
+        note: "Stationed at Connaught Place, Red Fort, and India Gate.",
+        color: "var(--primary-gold, #FFD451)",
+      },
+      {
+        id: "delhi-airport",
+        category: "police",
+        label: "IGI Airport Police Post",
+        number: "011-25673555",
+        dialNumber: "01125673555",
+        region: "New Delhi Airport Zone",
+        source: "Delhi Police Airport Unit",
+        badge: "Airport Security",
+        note: "Immediate police station located at Terminal 3 and Terminal 1 arrivals.",
+        color: "#5585E0",
+      }
+    );
+  } else if (norm.includes("jaipur")) {
+    regionalContacts.push(
+      {
+        id: "jaipur-police",
+        category: "police",
+        label: "Jaipur Police Control Room",
+        number: "0141-2744000",
+        dialNumber: "01412744000",
+        region: "Jaipur, Rajasthan",
+        source: "Rajasthan State Police",
+        badge: "City Police",
+        note: "Police control room serving Walled City heritage zones and Amer.",
+        color: "#5585E0",
+      },
+      {
+        id: "jaipur-tourism",
+        category: "tourist",
+        label: "Rajasthan Tourist Assistance Bureau",
+        number: "0141-5115425",
+        dialNumber: "01415115425",
+        region: "Jaipur Heritage Zone",
+        source: "Rajasthan Tourism (RTDC)",
+        badge: "Tourism Bureau",
+        note: "Government-certified guide verification and monument pass desk.",
+        color: "var(--primary-gold, #FFD451)",
+      }
+    );
+  } else if (norm.includes("mumbai")) {
+    regionalContacts.push(
+      {
+        id: "mumbai-police",
+        category: "police",
+        label: "Mumbai Police Commissionerate Control",
+        number: "022-22620111",
+        dialNumber: "02222620111",
+        region: "Greater Mumbai, Maharashtra",
+        source: "Mumbai Police",
+        badge: "City Police",
+        note: "24/7 central control covering South Mumbai and suburban railway stations.",
+        color: "#5585E0",
+      },
+      {
+        id: "mumbai-tourism",
+        category: "tourist",
+        label: "Maharashtra Tourism Info Desk",
+        number: "022-22044040",
+        dialNumber: "02222044040",
+        region: "Mumbai Metropolitan",
+        source: "MTDC",
+        badge: "Tourism Desk",
+        note: "Visitor support at Madame Cama Road and CST railway terminus.",
+        color: "var(--primary-gold, #FFD451)",
+      }
+    );
+  } else if (norm.includes("varanasi")) {
+    regionalContacts.push(
+      {
+        id: "varanasi-tourist",
+        category: "tourist",
+        label: "Varanasi Tourist Police Cell",
+        number: "0542-2508111",
+        dialNumber: "05422508111",
+        region: "Varanasi Ghats & Sarnath",
+        source: "Uttar Pradesh Police",
+        badge: "Tourist Police",
+        note: "Specialized tourist police patrolling Dashashwamedh Ghat and temple alleys.",
+        color: "var(--primary-gold, #FFD451)",
+      }
+    );
+  } else if (norm.includes("agra")) {
+    regionalContacts.push(
+      {
+        id: "agra-tourist",
+        category: "police",
+        label: "Agra Taj Protection Police Station",
+        number: "0562-2421204",
+        dialNumber: "05622421204",
+        region: "Agra Taj Protected Zone",
+        source: "UP Police Taj Security",
+        badge: "Taj Security",
+        note: "Stationed directly at Taj Mahal East & West gates for immediate visitor protection.",
+        color: "#5585E0",
+      }
+    );
+  } else if (norm.includes("kerala") || norm.includes("kochi") || norm.includes("munnar")) {
+    regionalContacts.push(
+      {
+        id: "kerala-tourism",
+        category: "tourist",
+        label: "Kerala Tourism 24/7 Toll-Free Helpline",
+        number: "1800-425-4747",
+        dialNumber: "18004254747",
+        region: "Kerala State",
+        source: "Kerala Tourism Department",
+        badge: "State Helpline",
+        note: "24/7 visitor assistance with houseboat certifications and monsoon alerts.",
+        color: "var(--primary-gold, #FFD451)",
+      },
+      {
+        id: "kerala-coastal",
+        category: "coastal",
+        label: "Kerala Coastal Police Emergency",
+        number: "1093",
+        dialNumber: "1093",
+        region: "Kerala Coastal & Backwaters",
+        source: "Kerala Coastal Police",
+        badge: "Coastal Security",
+        note: "Marine patrol and rescue operations along coastal beaches and backwaters.",
+        color: "#4DA8DA",
+      }
+    );
+  }
+
+  return [...regionalContacts, ...PAN_INDIA_HELPLINES];
+}
+
+export function getCitySafetyAdvisory(cityName: string): CitySafetyAdvisory {
+  const norm = (cityName || "").toLowerCase();
+
+  if (norm.includes("mysuru") || norm.includes("mysore")) {
+    return {
+      destination: "Mysuru, Karnataka",
+      advisoryLevel: "safe",
+      advisory: "Mysuru is widely recognized as one of India's safest cultural cities with courteous residents, active night policing, and reliable public transit. Standard caution is advisable around crowded markets and festival parades.",
+      tips: [
+        "Keep valuables zipped when navigating crowded bazaars like Devaraja Market and palace forecourts.",
+        "Use metered auto-rickshaws or app cabs (Ola/Uber) — avoid unmarked vehicles late at night.",
+        "Mysuru Palace light & sound show occurs on evenings; buy tickets only from official palace counters.",
+        "Stay hydrated and prefer sealed packaged drinking water or filtered hotel water.",
+      ],
+      source: "Karnataka Tourism & Mysuru City Police (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  if (norm.includes("goa")) {
+    return {
+      destination: "Goa State",
+      advisoryLevel: "caution",
+      advisory: "Goa is welcoming and relaxed for travelers. Water safety requires vigilance: swim strictly at lifeguard-patrolled beaches and obey red flag warnings during high tides and monsoon. At nightlife venues, never leave beverages unattended.",
+      tips: [
+        "Swim only at designated lifeguard zones (Drishti Marine); strictly avoid the sea when red warning flags are hoisted.",
+        "Rent two-wheelers only with valid helmets and international or Indian driving licenses; police conduct regular road checkpoints.",
+        "Never accept drinks or food from strangers at beach shacks or nightclubs.",
+        "Store your physical passport safely in your hotel safe; carry a photocopied duplicate or digital copy on your phone.",
+      ],
+      source: "Goa Tourism & Goa Police Marine Advisories (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  if (norm.includes("delhi")) {
+    return {
+      destination: "NCT of Delhi",
+      advisoryLevel: "caution",
+      advisory: "Delhi offers robust security around monuments, international transit hubs, and embassies. Heavy foot traffic requires vigilance regarding pickpocketing in crowded bazaars and transit interchanges. Delhi Metro is the safest transit mode.",
+      tips: [
+        "Utilize Delhi Metro wherever possible — it is monitored 24/7 with dedicated CISF security and a women-only front coach.",
+        "Book pre-paid taxis only through the official Delhi Police booths at New Delhi Railway Station and IGI Airport.",
+        "Decline unsolicited offers from touts claiming that major monuments (e.g. Red Fort or National Museum) are 'closed'.",
+        "Keep mobile phones and purses secure in crowded bazaars such as Chandni Chowk, Palika Bazaar, and Sarojini Nagar.",
+      ],
+      source: "Delhi Police Tourist Unit & Ministry of Tourism (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  if (norm.includes("jaipur")) {
+    return {
+      destination: "Jaipur, Rajasthan",
+      advisoryLevel: "caution",
+      advisory: "Jaipur is historically rich, safe, and heavily frequented by international tourists. The most common minor annoyance is unsolicited touts pushing gemstone or textile workshops near Amer Fort and Hawa Mahal.",
+      tips: [
+        "Hire only official Rajasthan Tourism (RTDC) guides displaying a laminated government badge and photo identification.",
+        "Purchase jewelry, textiles, and handicrafts only from certified emporiums with printed tax receipts and authenticity certificates.",
+        "Visit hilltop monuments like Amer Palace and Nahargarh early morning to avoid midday desert heat and peak crowds.",
+        "Pre-negotiate auto-rickshaw fares or ask the driver to engage the meter before beginning your journey.",
+      ],
+      source: "Rajasthan Tourism Development Corporation (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  if (norm.includes("mumbai")) {
+    return {
+      destination: "Mumbai, Maharashtra",
+      advisoryLevel: "safe",
+      advisory: "Mumbai is considered one of India's safest metropolitan centers with continuous 24/7 street life, heavy police presence, and reliable metered public transit. Caution is advised when boarding crowded local trains during rush hours.",
+      tips: [
+        "Local kaali-peeli (black and yellow) cabs operate strictly on digital meters — verify meter engagement upon starting.",
+        "Avoid boarding or disembarking running suburban local trains; avoid open train footboards during peak rush hours.",
+        "Marine Drive and Gateway of India are well-patrolled; take standard care of personal belongings in promenade crowds.",
+        "During monsoon months (June–September), monitor local rain alerts before traveling across low-lying coastal zones.",
+      ],
+      source: "Mumbai Police Commissionerate & MTDC (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  if (norm.includes("kerala") || norm.includes("kochi") || norm.includes("munnar")) {
+    return {
+      destination: "Kerala State",
+      advisoryLevel: "safe",
+      advisory: "Kerala maintains high public safety indices, literate civic infrastructure, and well-regulated tourism hospitality. When hiring backwater houseboats or hill station jeeps, verify official tourism licensing.",
+      tips: [
+        "Ensure backwater houseboats display official Kerala Tourism green/gold safety certification seals and onboard life preservers.",
+        "Follow trekking guide protocols in Western Ghats nature reserves (such as Eravikulam and Periyar) regarding wildlife safety.",
+        "In Fort Kochi and coastal areas, verify fresh seafood pricing per kilogram before placing your order.",
+        "Keep monsoon flood safety numbers saved during peak southwestern rains (June–August).",
+      ],
+      source: "Kerala Police & Kerala Tourism Department (2025–2026)",
+      lastUpdated: "Q1 2026",
+    };
+  }
+
+  // Pan-India fallback
+  return {
+    destination: cityName ? `${cityName}, India` : "Pan-India Travel Guidance",
+    advisoryLevel: "safe",
+    advisory: "India welcomes over 10 million international tourists annually across rich heritage, coastal, and wildlife destinations. Basic travel vigilance, respectful attire at sacred shrines, and licensed transport ensure a safe and memorable journey.",
+    tips: [
+      "Keep digital backups of your passport, visa, and travel insurance accessible on secure cloud storage.",
+      "Dial 112 (National ERSS) for any immediate emergency assistance across police, medical, or fire across any state.",
+      "Use government-licensed tourist guides with Ministry of Tourism credentials when exploring UNESCO World Heritage monuments.",
+      "Always consume purified or sealed bottled water, and eat at busy food stalls or restaurants with high local turnover.",
+    ],
+    source: "Incredible India Tourist Helpline & Ministry of Home Affairs (2025–2026)",
+    lastUpdated: "Q1 2026",
+  };
 }
 
 export interface ReferenceRateItem {

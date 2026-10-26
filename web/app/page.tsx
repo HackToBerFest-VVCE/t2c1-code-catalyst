@@ -29,14 +29,18 @@ import {
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
   Mail, Download, WifiOff, Printer, X, Send, Award,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
-  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, Info
+  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, Info,
+  Shield, Ambulance, FireExtinguisher, PhoneCall, LifeBuoy
 } from "lucide-react";
 import {
   getCuratedCityData,
   getCityHelplines,
+  getCitySafetyAdvisory,
   getCityReferenceRates,
   type CuratedCity,
   type CityAttraction,
+  type HelplineContact,
+  type CitySafetyAdvisory,
 } from "../lib/curated-city-data";
 import TravelerPersonaModal from "../components/TravelerPersonaModal";
 import {
@@ -1080,6 +1084,16 @@ export default function Home() {
   const [priceResult, setPriceResult] = useState<any | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
   const [priceValidationError, setPriceValidationError] = useState("");
+
+  // Safety Section
+  const [safetySelectedCity, setSafetySelectedCity] = useState("All India");
+  const [safetyCategoryFilter, setSafetyCategoryFilter] = useState<string>("all");
+
+  useEffect(() => {
+    if (plannerCity?.name) {
+      setSafetySelectedCity(plannerCity.name);
+    }
+  }, [plannerCity]);
 
   // Budget tracker
   const [budget, setBudget] = useState(15000);
@@ -3380,93 +3394,305 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: SAFETY                                                   */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      {activeTab === "safety" && (
-        <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
-          {plannerCity && (
-            <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <MapPin size={16} color="var(--yellow)" />
-                <span>Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
-              </span>
-              <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
-                Back to Plan
-              </button>
-            </div>
-          )}
-          <div className="section-header">
-            <div>
-              <div className="section-label">✦ Trip Management</div>
-              <h2 className="section-title">Safety & Budget</h2>
-              <p className="section-sub">Emergency helplines and trip expense tracker</p>
-            </div>
-          </div>
-          <div className="two-col-grid">
-            {/* Emergency Contacts */}
-            <div className="feature-card">
-              <div className="feature-card-icon"><Phone size={22} color="var(--yellow)" /></div>
-              <div className="feature-card-title">Emergency Helplines</div>
-              <p className="feature-card-sub">
-                Official emergency contacts for {plannerCity ? `${plannerCity.name}, ${plannerCity.country}` : "your destination"}.
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {getCityHelplines(plannerCity?.name || "India", plannerCity?.country || "India").map(c => (
-                  <div key={c.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "var(--dark-elevated)", borderRadius: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Phone size={14} color={c.color} />
-                      <span style={{ fontSize: 13, color: "var(--gray-light)" }}>{c.label}</span>
-                    </div>
-                    <span style={{ fontWeight: 800, fontSize: 16, color: c.color }}>{c.number}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {activeTab === "safety" && (() => {
+        const currentCity = safetySelectedCity || plannerCity?.name || "All India";
+        const contacts = getCityHelplines(currentCity, plannerCity?.country || "India");
+        const advisory = getCitySafetyAdvisory(currentCity);
 
-            {/* Budget Tracker */}
-            <div className="feature-card">
-              <div className="feature-card-icon"><Wallet size={22} color="var(--yellow)" /></div>
-              <div className="feature-card-title">Trip Expense Tracker</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={{ fontSize: 13, color: "var(--gray)" }}>
-                  Budget: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{budget.toLocaleString()}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }}>
-                  Spent: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{totalSpent.toLocaleString()} ({budgetPct}%)
-                </span>
-              </div>
-              <div className="budget-bar-track">
-                <div className="budget-bar-fill" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }} />
-              </div>
-              <div style={{ marginTop: 16, marginBottom: 12 }}>
-                {expenses.map(e => (
-                  <div key={e.id} className="expense-row">
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.name}</div>
-                      <span className="expense-cat-badge">{e.cat}</span>
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)" }}>
-                      {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{e.amount.toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--dark-border)", paddingTop: 14 }}>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input className="field-input" placeholder="Expense name" value={newExpName} onChange={e => setNewExpName(e.target.value)} style={{ flex: 1 }} />
-                  <input className="field-input" placeholder="Amount" type="number" value={newExpAmount} onChange={e => setNewExpAmount(e.target.value)} style={{ width: 88 }} />
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <select className="field-input" style={{ flex: 1 }} value={newExpCat} onChange={e => setNewExpCat(e.target.value)}>
-                    {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => <option key={c}>{c}</option>)}
-                  </select>
-                  <button className="btn-yellow" style={{ width: "auto", padding: "0 16px" }} onClick={addExpense}>
-                    <Plus size={16} />
+        const filteredContacts = safetyCategoryFilter === "all"
+          ? contacts
+          : safetyCategoryFilter === "national"
+            ? contacts.filter(c => c.region.includes("Pan-India"))
+            : contacts.filter(c => !c.region.includes("Pan-India"));
+
+        const regionalCount = contacts.filter(c => !c.region.includes("Pan-India")).length;
+
+        const renderEmergencyIcon = (category?: string) => {
+          switch (category) {
+            case "general":
+              return <Phone size={19} color="var(--primary-gold, #FFD451)" />;
+            case "police":
+              return <Shield size={19} color="var(--primary-gold, #FFD451)" />;
+            case "ambulance":
+              return <Ambulance size={19} color="#FF6B6B" />;
+            case "fire":
+              return <FireExtinguisher size={19} color="#FF8C42" />;
+            case "tourist":
+              return <Headset size={19} color="var(--emerald-green, #00D995)" />;
+            case "highway":
+              return <Car size={19} color="var(--primary-gold, #FFD451)" />;
+            case "women":
+              return <ShieldCheck size={19} color="var(--emerald-green, #00D995)" />;
+            case "coastal":
+              return <LifeBuoy size={19} color="#4DA8DA" />;
+            default:
+              return <Phone size={19} color="var(--text-secondary, #969696)" />;
+          }
+        };
+
+        return (
+          <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
+            <div className="safety-page-container">
+              {/* Active Planner Destination Banner (if set) */}
+              {plannerCity && (
+                <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <MapPin size={16} color="var(--yellow)" />
+                    <span>Active Destination: <strong>{plannerCity.name}, {plannerCity.country}</strong> {plannerCity.flag} — Showing local emergency numbers & customized budget.</span>
+                  </span>
+                  <button className="btn-sm-dark" onClick={() => { setActiveTab("discover"); setPlannerStep(5); }}>
+                    Back to Plan
                   </button>
                 </div>
+              )}
+
+              {/* Section Header: Travel Safety */}
+              <div className="section-header" style={{ marginBottom: 24 }}>
+                <div>
+                  <div className="section-label">✦ Traveler Protection & Assistance</div>
+                  <h2 className="section-title">Travel Safety & Emergency Assistance</h2>
+                  <p className="section-sub">
+                    Verified pan-India emergency numbers, regional tourist police desks, and official traveler safety advisories.
+                  </p>
+                </div>
+              </div>
+
+              {/* Region Quick Selector */}
+              <div className="safety-region-selector-wrap">
+                <span className="safety-region-label">Region / City:</span>
+                <div className="safety-region-pills">
+                  {[
+                    "All India",
+                    "Mysuru",
+                    "Goa",
+                    "Delhi",
+                    "Jaipur",
+                    "Mumbai",
+                    "Varanasi",
+                    "Agra",
+                    "Kerala",
+                    "Bengaluru",
+                  ].map(city => (
+                    <button
+                      key={city}
+                      type="button"
+                      className={`safety-region-pill ${currentCity.toLowerCase().includes(city.toLowerCase()) || (city === "All India" && currentCity === "All India") ? "active" : ""}`}
+                      onClick={() => {
+                        setSafetySelectedCity(city);
+                        setSafetyCategoryFilter("all");
+                      }}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Emergency Contacts Card */}
+              <div className="safety-card">
+                <div className="safety-card-header">
+                  <div className="safety-card-title">
+                    <Shield size={20} color="var(--primary-gold, #FFD451)" />
+                    <span>Official Emergency Helplines</span>
+                    <span className="safety-card-badge">24/7 Verified</span>
+                  </div>
+
+                  {/* Filter Pills */}
+                  {regionalCount > 0 && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        type="button"
+                        className={`ref-badge-estimate ${safetyCategoryFilter === "all" ? "ref-badge-verified" : ""}`}
+                        style={{ cursor: "pointer", background: safetyCategoryFilter === "all" ? "rgba(0, 217, 149, 0.15)" : undefined }}
+                        onClick={() => setSafetyCategoryFilter("all")}
+                      >
+                        All ({contacts.length})
+                      </button>
+                      <button
+                        type="button"
+                        className={`ref-badge-estimate ${safetyCategoryFilter === "regional" ? "ref-badge-verified" : ""}`}
+                        style={{ cursor: "pointer", background: safetyCategoryFilter === "regional" ? "rgba(255, 212, 81, 0.15)" : undefined, color: safetyCategoryFilter === "regional" ? "var(--primary-gold, #FFD451)" : undefined }}
+                        onClick={() => setSafetyCategoryFilter("regional")}
+                      >
+                        Regional ({regionalCount})
+                      </button>
+                      <button
+                        type="button"
+                        className={`ref-badge-estimate ${safetyCategoryFilter === "national" ? "ref-badge-verified" : ""}`}
+                        style={{ cursor: "pointer", background: safetyCategoryFilter === "national" ? "rgba(0, 217, 149, 0.15)" : undefined }}
+                        onClick={() => setSafetyCategoryFilter("national")}
+                      >
+                        Pan-India
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="safety-contact-list">
+                  {filteredContacts.map(c => {
+                    const isNational = c.region.includes("Pan-India");
+                    return (
+                      <div key={c.id || c.label} className="safety-contact-item">
+                        <div className="safety-contact-main">
+                          <div className="safety-icon-wrap">
+                            {renderEmergencyIcon(c.category)}
+                          </div>
+                          <div className="safety-details-col">
+                            <div className="safety-service-name">
+                              <span>{c.label}</span>
+                              <span className={`safety-region-tag ${isNational ? "national" : ""}`}>
+                                {c.region}
+                              </span>
+                              {c.badge && (
+                                <span className="ref-badge-estimate" style={{ fontSize: "10px", padding: "1px 6px" }}>
+                                  {c.badge}
+                                </span>
+                              )}
+                            </div>
+                            {c.note && <div className="safety-note-text">{c.note}</div>}
+                            <div className="safety-source-text">
+                              <CheckCircle2 size={12} color="var(--emerald-green, #00D995)" />
+                              <span>Source: {c.source}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="safety-action-wrap">
+                          <span className="safety-phone-number">{c.number}</span>
+                          <a
+                            href={`tel:${c.dialNumber || c.number.replace(/[^0-9+]/g, "")}`}
+                            className="btn-safety-call"
+                            aria-label={`Call ${c.label} at ${c.number}`}
+                          >
+                            <PhoneCall size={14} />
+                            <span>Call</span>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Regional Travel Safety Advisory Card */}
+              <div className="safety-advisory-card">
+                <div className="safety-advisory-header">
+                  <div className="safety-advisory-title">
+                    <Info size={19} color="var(--primary-gold, #FFD451)" />
+                    <span>Regional Safety Advisory — {advisory.destination}</span>
+                  </div>
+                  <div>
+                    {advisory.advisoryLevel === "safe" ? (
+                      <span className="safety-advisory-level-safe">
+                        <CheckCircle size={13} />
+                        <span>Standard Vigilance</span>
+                      </span>
+                    ) : (
+                      <span className="safety-advisory-level-caution">
+                        <AlertTriangle size={13} />
+                        <span>Exercise Caution</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <p className="safety-advisory-body">{advisory.advisory}</p>
+
+                <div className="safety-tips-title">Key Ground Safety Guidelines:</div>
+                <div className="safety-tips-list">
+                  {advisory.tips.map((tip, idx) => (
+                    <div key={idx} className="safety-tip-item">
+                      <span className="safety-tip-bullet">✦</span>
+                      <span>{tip}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="safety-advisory-footer">
+                  <span>Official Reference: {advisory.source}</span>
+                  <span>Updated: {advisory.lastUpdated}</span>
+                </div>
+              </div>
+
+              {/* ── Separate Divider ── */}
+              <div className="safety-budget-divider" />
+
+              {/* Section 2: Trip Expense & Budget Tracker */}
+              <div className="section-header" style={{ marginBottom: 20 }}>
+                <div>
+                  <div className="section-label">✦ Personal Travel Finance</div>
+                  <h3 className="section-title" style={{ fontSize: 22 }}>Trip Expense & Budget Tracker</h3>
+                  <p className="section-sub">
+                    Monitor planned trip expenses, maintain your personal travel budget, and log day-to-day spending.
+                  </p>
+                </div>
+              </div>
+
+              <div className="budget-section-card">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                  <span style={{ fontSize: 13, color: "var(--gray)" }}>
+                    Allocated Budget: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{budget.toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }}>
+                    Total Spent: {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{totalSpent.toLocaleString()} ({budgetPct}%)
+                  </span>
+                </div>
+                <div className="budget-bar-track">
+                  <div className="budget-bar-fill" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "var(--error)" : "var(--yellow)" }} />
+                </div>
+
+                <div style={{ marginTop: 18, marginBottom: 14 }}>
+                  {expenses.map(e => (
+                    <div key={e.id} className="expense-row">
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.name}</div>
+                        <span className="expense-cat-badge">{e.cat}</span>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--yellow)" }}>
+                        {selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "INR" ? "₹" : selectedCurrency + " "}{e.amount.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--dark-border)", paddingTop: 16 }}>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <input
+                      className="field-input"
+                      placeholder="Expense description (e.g. Temple entry ticket)"
+                      value={newExpName}
+                      onChange={e => setNewExpName(e.target.value)}
+                      style={{ flex: 1, minWidth: 200 }}
+                    />
+                    <input
+                      className="field-input"
+                      placeholder="Amount"
+                      type="number"
+                      value={newExpAmount}
+                      onChange={e => setNewExpAmount(e.target.value)}
+                      style={{ width: 110 }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <select
+                      className="field-input"
+                      style={{ flex: 1 }}
+                      value={newExpCat}
+                      onChange={e => setNewExpCat(e.target.value)}
+                    >
+                      {["Food", "Transport", "Hotel", "Activity", "Shopping", "Other"].map(c => <option key={c}>{c}</option>)}
+                    </select>
+                    <button className="btn-yellow" style={{ width: "auto", padding: "0 20px" }} onClick={addExpense} aria-label="Add expense">
+                      <Plus size={16} />
+                      <span style={{ marginLeft: 6, fontWeight: 700 }}>Add Expense</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: RECORDS                                                  */}

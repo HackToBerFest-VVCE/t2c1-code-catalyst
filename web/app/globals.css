@@ -1867,6 +1867,382 @@ img {
   white-space: nowrap;
 }
 
+/* ── Travel Safety Section & Emergency Contacts ── */
+.safety-page-container {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.safety-region-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.safety-region-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary, #969696);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.safety-region-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.safety-region-pill {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--dark-elevated, #252525);
+  color: var(--text-secondary, #969696);
+  border: 1px solid var(--border-color, #333333);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.safety-region-pill:hover {
+  border-color: #555555;
+  color: #F5F5F5;
+}
+
+.safety-region-pill.active {
+  background: var(--primary-gold, #FFD451);
+  color: #101010;
+  border-color: var(--primary-gold, #FFD451);
+  font-weight: 700;
+}
+
+.safety-card {
+  background: var(--card-bg, #202020);
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.safety-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safety-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary, #F5F5F5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.safety-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--emerald-green, #00D995);
+  background: rgba(0, 217, 149, 0.12);
+  border: 1px solid rgba(0, 217, 149, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.safety-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.safety-contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  background: #252525;
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.safety-contact-item:hover {
+  background: #292929;
+  border-color: #444444;
+}
+
+.safety-contact-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.safety-icon-wrap {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 10px;
+  background: #1c1c1c;
+  border: 1px solid #383838;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.safety-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.safety-service-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #F5F5F5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.safety-region-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--primary-gold, #FFD451);
+  background: rgba(255, 212, 81, 0.12);
+  border: 1px solid rgba(255, 212, 81, 0.25);
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.02em;
+}
+
+.safety-region-tag.national {
+  color: var(--emerald-green, #00D995);
+  background: rgba(0, 217, 149, 0.12);
+  border-color: rgba(0, 217, 149, 0.25);
+}
+
+.safety-note-text {
+  font-size: 12px;
+  color: var(--text-secondary, #969696);
+  line-height: 1.4;
+}
+
+.safety-source-text {
+  font-size: 11px;
+  color: #777777;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.safety-action-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.safety-phone-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary, #F5F5F5);
+  letter-spacing: 0.02em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-safety-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--primary-gold, #FFD451);
+  color: #101010;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-safety-call:hover {
+  background: var(--primary-gold-hover, #FFDE7A);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 212, 81, 0.25);
+}
+
+.btn-safety-call:active {
+  transform: translateY(0);
+}
+
+/* Safety Advisory Card */
+.safety-advisory-card {
+  background: var(--card-bg, #202020);
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.safety-advisory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safety-advisory-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary, #F5F5F5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.safety-advisory-level-safe {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--emerald-green, #00D995);
+  background: rgba(0, 217, 149, 0.12);
+  border: 1px solid rgba(0, 217, 149, 0.25);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.safety-advisory-level-caution {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-gold, #FFD451);
+  background: rgba(255, 212, 81, 0.12);
+  border: 1px solid rgba(255, 212, 81, 0.25);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.safety-advisory-body {
+  font-size: 13.5px;
+  color: #CCCCCC;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.safety-tips-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary, #969696);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.safety-tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.safety-tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #CCCCCC;
+  line-height: 1.45;
+}
+
+.safety-tip-bullet {
+  color: var(--emerald-green, #00D995);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.safety-advisory-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color, #333333);
+  font-size: 11.5px;
+  color: #777777;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Clean Separator between Safety and Budget */
+.safety-budget-divider {
+  margin: 44px 0 32px 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #333333 15%, #333333 85%, transparent);
+}
+
+.budget-section-card {
+  background: var(--card-bg, #202020);
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 14px;
+  padding: 22px;
+}
+
+@media (max-width: 680px) {
+  .safety-contact-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .safety-action-wrap {
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color, #333333);
+  }
+
+  .btn-safety-call {
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 14px;
+  }
+
+  .safety-phone-number {
+    font-size: 15px;
+  }
+}
+
 /* ── Budget Bar ── */
 .budget-bar-track {
   height: 8px;
