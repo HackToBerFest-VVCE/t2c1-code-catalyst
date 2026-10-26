@@ -679,11 +679,11 @@ export default function Home() {
           timeZone: "Asia/Kolkata",
           hour: "2-digit",
           minute: "2-digit",
-          hour12: true,
+          hour12: false,
         }).format(now);
-        setLiveTime(`${formatted} IST`);
+        setLiveTime(formatted);
       } catch {
-        setLiveTime("IST");
+        setLiveTime("01:54");
       }
     };
     updateTime();
@@ -4708,102 +4708,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ Q'IN SABA LUXURY FOOTER ══ */}
-      <footer className="site-footer">
-        {/* Kinetic Marquee Track */}
-        <div className="site-footer__marquee" aria-hidden="true">
-          <div className="site-footer__marquee-track">
-            <span className="site-footer__wordmark">
-              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
-            </span>
-            <span className="site-footer__wordmark">
-              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
-            </span>
-            <span className="site-footer__wordmark">
-              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
-            </span>
-            <span className="site-footer__wordmark">
-              YatraSetu · <span>India, thoughtfully yours</span> · Certified on Solana Devnet ·
-            </span>
+      {/* ══ MINIMAL EDITORIAL FOOTER BAR (MATCHING REFERENCE IMAGE 2) ══ */}
+      <footer className="editorial-footer-bar">
+        <div className="editorial-footer-inner">
+          <div className="editorial-footer-left">
+            <span className="editorial-footer-dot">•</span>
+            <span className="editorial-footer-label">Now in India</span>
+            <span className="editorial-footer-time">{liveTime || "01:54"}</span>
+            <span className="editorial-footer-sep">·</span>
+            <span className="editorial-footer-motto">Shubh Yatra (शुभ यात्रा)</span>
           </div>
-        </div>
-
-        {/* Editorial Navigation Links (Matching Header Layout in Image 2) */}
-        <div className="site-footer__inner" style={{ justifyContent: "center" }}>
-          <div className="site-footer__links">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("discover");
-                setPlannerCity(null);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className="site-footer__link"
-            >
-              DISCOVERY
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("discover");
-                setPlannerCity(null);
-                setTimeout(() => {
-                  document.getElementById("gallery-section")?.scrollIntoView({ behavior: "smooth" });
-                }, 60);
-              }}
-              className="site-footer__link"
-            >
-              GALLERY
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsLangModalOpen(true)}
-              className="site-footer__link"
-            >
-              LANGUAGE
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAccountModalOpen(true)}
-              className="site-footer__link"
-            >
-              ACCOUNT
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom Sub-Bar matching media_1793045062667_c61efcae.png */}
-        <div className="site-footer__bottom-bar">
-          <div className="site-footer__bottom-inner">
-            <div className="site-footer__bottom-left">
-              <span className="live-pulse-dot" />
-              <span className="bottom-meta-label">Now in India</span>
-              <span className="bottom-meta-time">{liveTime || "01:45 IST"}</span>
-              <span className="bottom-meta-sep">·</span>
-              <span className="bottom-meta-motto">Shubh Yatra (शुभ यात्रा)</span>
-            </div>
-            <div className="site-footer__bottom-center">
-              © {new Date().getFullYear()} YatraSetu · A Decentralized Solana Tourism Protocol · All rights reserved.
-            </div>
-            <div className="site-footer__bottom-right">
-              <button
-                type="button"
-                onClick={() => setIsAccountModalOpen(true)}
-                className="bottom-legal-link"
-              >
-                Account Hub
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsLangModalOpen(true)}
-                className="bottom-legal-link"
-              >
-                Language
-              </button>
-              <a href="tel:1363" className="bottom-legal-link">
-                Helpline 1363
-              </a>
-            </div>
+          <div className="editorial-footer-right">
+            © {new Date().getFullYear()} YatraSetu · Certified on Solana Devnet · All rights reserved.
           </div>
         </div>
       </footer>
