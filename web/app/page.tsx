@@ -2711,11 +2711,6 @@ export default function Home() {
                       <span>Plan your journey</span>
                       <span className="btn__arrow">→</span>
                     </button>
-
-                    <div className="site-header__clock" title="Solana Devnet Attestation Status">
-                      <span className="site-header__clock-dot" style={{ background: isDevnetHealthy ? "var(--color-verified)" : "var(--color-error)" }} />
-                      <span>Solana Devnet Live</span>
-                    </div>
                   </div>
 
                   {/* Architectural Search Box */}
