@@ -1349,6 +1349,121 @@ export default function AccountPage() {
         </div>
       </main>
 
+      {/* ── Signature Architectural Pre-Footer Matching Main Site ── */}
+      <section className="editorial-prefooter" style={{ borderBottom: "1px solid rgba(101, 39, 51, 0.18)" }}>
+        {/* Top Wave Transition */}
+        <div className="editorial-prefooter__curve-wrap" aria-hidden="true">
+          <svg
+            className="editorial-prefooter__curve-svg"
+            viewBox="0 0 1440 80"
+            preserveAspectRatio="none"
+            fill="none"
+          >
+            <path
+              d="M0,0 C360,50 1080,50 1440,0 L1440,80 L0,80 Z"
+              fill="var(--color-sabbia)"
+            />
+          </svg>
+        </div>
+
+        <div className="editorial-prefooter__inner">
+          {/* Left: Large Editorial Statement & Quick Links */}
+          <div className="editorial-prefooter__left">
+            <h2 className="editorial-prefooter__title">India, thoughtfully yours.</h2>
+            <Link href="/" className="editorial-prefooter__plan-link">
+              <span>EXPLORE ITINERARIES</span>
+              <span className="editorial-plan-arrow">→</span>
+            </Link>
+
+            <div className="editorial-prefooter__cols">
+              {/* Column 1: PLATFORM */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">PLATFORM</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <Link href="/" className="editorial-link-btn">
+                      Itinerary Planner
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/?tab=fairPrice" className="editorial-link-btn">
+                      Fair Price Checker
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/?tab=safety" className="editorial-link-btn">
+                      Tourist Shield
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/?tab=agents" className="editorial-link-btn">
+                      Solana Concierges
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 2: ACCOUNT */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">ACCOUNT HUB</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <span className="editorial-link-btn active">
+                      Personal Preferences
+                    </span>
+                  </li>
+                  <li>
+                    <span className="editorial-link-btn active">
+                      Travel Agreements ({savedAgreements.length})
+                    </span>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="editorial-link-btn"
+                      onClick={handleDownloadAllOffline}
+                    >
+                      Offline Remote Passes
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 3: CONCIERGES */}
+              <div className="editorial-nav-col">
+                <span className="editorial-col-heading">CONCIERGES</span>
+                <ul className="editorial-col-list">
+                  <li>
+                    <span className="editorial-link-btn">
+                      Arjun · Heritage Guide
+                    </span>
+                  </li>
+                  <li>
+                    <span className="editorial-link-btn">
+                      Touristमित्र · Municipal
+                    </span>
+                  </li>
+                  <li>
+                    <span className="editorial-link-btn">
+                      Kavya · Safe Transit
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Signature Architectural Line-Art (Pure Artwork with Matching Site Background) */}
+          <div className="editorial-prefooter__right" aria-hidden="true">
+            <img
+              src="/images/art/taj-mahal.png"
+              alt="Taj Mahal Architectural Artwork"
+              className="editorial-prefooter__art"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── Minimal Editorial Footer Bar ── */}
       <footer className="minimal-editorial-footer" role="contentinfo">
         <div className="footer-single-bar-container">

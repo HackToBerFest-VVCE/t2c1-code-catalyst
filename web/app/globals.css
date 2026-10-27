@@ -2014,7 +2014,7 @@ button:hover .btn__arrow {
   height: auto;
   max-height: 440px;
   object-fit: contain;
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
   display: block;
 }
 
@@ -4750,6 +4750,24 @@ button:hover .btn__arrow {
   color: var(--color-notte);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.account-page-root::before {
+  content: "";
+  position: fixed;
+  top: 70px;
+  right: -80px;
+  width: 640px;
+  height: 640px;
+  background-image: url("/images/art/taj-mahal.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .account-main-content {
@@ -4758,6 +4776,8 @@ button:hover .btn__arrow {
   padding: 44px 24px 80px 24px;
   width: 100%;
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 /* Header row matching Image 3 */
