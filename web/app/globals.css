@@ -3487,6 +3487,159 @@ button:hover .btn__arrow {
   margin-top: 24px;
 }
 
+/* ══ 2 CIRCULAR PERSONA CHOICES (Image 2) ══ */
+.persona-circle-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin: 32px 0 24px 0;
+  flex-wrap: wrap;
+}
+
+.persona-circle-card {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-bg-card, #FAF7F2);
+  border: 2px solid var(--color-sabbia, #E2D9CC);
+  box-shadow: 0 8px 24px rgba(30, 51, 49, 0.08);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.32s ease,
+              border-color 0.25s ease,
+              background 0.25s ease;
+  position: relative;
+  padding: 16px;
+  user-select: none;
+}
+
+.persona-circle-card.indian {
+  background: radial-gradient(circle at 50% 35%, rgba(234, 153, 56, 0.16) 0%, rgba(250, 247, 242, 0.95) 72%);
+  border-color: rgba(234, 153, 56, 0.45);
+}
+
+.persona-circle-card.indian:hover,
+.persona-circle-card.indian.active {
+  border-color: #EA9938;
+  background: radial-gradient(circle at 50% 35%, rgba(234, 153, 56, 0.28) 0%, #FFFFFF 78%);
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 16px 36px rgba(234, 153, 56, 0.3), 0 0 0 3px rgba(234, 153, 56, 0.35);
+}
+
+.persona-circle-card.foreign {
+  background: radial-gradient(circle at 50% 35%, rgba(101, 39, 51, 0.12) 0%, rgba(250, 247, 242, 0.95) 72%);
+  border-color: rgba(101, 39, 51, 0.35);
+}
+
+.persona-circle-card.foreign:hover,
+.persona-circle-card.foreign.active {
+  border-color: var(--color-brunello, #652733);
+  background: radial-gradient(circle at 50% 35%, rgba(101, 39, 51, 0.22) 0%, #FFFFFF 78%);
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 16px 36px rgba(101, 39, 51, 0.26), 0 0 0 3px rgba(101, 39, 51, 0.3);
+}
+
+.persona-circle-icon-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  border: 1.5px solid var(--color-sabbia);
+  box-shadow: 0 3px 10px rgba(30, 51, 49, 0.08);
+  transition: transform 0.25s ease;
+}
+
+.persona-circle-icon-inner.indian {
+  background: rgba(234, 153, 56, 0.18);
+  border-color: rgba(234, 153, 56, 0.4);
+}
+
+.persona-circle-icon-inner.foreign {
+  background: rgba(101, 39, 51, 0.14);
+  border-color: rgba(101, 39, 51, 0.3);
+}
+
+.persona-circle-card:hover .persona-circle-icon-inner {
+  transform: scale(1.12);
+}
+
+.persona-circle-title {
+  font-family: var(--font-mollie), Georgia, serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--color-notte);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.persona-circle-pill {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.persona-circle-pill.green {
+  background: rgba(30, 80, 50, 0.12);
+  color: #1a5e38;
+}
+
+.persona-circle-pill.yellow {
+  background: rgba(173, 137, 88, 0.16);
+  color: var(--color-brunello);
+}
+
+.persona-visa-text-link {
+  background: none;
+  border: none;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-oliva);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.persona-visa-text-link:hover {
+  color: var(--color-brunello);
+  background: rgba(101, 39, 51, 0.06);
+}
+
+@media (max-width: 480px) {
+  .persona-circle-grid {
+    gap: 16px;
+  }
+  .persona-circle-card {
+    width: 145px;
+    height: 145px;
+    padding: 10px;
+  }
+  .persona-circle-icon-inner {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 6px;
+  }
+  .persona-circle-title {
+    font-size: 0.95rem;
+  }
+}
+
 .persona-card {
   background: var(--color-bg-alt);
   border: 1.5px solid var(--color-sabbia);

@@ -77,96 +77,65 @@ export default function TravelerPersonaModal({
               </p>
             </div>
 
-            {/* 2 Clean Side-by-Side Cards */}
-            <div className="persona-grid">
-              {/* Option 1: Indian Citizen */}
+            {/* ══ TWO CIRCLES SIDE-BY-SIDE (Image 2 - Styled with Luxury Site Palette) ══ */}
+            <div className="persona-circle-grid">
+              {/* Circle 1: Indian Citizen (Warm Saffron / Ottone / Gold Accent) */}
               <div
-                className={`persona-card ${currentType === "indian" ? "active" : ""}`}
+                className={`persona-circle-card indian ${currentType === "indian" ? "active" : ""}`}
                 onClick={onSelectIndian}
                 role="button"
                 tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    onSelectIndian();
+                  }
+                }}
+                title="Continue as Indian Citizen"
               >
-                <div className="persona-card-icon-wrap indian" title="Indian Citizen">
-                  <span style={{ fontSize: 18, fontWeight: 800, color: "var(--color-notte)", letterSpacing: "0.04em", fontFamily: "var(--font-jost)" }}>IN</span>
+                <div className="persona-circle-icon-inner indian">
+                  <span style={{ fontSize: 22, fontWeight: 800, color: "var(--color-notte)", letterSpacing: "0.04em", fontFamily: "var(--font-jost)" }}>
+                    IN
+                  </span>
                 </div>
-                <div className="persona-card-content">
-                  <div className="persona-card-title-row" style={{ marginBottom: 16 }}>
-                    <h3 className="persona-card-title">Indian Citizen</h3>
-                    <span className="persona-tag-pill green">Domestic</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="persona-btn-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectIndian();
-                    }}
-                  >
-                    <span>Continue as Indian Citizen</span>
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
+                <span className="persona-circle-title">Indian Citizen</span>
+                <span className="persona-circle-pill green">Domestic</span>
               </div>
 
-              {/* Option 2: Foreign Traveler */}
+              {/* Circle 2: Foreign Traveler (Refined Brunello / Sand Accent) */}
               <div
-                className={`persona-card foreign ${currentType === "foreign" ? "active" : ""}`}
+                className={`persona-circle-card foreign ${currentType === "foreign" ? "active" : ""}`}
                 onClick={() => {
                   onConfirmForeign(selectedCountryName, activeVisaRule);
                 }}
                 role="button"
                 tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    onConfirmForeign(selectedCountryName, activeVisaRule);
+                  }
+                }}
+                title="Continue as Foreign Traveler"
               >
-                <div className="persona-card-icon-wrap foreign" title="Foreign Traveler">
-                  <Globe size={26} color="var(--color-brunello)" />
+                <div className="persona-circle-icon-inner foreign">
+                  <Globe size={28} color="var(--color-brunello)" />
                 </div>
-                <div className="persona-card-content">
-                  <div className="persona-card-title-row" style={{ marginBottom: 16 }}>
-                    <h3 className="persona-card-title">Foreign Traveler</h3>
-                    <span className="persona-tag-pill yellow">International</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="persona-btn-primary secondary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onConfirmForeign(selectedCountryName, activeVisaRule);
-                    }}
-                  >
-                    <span>Continue as Foreign Traveler</span>
-                    <ArrowRight size={14} />
-                  </button>
-
-                  {/* Down in Foreign: Specific Visa & Entry Instructions */}
-                  <div
-                    className="foreign-visa-helper-box"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStep("instructions");
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.stopPropagation();
-                        setStep("instructions");
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label="View official foreign visa and entry instructions"
-                  >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: 12, color: "var(--color-brunello)" }}>
-                        <Info size={14} />
-                        <span>Need Visa or Entry Instructions?</span>
-                      </div>
-                      <ArrowRight size={13} color="var(--color-brunello)" />
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--color-oliva)", marginTop: 3, lineHeight: 1.35 }}>
-                      Official Gov photo specs (350x350 white bg), eVisa eligibility &amp; documents checklist
-                    </div>
-                  </div>
-                </div>
+                <span className="persona-circle-title">Foreign Traveler</span>
+                <span className="persona-circle-pill yellow">International</span>
               </div>
+            </div>
+
+            {/* Discreet Visa & Entry Instructions Link */}
+            <div style={{ textAlign: "center", marginTop: 8 }}>
+              <button
+                type="button"
+                className="persona-visa-text-link"
+                onClick={() => setStep("instructions")}
+                title="View Government photo specifications and eVisa eligibility"
+              >
+                <Info size={13} />
+                <span>Need Foreign Visa or Entry Instructions? View Official Checklist</span>
+                <ArrowRight size={12} />
+              </button>
             </div>
           </div>
         )}
