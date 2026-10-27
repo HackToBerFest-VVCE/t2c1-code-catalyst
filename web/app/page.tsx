@@ -1048,6 +1048,16 @@ export default function Home() {
     }
   };
 
+  // Handle dynamic trip pace selection and auto-recalibrate budget & duration
+  const handlePaceChange = (newPace: "leisurely" | "explorer") => {
+    setTravelPace(newPace);
+    if (plannerCity) {
+      const scaled = calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, selectedCurrency, newPace);
+      setBudgetAmount(scaled);
+      setBudget(scaled);
+    }
+  };
+
   // Add custom spot with strict duplicate check (prevents adding same place multiple times)
   const handleAddCustomAttraction = () => {
     const trimmed = customAttractionInput.trim();
@@ -1178,8 +1188,13 @@ export default function Home() {
   };
 
   // Generate Tailored Itinerary based strictly on chosen attractions, budget & crowd vibe
-  const generateTailoredPlan = () => {
+  const generateTailoredPlan = (paceOverride?: "leisurely" | "explorer" | any) => {
     if (!plannerCity) return;
+    const effectivePace: "leisurely" | "explorer" =
+      (paceOverride === "leisurely" || paceOverride === "explorer") ? paceOverride : travelPace;
+    if (paceOverride === "leisurely" || paceOverride === "explorer") {
+      setTravelPace(paceOverride);
+    }
     const chosenAttractionsRaw = plannerCity.attractions.filter(a => selectedAttractionIds.includes(a.id));
     const activeAttractionsRaw = chosenAttractionsRaw.length > 0 ? chosenAttractionsRaw : plannerCity.attractions.slice(0, 3);
     // Strict deduplication by normalized name to guarantee no duplicate places in the itinerary
@@ -1187,66 +1202,159 @@ export default function Home() {
       (attr, idx, self) =>
         idx === self.findIndex((a) => a.name.trim().toLowerCase().replace(/\s+/g, " ") === attr.name.trim().toLowerCase().replace(/\s+/g, " "))
     );
-    const spotsPerDay = travelPace === "leisurely" ? 2 : 3;
+    const spotsPerDay = effectivePace === "leisurely" ? 2 : 3;
     const numDays = Math.max(1, Math.ceil(activeAttractions.length / spotsPerDay));
-    
+
+    // Dynamic budget auto-scaled for the chosen pace & computed duration
+    const currentBudget = calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, selectedCurrency, effectivePace);
+    setBudgetAmount(currentBudget);
+    setBudget(currentBudget);
+
     const daysSchedule = [];
     let attractionIndex = 0;
-    
+
     for (let d = 1; d <= numDays; d++) {
-      const dayStops = [];
+      const dayStops: any[] = [];
       const dayTheme = d === 1
-        ? "Historic Heart & Primary Icons"
+        ? (effectivePace === "leisurely" ? "Historic Immersion & Heritage Promenade" : "High-Energy Historic Icons & Primary Monuments")
         : d === 2
-          ? "Architecture, Panorama & Sunset Vista"
-          : "Artisanal Bazaars & Hidden Promenades";
-          
-      // Stop 1
-      if (attractionIndex < activeAttractions.length) {
-        const a = activeAttractions[attractionIndex++];
+          ? (effectivePace === "leisurely" ? "Scenic Panorama, Architecture & Artisanal Cafés" : "Fast-Track Architectural Wonders & Golden Hour Vista")
+          : (effectivePace === "leisurely" ? "Slow Artisanal Bazaars & Sunset Relaxation" : "Artisanal Bazaars, Hidden Promenades & Night Street Food");
+
+      if (effectivePace === "leisurely") {
+        // ── LEISURELY & RELAXED FLOW (1-2 sights/day + midday downtime) ──
+        // Stop 1: Unhurried morning start
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: crowdTolerance === "tranquil" ? "09:30 AM (Tranquil Start)" : "10:00 AM (Unhurried Morning)",
+            name: a.name,
+            category: a.category,
+            duration: "2.5 hours (Deep immersion)",
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Leisurely Pace: Unhurried exploration with café & photo pauses]`,
+            transitHop: `Scenic, leisurely connector via ${plannerCity.transit.recommendedPass.slice(0, 32)} (Zero rushing)`,
+            paceNote: "☕ Relaxed Morning Visit",
+          });
+        }
+
+        // Midday Leisure Pause: Always included in Leisurely pace!
         dayStops.push({
-          time: crowdTolerance === "tranquil" ? "08:30 AM (Tranquil Hour)" : crowdTolerance === "vibrant" ? "10:30 AM (Peak Vibe)" : "09:15 AM (Optimal)",
-          name: a.name,
-          category: a.category,
-          duration: a.duration,
-          costDisplay: a.costDisplay,
-          costUSD: a.costUSD,
-          img: a.img,
-          tip: a.tip,
-          transitHop: `Board ${plannerCity.transit.recommendedPass.slice(0, 38)} to ${a.name.slice(0, 24)}`,
+          time: "01:00 PM – 02:45 PM",
+          name: "Artisanal Café & Heritage Downtime",
+          category: "Leisure & Dining Break",
+          duration: "1.75 hours",
+          costDisplay: "Local Delicacies / Refreshment",
+          costUSD: 6,
+          img: plannerCity.heroImg,
+          tip: "Take a restful afternoon break away from midday heat. Enjoy authentic regional beverages, review morning photos, and soak in ambient heritage vibes.",
+          transitHop: "Short gentle walk to shaded garden/café terrace",
+          paceNote: "🌿 Midday Downtime Pause",
         });
-      }
-      // Stop 2
-      if (attractionIndex < activeAttractions.length) {
-        const a = activeAttractions[attractionIndex++];
+
+        // Stop 2: Late afternoon / Golden hour sight
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: "03:30 PM (Golden Afternoon)",
+            name: a.name,
+            category: a.category,
+            duration: "2 hours",
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Leisurely Pace: Timed for optimal natural afternoon light]`,
+            transitHop: `Comfortable air-conditioned ride via ${plannerCity.transit.options[0]?.name || "City Transit"}`,
+            paceNote: "🌅 Unrushed Afternoon Sight",
+          });
+        }
+      } else {
+        // ── ACTIVE EXPLORER FLOW (3-4 sights/day, early start, maximum coverage) ──
+        // Stop 1: Early opening slot
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: "08:30 AM (Beat the Queues)",
+            name: a.name,
+            category: a.category,
+            duration: a.duration,
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Active Explorer: First through the gates for crowd-free viewing]`,
+            transitHop: `Express morning corridor via ${plannerCity.transit.recommendedPass.slice(0, 32)}`,
+            paceNote: "⚡ Priority Early Entry",
+          });
+        }
+
+        // Stop 2: Late morning landmark
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: "11:15 AM",
+            name: a.name,
+            category: a.category,
+            duration: a.duration,
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Active Explorer: Efficient 75-min focused walkthrough]`,
+            transitHop: `Fast 10-min transit hop via ${plannerCity.transit.options[0]?.name || "City Metro/Transit"}`,
+            paceNote: "🎯 Icon #2 Connector",
+          });
+        }
+
+        // Quick Lunch Stop
         dayStops.push({
-          time: "01:30 PM",
-          name: a.name,
-          category: a.category,
-          duration: a.duration,
-          costDisplay: a.costDisplay,
-          costUSD: a.costUSD,
-          img: a.img,
-          tip: a.tip,
-          transitHop: `Short 10-min connector via ${plannerCity.transit.options[0]?.name || "City Transit"}`,
+          time: "01:00 PM (Express Refueling)",
+          name: "Iconic Regional Food Counter & Chai",
+          category: "Quick Culinary Hop",
+          duration: "45 mins",
+          costDisplay: "Street Food / Thali",
+          costUSD: 4,
+          img: plannerCity.heroImg,
+          tip: "Quick authentic local lunch break to recharge batteries before afternoon expeditions.",
+          transitHop: "Direct hop to next quadrant",
+          paceNote: "⚡ Express Lunch",
         });
+
+        // Stop 3: Afternoon sight
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: "02:15 PM",
+            name: a.name,
+            category: a.category,
+            duration: a.duration,
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Active Explorer: Focused afternoon cultural immersion]`,
+            transitHop: `Connecting corridor via ${plannerCity.transit.options[1]?.name || "Local Tram/Transit"}`,
+            paceNote: "📸 Afternoon Monument",
+          });
+        }
+
+        // Stop 4 (if available) or Golden hour stop
+        if (attractionIndex < activeAttractions.length) {
+          const a = activeAttractions[attractionIndex++];
+          dayStops.push({
+            time: "05:15 PM (Golden Hour Sunset)",
+            name: a.name,
+            category: a.category,
+            duration: a.duration,
+            costDisplay: a.costDisplay,
+            costUSD: a.costUSD,
+            img: a.img,
+            tip: `${a.tip} [Active Explorer: Prime sunset vantage point & panoramic vista]`,
+            transitHop: `Sunset promenade walk or quick return shuttle`,
+            paceNote: "🌇 Sunset Highlight",
+          });
+        }
       }
-      // Stop 3 (if explorer)
-      if (spotsPerDay >= 3 && attractionIndex < activeAttractions.length) {
-        const a = activeAttractions[attractionIndex++];
-        dayStops.push({
-          time: crowdTolerance === "tranquil" ? "04:30 PM" : "06:00 PM (Golden Hour)",
-          name: a.name,
-          category: a.category,
-          duration: a.duration,
-          costDisplay: a.costDisplay,
-          costUSD: a.costUSD,
-          img: a.img,
-          tip: a.tip,
-          transitHop: `Scenic hop via ${plannerCity.transit.options[1]?.name || "Local Tram/Walk"}`,
-        });
-      }
-      
+
       daysSchedule.push({
         dayNumber: d,
         theme: dayTheme,
@@ -1256,19 +1364,19 @@ export default function Home() {
 
     const totalAttractionsUSD = activeAttractions.reduce((sum, a) => sum + a.costUSD, 0);
     const transitTotalUSD = plannerCity.transit.passPriceUSD * numDays;
-    const targetBudgetUSD = getBudgetInUSD(budgetAmount, selectedCurrency);
+    const targetBudgetUSD = getBudgetInUSD(currentBudget, selectedCurrency);
     const diningStayUSD = Math.max(0, targetBudgetUSD - totalAttractionsUSD - transitTotalUSD);
-    
+
     const plan = {
       city: plannerCity.name,
       country: plannerCity.country,
       flag: plannerCity.flag,
       numDays,
-      pace: travelPace,
+      pace: effectivePace,
       crowd: crowdTolerance,
       party: travelParty,
       currency: selectedCurrency,
-      totalBudget: budgetAmount,
+      totalBudget: currentBudget,
       totalBudgetUSD: targetBudgetUSD,
       totalBudgetSOL: Number((targetBudgetUSD / (solInCurrencies["USD"] || 101.64)).toFixed(3)),
       costs: {
@@ -1280,7 +1388,7 @@ export default function Home() {
       transitPass: plannerCity.transit.recommendedPass,
       operatorCode: plannerCity.transit.operatorCode,
     };
-    
+
     setGeneratedPlan(plan);
     setPlannerStep(5);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3147,19 +3255,59 @@ export default function Home() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 28 }}>
                     <div
                       className={`crowd-option-card ${travelPace === "leisurely" ? "selected" : ""}`}
-                      onClick={() => setTravelPace("leisurely")}
+                      onClick={() => handlePaceChange("leisurely")}
                     >
                       <div className="crowd-option-icon"><Coffee size={24} color="var(--yellow)" /></div>
-                      <div className="crowd-option-title">Leisurely & Relaxed</div>
+                      <div className="crowd-option-title">Leisurely &amp; Relaxed</div>
                       <p className="crowd-option-desc">1–2 sights per day with extended café breaks, strolls, and zero rushing.</p>
+                      <div style={{ marginTop: 12, display: "flex", gap: 6, flexWrap: "wrap", fontSize: 12 }}>
+                        <span style={{
+                          background: travelPace === "leisurely" ? "rgba(45,90,67,0.12)" : "rgba(30,51,49,0.06)",
+                          color: travelPace === "leisurely" ? "#2D5A43" : "var(--color-notte)",
+                          padding: "4px 9px",
+                          borderRadius: 8,
+                          fontWeight: 600
+                        }}>
+                          {Math.max(1, Math.ceil(selectedAttractionIds.length / 2))} Days Plan
+                        </span>
+                        <span style={{
+                          background: travelPace === "leisurely" ? "rgba(173,137,88,0.18)" : "rgba(30,51,49,0.06)",
+                          color: travelPace === "leisurely" ? "var(--color-ottone, #AD8958)" : "var(--color-notte)",
+                          padding: "4px 9px",
+                          borderRadius: 8,
+                          fontWeight: 600
+                        }}>
+                          ~{plannerCity ? calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, selectedCurrency, "leisurely").toLocaleString() : 0} {selectedCurrency}
+                        </span>
+                      </div>
                     </div>
                     <div
                       className={`crowd-option-card ${travelPace === "explorer" ? "selected" : ""}`}
-                      onClick={() => setTravelPace("explorer")}
+                      onClick={() => handlePaceChange("explorer")}
                     >
                       <div className="crowd-option-icon"><Zap size={24} color="var(--yellow)" /></div>
                       <div className="crowd-option-title">Active Explorer</div>
                       <p className="crowd-option-desc">3–4 sights per day, full-day schedule, seeing the absolute maximum.</p>
+                      <div style={{ marginTop: 12, display: "flex", gap: 6, flexWrap: "wrap", fontSize: 12 }}>
+                        <span style={{
+                          background: travelPace === "explorer" ? "rgba(45,90,67,0.12)" : "rgba(30,51,49,0.06)",
+                          color: travelPace === "explorer" ? "#2D5A43" : "var(--color-notte)",
+                          padding: "4px 9px",
+                          borderRadius: 8,
+                          fontWeight: 600
+                        }}>
+                          {Math.max(1, Math.ceil(selectedAttractionIds.length / 3))} Day{Math.ceil(selectedAttractionIds.length / 3) > 1 ? "s" : ""} Plan
+                        </span>
+                        <span style={{
+                          background: travelPace === "explorer" ? "rgba(173,137,88,0.18)" : "rgba(30,51,49,0.06)",
+                          color: travelPace === "explorer" ? "var(--color-ottone, #AD8958)" : "var(--color-notte)",
+                          padding: "4px 9px",
+                          borderRadius: 8,
+                          fontWeight: 600
+                        }}>
+                          ~{plannerCity ? calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, selectedCurrency, "explorer").toLocaleString() : 0} {selectedCurrency}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -3194,7 +3342,7 @@ export default function Home() {
                     </button>
                     <button
                       className="btn-hero-yellow"
-                      onClick={generateTailoredPlan}
+                      onClick={() => generateTailoredPlan()}
                     >
                       <Sparkles size={16} />
                       <span>{t.generatePlanBtn}</span>
@@ -3255,6 +3403,72 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* Live Trip Pace Selector & Adaptive Plan Controls */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 12,
+                      background: "var(--color-bg-card, #FAF7F2)",
+                      border: "1px solid var(--color-sabbia, #E2D9CC)",
+                      borderRadius: 14,
+                      padding: "12px 18px",
+                      marginBottom: 20,
+                      boxShadow: "var(--shadow-subtle)",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--color-notte)" }}>
+                        <span>Pace Mode:</span>
+                        <span style={{ color: "var(--color-ottone, #AD8958)", fontWeight: 700 }}>
+                          {generatedPlan.pace === "leisurely" ? "☕ Leisurely & Relaxed (1–2 Sights/Day)" : "⚡ Active Explorer (3–4 Sights/Day)"}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          onClick={() => generateTailoredPlan("leisurely")}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "7px 14px",
+                            borderRadius: 10,
+                            fontSize: 12.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            border: generatedPlan.pace === "leisurely" ? "1.5px solid var(--color-brunello, #652733)" : "1px solid var(--color-sabbia, #E2D9CC)",
+                            background: generatedPlan.pace === "leisurely" ? "rgba(101, 39, 51, 0.08)" : "#FFF",
+                            color: generatedPlan.pace === "leisurely" ? "var(--color-brunello, #652733)" : "var(--color-notte, #1E3331)",
+                          }}
+                        >
+                          <Coffee size={14} />
+                          <span>Leisurely Pace ({Math.max(1, Math.ceil(selectedAttractionIds.length / 2))}D)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => generateTailoredPlan("explorer")}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "7px 14px",
+                            borderRadius: 10,
+                            fontSize: 12.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            border: generatedPlan.pace === "explorer" ? "1.5px solid var(--color-brunello, #652733)" : "1px solid var(--color-sabbia, #E2D9CC)",
+                            background: generatedPlan.pace === "explorer" ? "rgba(101, 39, 51, 0.08)" : "#FFF",
+                            color: generatedPlan.pace === "explorer" ? "var(--color-brunello, #652733)" : "var(--color-notte, #1E3331)",
+                          }}
+                        >
+                          <Zap size={14} />
+                          <span>Active Explorer ({Math.max(1, Math.ceil(selectedAttractionIds.length / 3))}D)</span>
+                        </button>
+                      </div>
+                    </div>
+
                     {/* Summary Bar */}
                     <div style={{
                       display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -3302,8 +3516,22 @@ export default function Home() {
                                   <div className="itinerary-stop-time">{stop.time}</div>
                                   <div>
                                     <div className="itinerary-stop-title">{stop.name}</div>
-                                    <div style={{ fontSize: 12, color: "var(--yellow)", fontWeight: 700, marginBottom: 4 }}>
-                                      {stop.category} · {stop.duration}
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                                      <span style={{ fontSize: 12, color: "var(--yellow)", fontWeight: 700 }}>
+                                        {stop.category} · {stop.duration}
+                                      </span>
+                                      {stop.paceNote && (
+                                        <span style={{
+                                          fontSize: 11,
+                                          fontWeight: 600,
+                                          padding: "2px 8px",
+                                          borderRadius: 6,
+                                          background: generatedPlan.pace === "leisurely" ? "rgba(45, 90, 67, 0.1)" : "rgba(173, 137, 88, 0.15)",
+                                          color: generatedPlan.pace === "leisurely" ? "#2D5A43" : "var(--color-ottone, #AD8958)",
+                                        }}>
+                                          {stop.paceNote}
+                                        </span>
+                                      )}
                                     </div>
                                     <div className="itinerary-stop-desc">{stop.tip}</div>
                                     <div className="itinerary-stop-tip-box">
