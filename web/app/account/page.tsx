@@ -29,7 +29,6 @@ import {
   Bot,
   RefreshCw,
   Star,
-  MessageSquare,
   Download,
   WifiOff,
   Printer,
@@ -40,7 +39,6 @@ import { AgentFeedbackModal } from "../../components/AgentFeedbackModal";
 import { TouristAgentFeedbackCard } from "../../components/TouristAgentFeedbackCard";
 import {
   getAgentReviews,
-  getTopAgentReview,
   normalizeAgentKey,
   type AgentReview,
 } from "../../lib/agent-reviews";
@@ -292,7 +290,7 @@ export interface ConciergeAgentMeta {
 const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   {
     id: "touristmitra",
-    name: "Touristमित्र Heritage & Travel Concierge",
+    name: "Touristमित्र",
     shortName: "Touristमित्र",
     role: "All-India Municipal Fair Tariff & Verified Protection",
     specialty: "Comprehensive 24/7 Helpline, Sovereign Seal & Fraud Guarantee",
@@ -307,7 +305,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   },
   {
     id: "vikram",
-    name: "Vikram - Fair Pricing & Tariff Auditor",
+    name: "Vikram",
     shortName: "Vikram",
     role: "Tariff Auditor & Anti-Scam Verification Agent",
     specialty: "Municipal Auto Fare Benchmarks, Guide Fee Auditing & Overcharge Alerts",
@@ -322,7 +320,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   },
   {
     id: "arjun",
-    name: "Arjun - Cultural Heritage & Temple Guide",
+    name: "Arjun",
     shortName: "Arjun",
     role: "Cultural Heritage & Sacred Temple Guide",
     specialty: "Heritage Itineraries, Temple Architecture & Price Protection",
@@ -337,7 +335,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   },
   {
     id: "sendero",
-    name: "Sendero - Smart Transit & Route Optimizer",
+    name: "Sendero",
     shortName: "Sendero",
     role: "Autonomous Booking & Multi-Modal Transit",
     specialty: "Premier Stays, Flights, Hotel Stays & Ground Transit",
@@ -352,7 +350,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   },
   {
     id: "ananya",
-    name: "Ananya - Local Cuisine & Artisan Scout",
+    name: "Ananya",
     shortName: "Ananya",
     role: "Artisan Scout & Heritage Culinary Concierge",
     specialty: "Traditional Weaver Workshops, GI-Tagged Handicrafts & Regional Thalis",
@@ -367,7 +365,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
   },
   {
     id: "priya",
-    name: "Priya - Transport & Safety Specialist",
+    name: "Priya",
     shortName: "Priya",
     role: "Transit Logistics & Tourist Safety Specialist",
     specialty: "KSRTC / DMRC Passes, Safe Route Mapping & Night Transit",
@@ -479,11 +477,12 @@ export default function AccountPage() {
         const rawList = data?.data?.agents || [];
         if (rawList.length > 0) {
           const mapped: ConciergeAgentMeta[] = rawList.map((a: any, idx: number) => {
-            const short = a.displayName ? a.displayName.split(" ")[0] : a.name.slice(0, 10);
-            const stableId = normalizeAgentKey(a.displayName || a.name);
+            const raw = a.displayName || a.name || `Agent ${idx + 1}`;
+            const short = raw.split(" - ")[0].split(" Heritage")[0].trim();
+            const stableId = normalizeAgentKey(short);
             return {
               id: stableId,
-              name: a.displayName || a.name,
+              name: short,
               shortName: short,
               role: a.specialty || "Verified Concierge",
               specialty: a.description || a.specialty,
@@ -1445,8 +1444,22 @@ export default function AccountPage() {
                 <div
                   key={agent.id}
                   className={`agent-used-item-card ${isActive ? "is-active" : ""}`}
+                  onClick={() => handleSetActiveAgent(agent)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      handleSetActiveAgent(agent);
+                    }
+                  }}
+                  title={`Click to set ${agent.name} as active concierge`}
                 >
-                  <div className="agent-item-header">
+                  {/* Diagonal Rating / SEAL Ribbon (Image 5: Diagonal across top-left, no secure icon) */}
+                  <div className="agent-diagonal-ribbon">
+                    ★ {agent.trustScore}% SEAL
+                  </div>
+
+                  <div className="agent-item-header" style={{ paddingLeft: 22 }}>
                     <div className="agent-item-avatar-row">
                       <div className="agent-item-avatar">
                         <span>{agent.shortName.slice(0, 2).toUpperCase()}</span>
@@ -1460,38 +1473,17 @@ export default function AccountPage() {
                             borderRadius: "50%",
                             background: isActive ? "#10B981" : "#9CA3AF",
                             border: "1.5px solid #FFFFFF",
+                            boxShadow: isActive ? "0 0 6px rgba(16, 185, 129, 0.7)" : "none",
                           }}
                         />
                       </div>
                       <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span className="agent-item-name">{agent.name}</span>
-                          {isActive && (
-                            <span style={{
-                              fontSize: 10,
-                              fontWeight: 700,
-                              color: "#2D5A43",
-                              background: "rgba(45, 90, 67, 0.12)",
-                              padding: "2px 7px",
-                              borderRadius: 10,
-                            }}>
-                              Active Assigned
-                            </span>
-                          )}
-                        </div>
-                        <span style={{ fontSize: "0.74rem", color: "var(--color-oliva)" }}>
-                          {agent.role}
-                        </span>
+                        <span className="agent-item-name">{agent.name}</span>
                       </div>
                     </div>
-
-                    <span className="agreement-seal-badge">
-                      <ShieldCheck size={11} />
-                      ★ {agent.trustScore}% SEAL
-                    </span>
                   </div>
 
-                  <p className="agent-item-role">
+                  <p className="agent-item-role" style={{ marginTop: 8 }}>
                     {agent.specialty}
                   </p>
 
@@ -1503,33 +1495,7 @@ export default function AccountPage() {
                     <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
                   </div>
 
-                  {/* Top Traveler Review Snippet for Agent */}
-                  {(() => {
-                    const topRev = getTopAgentReview(agent.name);
-                    return (
-                      <div className="agreement-review-snippet" style={{ margin: "8px 0", background: "rgba(255, 255, 255, 0.95)" }}>
-                        <div className="review-snippet-header">
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span className="review-author-rating">★ {topRev.rating.toFixed(1)} / 10</span>
-                            <span className="review-author-name">{topRev.author}</span>
-                          </div>
-                          {topRev.highlightTag && (
-                            <span
-                              style={{
-                                fontSize: "0.68rem",
-                                fontWeight: 700,
-                                color: topRev.rating >= 9.0 ? "#2D5A43" : "#B45309",
-                              }}
-                            >
-                              {topRev.highlightTag}
-                            </span>
-                          )}
-                        </div>
-                        <p className="review-quote-text">&ldquo;{topRev.quote}&rdquo;</p>
-                      </div>
-                    );
-                  })()}
-
+                  {/* Bottom: Only Identity PDA Row (Image 3) */}
                   <div className="agent-item-actions-row">
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.74rem" }}>
                       <span className="pda-label">Identity PDA:</span>
@@ -1539,7 +1505,10 @@ export default function AccountPage() {
                       <button
                         type="button"
                         className="btn-cert-copy"
-                        onClick={() => copyCertId(agent.identityPda)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyCertId(agent.identityPda);
+                        }}
                         title="Copy Agent Identity PDA"
                       >
                         {copiedCertId === agent.identityPda ? (
@@ -1554,45 +1523,11 @@ export default function AccountPage() {
                         rel="noopener noreferrer"
                         className="btn-view-explorer"
                         style={{ marginLeft: 4 }}
+                        onClick={(e) => e.stopPropagation()}
+                        title="View on Solana Explorer"
                       >
                         <ExternalLink size={11} />
                       </a>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button
-                        type="button"
-                        className="btn-agreement-feedback"
-                        style={{ padding: "5px 12px", fontSize: "0.72rem" }}
-                        onClick={() =>
-                          handleOpenFeedbackModal(
-                            agent.name,
-                            agent.rating,
-                            agent.trustScore,
-                            agent.role,
-                            agent.lastUsedItinerary
-                          )
-                        }
-                        title="Read & Submit Traveler Reviews"
-                      >
-                        <MessageSquare size={11} />
-                        <span>Reviews ({getAgentReviews(agent.name).length})</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className={`btn-set-active-agent ${isActive ? "active" : ""}`}
-                        onClick={() => handleSetActiveAgent(agent)}
-                      >
-                        {isActive ? (
-                          <>
-                            <Check size={12} />
-                            <span>Active Concierge</span>
-                          </>
-                        ) : (
-                          <span>Set as Active</span>
-                        )}
-                      </button>
                     </div>
                   </div>
                 </div>
