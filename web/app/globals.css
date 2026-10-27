@@ -6697,3 +6697,141 @@ button:hover .btn__arrow {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ── Account Agents Used Card ── */
+.account-agents-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 28px -4px rgba(30, 51, 49, 0.06);
+  margin-top: 24px;
+}
+
+.account-agents-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-sabbia, #E2D9CC);
+  margin-bottom: 18px;
+}
+
+.agents-used-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agent-used-item-card {
+  background: var(--color-bg-card, #FAF7F2);
+  border: 1.5px solid var(--color-sabbia, #E2D9CC);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.agent-used-item-card:hover {
+  border-color: var(--color-ottone, #AD8958);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -3px rgba(30, 51, 49, 0.07);
+}
+
+.agent-used-item-card.is-active {
+  border-color: var(--color-brunello, #652733);
+  background: rgba(101, 39, 51, 0.02);
+  box-shadow: 0 0 0 1px var(--color-brunello, #652733);
+}
+
+.agent-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.agent-item-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agent-item-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-notte, #1E3331);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-jost);
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.agent-item-name {
+  font-family: var(--font-jost);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-notte, #1E3331);
+}
+
+.agent-item-role {
+  font-size: 0.78rem;
+  color: var(--color-oliva, #5C6B64);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.agent-item-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+  color: var(--color-oliva, #5C6B64);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.agent-item-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-sabbia, #E2D9CC);
+  flex-wrap: wrap;
+}
+
+.btn-set-active-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  background: #FFFFFF;
+  color: var(--color-notte, #1E3331);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-set-active-agent:hover {
+  border-color: var(--color-brunello, #652733);
+  color: var(--color-brunello, #652733);
+}
+
+.btn-set-active-agent.active {
+  background: var(--color-brunello, #652733);
+  color: #FFFFFF;
+  border-color: var(--color-brunello, #652733);
+}

@@ -27,6 +27,7 @@ import {
   Sparkle,
   BadgeCheck,
   FileText,
+  Bot,
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
 
@@ -113,6 +114,101 @@ const TIMEZONES = [
   { label: "JST - Japan Standard Time (UTC+09:00)", offset: 9 },
 ];
 
+
+export interface ConciergeAgentMeta {
+  id: string;
+  name: string;
+  shortName: string;
+  role: string;
+  specialty: string;
+  mintAddress: string;
+  identityPda: string;
+  trustScore: number;
+  sealStatus: string;
+  tripsVerified: number;
+  rating: number;
+  status: string;
+  lastUsedItinerary: string;
+}
+
+const PREVIOUS_AGENTS: ConciergeAgentMeta[] = [
+  {
+    id: "arjun",
+    name: "Arjun - Cultural Heritage & Temple Guide",
+    shortName: "Arjun",
+    role: "Cultural Heritage & Sacred Temple Guide",
+    specialty: "Heritage Itineraries, Temple Architecture & Price Protection",
+    mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
+    identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
+    trustScore: 99.4,
+    sealStatus: "SEAL Tier-1 Verified",
+    tripsVerified: 1420,
+    rating: 4.95,
+    status: "Recently Used",
+    lastUsedItinerary: "Mysore Cultural Heritage & Palaces",
+  },
+  {
+    id: "priya",
+    name: "Priya - Transport & Safety Specialist",
+    shortName: "Priya",
+    role: "Transit Logistics & Tourist Safety Specialist",
+    specialty: "KSRTC / DMRC Passes, Safe Route Mapping & Night Transit",
+    mintAddress: "5KXXM4PnaKHHbjgKshQgGNhV66srYbnEnqB5L2tY3hGn",
+    identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
+    trustScore: 98.1,
+    sealStatus: "SEAL Tier-1 Verified",
+    tripsVerified: 980,
+    rating: 4.88,
+    status: "Verified On-Chain",
+    lastUsedItinerary: "Bengaluru - Coorg Coffee Trail",
+  },
+  {
+    id: "vikram",
+    name: "Vikram - Fair Pricing & Tariff Auditor",
+    shortName: "Vikram",
+    role: "Tariff Auditor & Anti-Scam Verification Agent",
+    specialty: "Municipal Auto Fare Benchmarks, Guide Fee Auditing & Overcharge Alerts",
+    mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
+    identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
+    trustScore: 99.1,
+    sealStatus: "SEAL Tier-1 Verified",
+    tripsVerified: 1105,
+    rating: 4.94,
+    status: "Active Auditor",
+    lastUsedItinerary: "Hampi UNESCO Ruins & Tungabhadra",
+  },
+  {
+    id: "ananya",
+    name: "Ananya - Local Cuisine & Artisan Scout",
+    shortName: "Ananya",
+    role: "Artisan Scout & Heritage Culinary Concierge",
+    specialty: "Traditional Weaver Workshops, GI-Tagged Handicrafts & Regional Thalis",
+    mintAddress: "AJ7XTKj5VJHXo87qQogjckmSz3upbLX9MVzK5fy9TgX",
+    identityPda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A",
+    trustScore: 97.8,
+    sealStatus: "SEAL Tier-2 Verified",
+    tripsVerified: 840,
+    rating: 4.92,
+    status: "Verified Concierge",
+    lastUsedItinerary: "Jaipur Pink City & Amber Fort",
+  },
+  {
+    id: "touristmitra",
+    name: "Touristमित्र Heritage & Travel Concierge",
+    shortName: "Touristमित्र",
+    role: "All-India Municipal Fair Tariff & Verified Protection",
+    specialty: "Comprehensive 24/7 Helpline, Sovereign Seal & Fraud Guarantee",
+    mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
+    identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
+    trustScore: 99.4,
+    sealStatus: "SEAL Tier-1 Verified",
+    tripsVerified: 1420,
+    rating: 4.95,
+    status: "Primary Identity",
+    lastUsedItinerary: "Golden Triangle & Heritage Trail",
+  },
+];
+
 const INITIAL_SAMPLE_AGREEMENT: TravelAgreementRecord = {
   id: "AGREE-INIT-1",
   dest: "Mysore Cultural Heritage & Palaces (3D)",
@@ -141,6 +237,46 @@ export default function AccountPage() {
   const [savedAgreements, setSavedAgreements] = useState<TravelAgreementRecord[]>([]);
   const [copiedCertId, setCopiedCertId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeAgentId, setActiveAgentId] = useState<string>("arjun");
+
+  useEffect(() => {
+    try {
+      const savedAgent = localStorage.getItem("yatrasetu_selected_agent");
+      if (savedAgent) {
+        const parsed = JSON.parse(savedAgent);
+        if (parsed.name) {
+          const match = PREVIOUS_AGENTS.find(
+            (a) => a.name === parsed.name || a.shortName === parsed.displayName
+          );
+          if (match) setActiveAgentId(match.id);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const handleSetActiveAgent = (agent: ConciergeAgentMeta) => {
+    setActiveAgentId(agent.id);
+    try {
+      localStorage.setItem(
+        "yatrasetu_selected_agent",
+        JSON.stringify({
+          name: agent.name,
+          displayName: agent.name,
+          specialty: agent.specialty,
+          mintAddress: agent.mintAddress,
+          identityPda: agent.identityPda,
+          reputation: {
+            trustScore: agent.trustScore,
+            totalTripsVerified: agent.tripsVerified,
+            rating: agent.rating,
+            sealStatus: agent.sealStatus,
+          },
+        })
+      );
+      setSaveStatus(`Active concierge assigned to ${agent.shortName}!`);
+      setTimeout(() => setSaveStatus(""), 3000);
+    } catch {}
+  };
 
   // Load profile and agreements from localStorage on mount
   useEffect(() => {
@@ -763,6 +899,140 @@ export default function AccountPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* ── AI Concierge Agents Used & Assigned Card ── */}
+            <div className="account-agents-card">
+              <div className="account-agents-card-header">
+                <div className="agreements-title-wrap">
+                  <div className="agreements-lock-badge" style={{ background: "rgba(37, 99, 235, 0.08)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
+                    <Bot size={18} color="#2563eb" />
+                  </div>
+                  <div>
+                    <h2 className="agreements-column-title">AI Agents Used &amp; Assigned</h2>
+                    <p className="agreements-column-sub">
+                      Specialized autonomous concierges on Solana Devnet that have planned and authenticated your itineraries.
+                    </p>
+                  </div>
+                </div>
+                <span className="agreements-active-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" }}>
+                  {PREVIOUS_AGENTS.length} Concierges
+                </span>
+              </div>
+
+              <div className="agents-used-list">
+                {PREVIOUS_AGENTS.map((agent) => {
+                  const isActive = activeAgentId === agent.id;
+                  return (
+                    <div
+                      key={agent.id}
+                      className={`agent-used-item-card ${isActive ? "is-active" : ""}`}
+                    >
+                      <div className="agent-item-header">
+                        <div className="agent-item-avatar-row">
+                          <div className="agent-item-avatar">
+                            <span>{agent.shortName.slice(0, 2).toUpperCase()}</span>
+                            <span
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                right: 0,
+                                width: 8,
+                                height: 8,
+                                borderRadius: "50%",
+                                background: isActive ? "#10B981" : "#9CA3AF",
+                                border: "1.5px solid #FFFFFF",
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span className="agent-item-name">{agent.name}</span>
+                              {isActive && (
+                                <span style={{
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  color: "#2D5A43",
+                                  background: "rgba(45, 90, 67, 0.12)",
+                                  padding: "2px 7px",
+                                  borderRadius: 10,
+                                }}>
+                                  Active Assigned
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: "0.74rem", color: "var(--color-oliva)" }}>
+                              {agent.role}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="agreement-seal-badge">
+                          <ShieldCheck size={11} />
+                          ★ {agent.trustScore}% SEAL
+                        </span>
+                      </div>
+
+                      <p className="agent-item-role">
+                        {agent.specialty}
+                      </p>
+
+                      <div className="agent-item-meta-row">
+                        <span><strong>Trips Verified:</strong> {agent.tripsVerified.toLocaleString()}</span>
+                        <span>•</span>
+                        <span><strong>Score:</strong> {agent.rating} / 5.0</span>
+                        <span>•</span>
+                        <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
+                      </div>
+
+                      <div className="agent-item-actions-row">
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.74rem" }}>
+                          <span className="pda-label">Identity PDA:</span>
+                          <code className="pda-val">
+                            {`${agent.identityPda.slice(0, 6)}...${agent.identityPda.slice(-4)}`}
+                          </code>
+                          <button
+                            type="button"
+                            className="btn-cert-copy"
+                            onClick={() => copyCertId(agent.identityPda)}
+                            title="Copy Agent Identity PDA"
+                          >
+                            {copiedCertId === agent.identityPda ? (
+                              <Check size={11} color="#2D5A43" />
+                            ) : (
+                              <Copy size={11} />
+                            )}
+                          </button>
+                          <a
+                            href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-view-explorer"
+                            style={{ marginLeft: 4 }}
+                          >
+                            <ExternalLink size={11} />
+                          </a>
+                        </div>
+
+                        <button
+                          type="button"
+                          className={`btn-set-active-agent ${isActive ? "active" : ""}`}
+                          onClick={() => handleSetActiveAgent(agent)}
+                        >
+                          {isActive ? (
+                            <>
+                              <Check size={12} />
+                              <span>Active Concierge</span>
+                            </>
+                          ) : (
+                            <span>Set as Active</span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
