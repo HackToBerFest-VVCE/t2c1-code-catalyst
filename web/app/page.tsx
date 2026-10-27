@@ -942,11 +942,43 @@ export default function Home() {
     return amount / rate;
   }, [exchangeRates, solInCurrencies]);
 
+  // Dynamic Budget Calculation scaling with number of selected places: More places -> More days & entry costs!
+  const calculateBudgetForSelection = useCallback((
+    city: CuratedCity | null,
+    selectedIds: string[],
+    tier: "budget" | "comfort" | "luxury" = "comfort",
+    targetCur: string = selectedCurrency,
+    pace: "leisurely" | "explorer" = travelPace
+  ): number => {
+    if (!city) return 650;
+    const count = Math.max(1, selectedIds.length);
+    const spotsPerDay = pace === "leisurely" ? 2 : 3;
+    const computedDays = Math.max(1, Math.ceil(count / spotsPerDay));
+
+    // Sum actual tickets for the chosen sights (or standard fallback)
+    const selectedList = city.attractions.filter(a => selectedIds.includes(a.id));
+    const totalTicketsUSD = selectedList.reduce((sum, a) => sum + (a.costUSD || 15), 0);
+    const transitUSD = (city.transit?.passPriceUSD || 4) * computedDays;
+
+    // Daily hotel + food rate by selected tier
+    const dailyRateUSD = tier === "budget" ? 35 : tier === "luxury" ? 240 : 95;
+    const totalUSD = (dailyRateUSD * computedDays) + totalTicketsUSD + transitUSD;
+
+    return convertAmount(totalUSD, targetCur);
+  }, [convertAmount, selectedCurrency, travelPace]);
+
   const handleCurrencyChange = (newCur: string) => {
-    const inUSD = getBudgetInUSD(budgetAmount, selectedCurrency);
-    const inNew = convertAmount(inUSD, newCur);
     setSelectedCurrency(newCur);
-    setBudgetAmount(inNew);
+    if (plannerCity) {
+      const scaled = calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, newCur, travelPace);
+      setBudgetAmount(scaled);
+      setBudget(scaled);
+    } else {
+      const inUSD = getBudgetInUSD(budgetAmount, selectedCurrency);
+      const inNew = convertAmount(inUSD, newCur);
+      setBudgetAmount(inNew);
+      setBudget(inNew);
+    }
   };
 
   // Select destination and open curated customizer flow
@@ -961,10 +993,9 @@ export default function Home() {
     const initialAttractionIds = cityData.attractions.slice(0, 3).map(a => a.id);
     setSelectedAttractionIds(initialAttractionIds);
     setSelectedTransitMode(cityData.transit.recommendedPass);
-    const initialUSD = cityData.avgDailyBudgetUSD * cityData.durationDays;
-    const convertedBudget = convertAmount(initialUSD, selectedCurrency);
-    setBudgetAmount(convertedBudget);
-    setBudget(convertedBudget);
+    const scaledBudget = calculateBudgetForSelection(cityData, initialAttractionIds, "comfort", selectedCurrency, travelPace);
+    setBudgetAmount(scaledBudget);
+    setBudget(scaledBudget);
     setBudgetTier("comfort");
 
     // Pre-populate expenses with transit pass and iconic attraction tickets
@@ -2352,9 +2383,15 @@ export default function Home() {
                           key={attr.id}
                           className={`attraction-card ${isSelected ? "selected" : ""}`}
                           onClick={() => {
-                            setSelectedAttractionIds(prev =>
-                              prev.includes(attr.id) ? prev.filter(x => x !== attr.id) : [...prev, attr.id]
-                            );
+                            setSelectedAttractionIds(prev => {
+                              const next = prev.includes(attr.id) ? prev.filter(x => x !== attr.id) : [...prev, attr.id];
+                              if (plannerCity) {
+                                const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
+                                setBudgetAmount(scaled);
+                                setBudget(scaled);
+                              }
+                              return next;
+                            });
                           }}
                         >
                           <div className="attraction-photo-wrap">
@@ -2429,7 +2466,15 @@ export default function Home() {
                             crowdRating: "Moderate",
                           };
                           plannerCity.attractions.push(newAttr);
-                          setSelectedAttractionIds(prev => [...prev, newId]);
+                          setSelectedAttractionIds(prev => {
+                            const next = [...prev, newId];
+                            if (plannerCity) {
+                              const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
+                              setBudgetAmount(scaled);
+                              setBudget(scaled);
+                            }
+                            return next;
+                          });
                           setCustomAttractionInput("");
                         }
                       }}
@@ -2454,7 +2499,15 @@ export default function Home() {
                             crowdRating: "Moderate",
                           };
                           plannerCity.attractions.push(newAttr);
-                          setSelectedAttractionIds(prev => [...prev, newId]);
+                          setSelectedAttractionIds(prev => {
+                            const next = [...prev, newId];
+                            if (plannerCity) {
+                              const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
+                              setBudgetAmount(scaled);
+                              setBudget(scaled);
+                            }
+                            return next;
+                          });
                           setCustomAttractionInput("");
                         }
                       }}
@@ -2464,15 +2517,20 @@ export default function Home() {
                   </div>
 
                   <div className="wizard-footer-nav">
-                    <div style={{ fontSize: 14, color: "var(--gray-light)" }}>
-                      <strong style={{ color: "var(--yellow)" }}>{selectedAttractionIds.length}</strong> attractions selected for {plannerCity.name}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                      <div style={{ fontSize: 14, color: "var(--color-notte)" }}>
+                        <strong style={{ color: "var(--color-brunello, #652733)" }}>{selectedAttractionIds.length}</strong> attractions selected for {plannerCity.name}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--color-oliva)", fontWeight: 600 }}>
+                        Estimated Budget: ~{selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "GBP" ? "£" : ""}{budgetAmount.toLocaleString()} {selectedCurrency} (scaled dynamically for {selectedAttractionIds.length} place{selectedAttractionIds.length === 1 ? "" : "s"})
+                      </div>
                     </div>
                     <button
                       className="btn-hero-yellow"
                       disabled={selectedAttractionIds.length === 0}
                       onClick={() => { setPlannerStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     >
-                      <span>Next: Budget & Currencies</span>
+                      <span>Next: Budget &amp; Currencies</span>
                       <ArrowRight size={16} />
                     </button>
                   </div>
@@ -2526,46 +2584,60 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Preset Budget Tier Cards */}
+                  {/* Preset Budget Tier Cards (Dynamically Scaled on Places Count) */}
                   <div className="budget-tiers-grid">
                     <div
                       className={`budget-tier-card ${budgetTier === "budget" ? "selected" : ""}`}
                       onClick={() => {
                         setBudgetTier("budget");
-                        const amtUSD = 35 * plannerCity.durationDays;
-                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                        const newAmt = calculateBudgetForSelection(plannerCity, selectedAttractionIds, "budget", selectedCurrency, travelPace);
+                        setBudgetAmount(newAmt);
                       }}
                     >
                       <div className="tier-icon"><Wallet size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Backpacker / Economy</div>
-                      <div className="tier-estimate">~{convertAmount(35 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
-                      <p className="tier-desc">Social boutique hostels, local thalis & authentic street eateries, city bus/metro transit pass.</p>
+                      <div className="tier-estimate">
+                        ~{calculateBudgetForSelection(plannerCity, selectedAttractionIds, "budget", selectedCurrency, travelPace).toLocaleString()} {selectedCurrency} total
+                      </div>
+                      <p className="tier-desc">
+                        Social boutique hostels, local street eateries, city transit pass ({selectedAttractionIds.length} place{selectedAttractionIds.length === 1 ? "" : "s"}).
+                      </p>
                     </div>
+
                     <div
                       className={`budget-tier-card ${budgetTier === "comfort" ? "selected" : ""}`}
                       onClick={() => {
                         setBudgetTier("comfort");
-                        const amtUSD = 95 * plannerCity.durationDays;
-                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                        const newAmt = calculateBudgetForSelection(plannerCity, selectedAttractionIds, "comfort", selectedCurrency, travelPace);
+                        setBudgetAmount(newAmt);
                       }}
                     >
                       <div className="tier-icon"><Hotel size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Comfort / Explorer (Recommended)</div>
-                      <div className="tier-estimate">~{convertAmount(95 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
-                      <p className="tier-desc">3–4 Star heritage stays, sit-down dining, day transit passes, all museum audio guides included.</p>
+                      <div className="tier-estimate">
+                        ~{calculateBudgetForSelection(plannerCity, selectedAttractionIds, "comfort", selectedCurrency, travelPace).toLocaleString()} {selectedCurrency} total
+                      </div>
+                      <p className="tier-desc">
+                        3–4 Star heritage stays, sit-down dining, day transit passes, all museum entries ({selectedAttractionIds.length} place{selectedAttractionIds.length === 1 ? "" : "s"}).
+                      </p>
                     </div>
+
                     <div
                       className={`budget-tier-card ${budgetTier === "luxury" ? "selected" : ""}`}
                       onClick={() => {
                         setBudgetTier("luxury");
-                        const amtUSD = 240 * plannerCity.durationDays;
-                        setBudgetAmount(convertAmount(amtUSD, selectedCurrency));
+                        const newAmt = calculateBudgetForSelection(plannerCity, selectedAttractionIds, "luxury", selectedCurrency, travelPace);
+                        setBudgetAmount(newAmt);
                       }}
                     >
                       <div className="tier-icon"><Award size={24} color="var(--yellow)" /></div>
                       <div className="tier-title">Luxury / Royal</div>
-                      <div className="tier-estimate">~{convertAmount(240 * plannerCity.durationDays, selectedCurrency)} {selectedCurrency} total</div>
-                      <p className="tier-desc">5-Star palace suites & villas, private chauffeured AC cabs, fine dining & VIP entry passes.</p>
+                      <div className="tier-estimate">
+                        ~{calculateBudgetForSelection(plannerCity, selectedAttractionIds, "luxury", selectedCurrency, travelPace).toLocaleString()} {selectedCurrency} total
+                      </div>
+                      <p className="tier-desc">
+                        5-Star palace suites &amp; villas, private chauffeured AC cabs, fine dining &amp; VIP passes ({selectedAttractionIds.length} place{selectedAttractionIds.length === 1 ? "" : "s"}).
+                      </p>
                     </div>
                   </div>
 
