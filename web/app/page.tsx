@@ -2306,18 +2306,23 @@ export default function Home() {
                   ].map(s => (
                     <button
                       key={s.num}
+                      type="button"
                       className={`stepper-step-item ${plannerStep === s.num ? "active" : ""} ${plannerStep > s.num ? "completed" : ""}`}
                       onClick={() => {
-                        if (s.num <= plannerStep || (s.num === 5 && generatedPlan)) {
+                        if (s.num === 5 && !generatedPlan) {
+                          generateTailoredPlan();
+                        } else {
                           setPlannerStep(s.num);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
                         }
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
+                      aria-current={plannerStep === s.num ? "step" : undefined}
+                      title={`Go to Step ${s.num}: ${s.label}`}
                     >
                       <div className="stepper-step-num">
                         {plannerStep > s.num ? <Check size={14} /> : s.num}
                       </div>
-                      <span>{s.label}</span>
+                      <span className="stepper-step-label">{s.label}</span>
                     </button>
                   ))}
                 </div>
