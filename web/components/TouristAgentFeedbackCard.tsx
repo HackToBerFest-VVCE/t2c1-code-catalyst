@@ -96,41 +96,43 @@ export function TouristAgentFeedbackCard({
   const displayName = agentDisplayName || agentName;
   const topReview = reviews[0] || getTopAgentReview(displayName);
 
+  // Helper to convert score to 1-5 stars
+  const getStarCount = (score: number): number => {
+    if (score <= 5) return Math.max(1, Math.min(5, Math.round(score)));
+    return Math.max(1, Math.min(5, Math.round(score / 2)));
+  };
+
   // Calculate dynamic average rating
   const avgRating =
     reviews.length > 0
       ? Number((reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1))
       : agentRating;
 
-  // Star ratings distribution (product style)
-  const countHigh = reviews.filter((r) => r.rating >= 9.5).length;
-  const countMed = reviews.filter((r) => r.rating >= 9.0 && r.rating < 9.5).length;
-  const countLow = reviews.filter((r) => r.rating < 9.0).length;
+  // Star ratings distribution (5-star, 4-star, 3-star)
+  const count5 = reviews.filter((r) => getStarCount(r.rating) === 5).length;
+  const count4 = reviews.filter((r) => getStarCount(r.rating) === 4).length;
+  const count3 = reviews.filter((r) => getStarCount(r.rating) <= 3).length;
   const total = Math.max(1, reviews.length);
 
-  const pctHigh = Math.round((countHigh / total) * 100);
-  const pctMed = Math.round((countMed / total) * 100);
-  const pctLow = Math.round((countLow / total) * 100);
+  const pct5 = Math.round((count5 / total) * 100);
+  const pct4 = Math.round((count4 / total) * 100);
+  const pct3 = Math.round((count3 / total) * 100);
 
   return (
     <div className="tourist-feedback-card">
       {/* ── 1. Product-Style Ratings Summary Header ── */}
       <div className="feedback-summary-row">
         <div className="rating-score-col">
-          <div className="rating-big-number">
-            <span className="big-val">{avgRating.toFixed(1)}</span>
-            <span className="out-of">/ 10</span>
-          </div>
-          <div className="stars-row" aria-label={`Rating: ${avgRating} out of 10`}>
+          <div className="stars-row" aria-label="5 Star Rating" style={{ display: "flex", gap: 3, alignItems: "center", marginBottom: 3 }}>
             {[1, 2, 3, 4, 5].map((star) => {
-              const fillPct = Math.max(0, Math.min(100, (avgRating / 2 - (star - 1)) * 100));
+              const stars = getStarCount(avgRating);
               return (
-                <div key={star} className="star-wrapper">
-                  <Star size={15} className="star-empty" fill="#E2D9CC" color="#AD8958" />
-                  <div className="star-fill-clip" style={{ width: `${fillPct}%` }}>
-                    <Star size={15} className="star-filled" fill="#AD8958" color="#AD8958" />
-                  </div>
-                </div>
+                <Star
+                  key={star}
+                  size={18}
+                  fill={star <= stars ? "#AD8958" : "none"}
+                  color={star <= stars ? "#AD8958" : "#E2D9CC"}
+                />
               );
             })}
           </div>
@@ -139,28 +141,28 @@ export function TouristAgentFeedbackCard({
           </div>
         </div>
 
-        {/* E-Commerce Product Rating Distribution Bars */}
+        {/* E-Commerce Product Rating Distribution Bars (5 Star, 4 Star, 3 Star) */}
         <div className="rating-bars-col">
           <div className="rating-bar-line">
-            <span className="bar-label">9.5–10 ★</span>
+            <span className="bar-label">5 ★</span>
             <div className="bar-track">
-              <div className="bar-fill" style={{ width: `${pctHigh}%`, background: "#2D5A43" }} />
+              <div className="bar-fill" style={{ width: `${pct5}%`, background: "#2D5A43" }} />
             </div>
-            <span className="bar-pct">{pctHigh}%</span>
+            <span className="bar-pct">{pct5}%</span>
           </div>
           <div className="rating-bar-line">
-            <span className="bar-label">9.0–9.4 ★</span>
+            <span className="bar-label">4 ★</span>
             <div className="bar-track">
-              <div className="bar-fill" style={{ width: `${pctMed}%`, background: "#AD8958" }} />
+              <div className="bar-fill" style={{ width: `${pct4}%`, background: "#AD8958" }} />
             </div>
-            <span className="bar-pct">{pctMed}%</span>
+            <span className="bar-pct">{pct4}%</span>
           </div>
           <div className="rating-bar-line">
-            <span className="bar-label">&lt; 9.0 ★</span>
+            <span className="bar-label">3 ★</span>
             <div className="bar-track">
-              <div className="bar-fill" style={{ width: `${pctLow}%`, background: "#B45309" }} />
+              <div className="bar-fill" style={{ width: `${pct3}%`, background: "#B45309" }} />
             </div>
-            <span className="bar-pct">{pctLow}%</span>
+            <span className="bar-pct">{pct3}%</span>
           </div>
         </div>
 
@@ -221,20 +223,46 @@ export function TouristAgentFeedbackCard({
             </div>
           </div>
 
-          {/* Interactive Rating Score Picker */}
+          {/* Interactive 5-Star Rating Picker */}
           <div className="feedback-rating-picker-row">
-            <label className="feedback-field-label">Your Rating (Score out of 10):</label>
-            <div className="rating-chips-row">
-              {[10.0, 9.8, 9.5, 9.1, 8.9, 8.5, 7.9].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setUserRating(val)}
-                  className={`btn-rating-chip ${userRating === val ? "selected" : ""}`}
-                >
-                  ★ {val.toFixed(1)}
-                </button>
-              ))}
+            <label className="feedback-field-label">Your Rating:</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const currentStars = getStarCount(userRating);
+                  const isFilled = star <= currentStars;
+                  return (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setUserRating(star * 2)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "3px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      title={`${star} Star${star > 1 ? "s" : ""}`}
+                    >
+                      <Star
+                        size={22}
+                        fill={isFilled ? "#AD8958" : "none"}
+                        color={isFilled ? "#AD8958" : "#D1D5DB"}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#652733" }}>
+                {getStarCount(userRating) === 5 && "5 Stars · Exceptional"}
+                {getStarCount(userRating) === 4 && "4 Stars · Very Good"}
+                {getStarCount(userRating) === 3 && "3 Stars · Good"}
+                {getStarCount(userRating) === 2 && "2 Stars · Fair"}
+                {getStarCount(userRating) === 1 && "1 Star · Needs Improvement"}
+              </span>
             </div>
           </div>
 
@@ -268,13 +296,69 @@ export function TouristAgentFeedbackCard({
 
       {/* ── 3. Product-Style Verified Tourist Reviews Stream ── */}
       <div className="feedback-reviews-list">
-        {(showAllReviews ? reviews : reviews.slice(0, compact ? 1 : 2)).map((rev) => (
-          <div key={rev.id} className="tourist-review-card">
-            <p className="review-text" style={{ margin: 0, fontStyle: "italic", fontSize: "0.86rem", color: "#1E3331", lineHeight: 1.55 }}>
-              &ldquo;{rev.quote}&rdquo;
-            </p>
-          </div>
-        ))}
+        {(showAllReviews ? reviews : reviews.slice(0, compact ? 1 : 2)).map((rev) => {
+          const stars = getStarCount(rev.rating);
+          return (
+            <div key={rev.id} className="tourist-review-card">
+              {/* Reviewer Header: Name + Location + 5 Stars */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 6,
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontWeight: 700, fontSize: "0.88rem", color: "#1E3331" }}>
+                    {rev.author}
+                  </span>
+                  {rev.authorLocation && (
+                    <span style={{ fontSize: "0.75rem", color: "#6B7280" }}>
+                      · {rev.authorLocation}
+                    </span>
+                  )}
+                  {rev.verified && (
+                    <span
+                      style={{
+                        fontSize: "0.68rem",
+                        color: "#2D5A43",
+                        fontWeight: 600,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 2,
+                        background: "rgba(45, 90, 67, 0.08)",
+                        padding: "1px 5px",
+                        borderRadius: 9999,
+                      }}
+                    >
+                      <CheckCircle2 size={10} color="#2D5A43" />
+                      Verified
+                    </span>
+                  )}
+                </div>
+
+                {/* 5 Stars Only (No Numbers) */}
+                <div style={{ display: "flex", alignItems: "center", gap: 2 }} aria-label={`${stars} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      size={13}
+                      fill={s <= stars ? "#AD8958" : "none"}
+                      color={s <= stars ? "#AD8958" : "#E2D9CC"}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <p className="review-text" style={{ margin: 0, fontStyle: "italic", fontSize: "0.86rem", color: "#1E3331", lineHeight: 1.55 }}>
+                &ldquo;{rev.quote}&rdquo;
+              </p>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── 4. Toggle Show All / Less Reviews ── */}

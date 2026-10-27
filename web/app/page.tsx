@@ -1706,8 +1706,10 @@ export default function Home() {
                   <ShieldCheck size={11} />
                   ★ {activeAgent.reputation?.trustScore || 99.4}% SEAL
                 </span>
-                <span className="agreement-rating-pill">
-                  ★ {activeAgent.reputation?.rating ?? 9.8} / 10
+                <span className="agreement-rating-pill" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} size={11} fill="#AD8958" color="#AD8958" />
+                  ))}
                 </span>
               </div>
               <div style={{ fontSize: 12, color: "var(--color-oliva)", marginTop: 2 }}>
@@ -2873,8 +2875,10 @@ export default function Home() {
                             <span className="wizard-agent-score-badge">
                               ★ {selectedAgent?.reputation?.trustScore ?? 99.8}% SEAL
                             </span>
-                            <span className="wizard-agent-rating-badge">
-                              ★ {selectedAgent?.reputation?.rating ?? 9.8} / 10
+                            <span className="wizard-agent-rating-badge" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star key={s} size={11} fill="#AD8958" color="#AD8958" />
+                              ))}
                             </span>
                           </div>
                           <div className="wizard-agent-pda-row">

@@ -33,6 +33,12 @@ export interface AgentFeedbackModalProps {
   onReviewSubmitted?: (review: AgentReview) => void;
 }
 
+// Convert score to 1-5 stars count
+function getStarCount(score: number): number {
+  if (score <= 5) return Math.max(1, Math.min(5, Math.round(score)));
+  return Math.max(1, Math.min(5, Math.round(score / 2)));
+}
+
 export function AgentFeedbackModal({
   isOpen,
   onClose,
@@ -45,7 +51,7 @@ export function AgentFeedbackModal({
 }: AgentFeedbackModalProps) {
   const [activeTab, setActiveTab] = useState<"reviews" | "write">("reviews");
   const [reviewsList, setReviewsList] = useState<AgentReview[]>([]);
-  const [ratingScore, setRatingScore] = useState<number>(9.5);
+  const [ratingScore, setRatingScore] = useState<number>(10);
   const [authorName, setAuthorName] = useState<string>("");
   const [reviewText, setReviewText] = useState<string>("");
   const [tripContext, setTripContext] = useState<string>(itineraryTitle);
@@ -59,8 +65,7 @@ export function AgentFeedbackModal({
       setReviewsList(list);
       setTripContext(itineraryTitle || "Curated Cultural Itinerary");
       setSubmitSuccess(false);
-      // Default suggested rating matching the agent's baseline
-      setRatingScore(agentRating || 9.5);
+      setRatingScore(agentRating || 10);
     }
   }, [isOpen, agentName, itineraryTitle, agentRating]);
 
@@ -93,16 +98,6 @@ export function AgentFeedbackModal({
       }, 1800);
     }, 600);
   };
-
-  const RATING_PRESETS = [
-    { val: 10.0, label: "10.0 · Flawless" },
-    { val: 9.8, label: "9.8 · Best in Class" },
-    { val: 9.5, label: "9.5 · Exceptional" },
-    { val: 9.1, label: "9.1 · Excellent" },
-    { val: 8.9, label: "8.9 · Very Good" },
-    { val: 8.5, label: "8.5 · Good" },
-    { val: 7.9, label: "7.9 · Fair / Needs Work" },
-  ];
 
   return (
     <div
@@ -187,18 +182,26 @@ export function AgentFeedbackModal({
                 <span
                   style={{
                     fontSize: "0.75rem",
-                    fontWeight: 800,
+                    fontWeight: 700,
                     color: "#AD8958",
                     background: "rgba(173, 137, 88, 0.14)",
                     border: "1px solid rgba(173, 137, 88, 0.3)",
-                    padding: "2px 8px",
+                    padding: "3px 8px",
                     borderRadius: 9999,
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 3,
+                    gap: 2,
                   }}
+                  title="5-Star Verified Concierge"
                 >
-                  ★ {agentRating} / 10
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={11}
+                      fill={star <= getStarCount(agentRating) ? "#AD8958" : "none"}
+                      color={star <= getStarCount(agentRating) ? "#AD8958" : "#D1D5DB"}
+                    />
+                  ))}
                 </span>
                 <span
                   style={{
@@ -317,32 +320,114 @@ export function AgentFeedbackModal({
         >
           {activeTab === "reviews" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {/* Reviews List (Only the text review for all reviews) */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {reviewsList.map((rev) => (
-                  <div
-                    key={rev.id}
-                    style={{
-                      background: "#FFFFFF",
-                      border: "1px solid #E2D9CC",
-                      borderRadius: "14px",
-                      padding: "16px 20px",
-                      boxShadow: "0 2px 8px rgba(30, 51, 49, 0.04)",
-                    }}
-                  >
-                    <p
+              {/* Reviews List with Reviewer Name, Location, Verified Badge & Gold Stars */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {reviewsList.map((rev) => {
+                  const stars = getStarCount(rev.rating);
+                  return (
+                    <div
+                      key={rev.id}
                       style={{
-                        margin: 0,
-                        fontSize: "0.88rem",
-                        color: "#1E3331",
-                        lineHeight: 1.6,
-                        fontStyle: "italic",
+                        background: "#FFFFFF",
+                        border: "1px solid #E2D9CC",
+                        borderRadius: "14px",
+                        padding: "16px 20px",
+                        boxShadow: "0 2px 8px rgba(30, 51, 49, 0.04)",
                       }}
                     >
-                      &ldquo;{rev.quote}&rdquo;
-                    </p>
-                  </div>
-                ))}
+                      {/* Reviewer Header: Name, Verified & Stars (No numbers) */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: 8,
+                          flexWrap: "wrap",
+                          gap: 8,
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: "50%",
+                              background: "rgba(101, 39, 51, 0.08)",
+                              border: "1.5px solid rgba(101, 39, 51, 0.2)",
+                              color: "#652733",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              fontSize: "0.85rem",
+                              fontFamily: "var(--font-mollie), Georgia, serif",
+                            }}
+                          >
+                            {(rev.author || "T")[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ fontWeight: 700, fontSize: "0.92rem", color: "#1E3331" }}>
+                                {rev.author}
+                              </span>
+                              {rev.verified && (
+                                <span
+                                  style={{
+                                    fontSize: "0.68rem",
+                                    color: "#2D5A43",
+                                    fontWeight: 600,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 2,
+                                    background: "rgba(45, 90, 67, 0.08)",
+                                    padding: "1px 6px",
+                                    borderRadius: 9999,
+                                  }}
+                                >
+                                  <CheckCircle2 size={10} color="#2D5A43" />
+                                  Verified
+                                </span>
+                              )}
+                            </div>
+                            {rev.authorLocation && (
+                              <span style={{ fontSize: "0.74rem", color: "#6B7280" }}>
+                                {rev.authorLocation}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Gold Stars Display */}
+                        <div
+                          style={{ display: "flex", alignItems: "center", gap: 3 }}
+                          aria-label={`${stars} out of 5 stars`}
+                        >
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={15}
+                              fill={s <= stars ? "#AD8958" : "none"}
+                              color={s <= stars ? "#AD8958" : "#E2D9CC"}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Review Quote */}
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "0.88rem",
+                          color: "#1E3331",
+                          lineHeight: 1.6,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        &ldquo;{rev.quote}&rdquo;
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
@@ -368,49 +453,57 @@ export function AgentFeedbackModal({
                 </div>
               )}
 
-              {/* Rating Scale Selector */}
+              {/* Rating: Interactive 5-Star Picker */}
               <div>
                 <label
                   style={{
                     display: "block",
-                    fontSize: "0.82rem",
+                    fontSize: "0.84rem",
                     fontWeight: 700,
                     color: "#1E3331",
                     marginBottom: 8,
                   }}
                 >
-                  Score AI Concierge Performance (10-Point Rating Scale):
+                  Your Rating:
                 </label>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 8,
-                  }}
-                >
-                  {RATING_PRESETS.map((preset) => {
-                    const isSelected = ratingScore === preset.val;
-                    return (
-                      <button
-                        key={preset.val}
-                        type="button"
-                        onClick={() => setRatingScore(preset.val)}
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: 9999,
-                          border: isSelected ? "1.5px solid #652733" : "1px solid #E2D9CC",
-                          background: isSelected ? "#652733" : "#FFFFFF",
-                          color: isSelected ? "#FFFFFF" : "#1E3331",
-                          fontSize: "0.78rem",
-                          fontWeight: isSelected ? 700 : 500,
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {preset.label}
-                      </button>
-                    );
-                  })}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const currentStars = getStarCount(ratingScore);
+                      const isFilled = star <= currentStars;
+                      return (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRatingScore(star * 2)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: "4px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "transform 0.15s ease",
+                          }}
+                          title={`${star} Star${star > 1 ? "s" : ""}`}
+                        >
+                          <Star
+                            size={24}
+                            fill={isFilled ? "#AD8958" : "none"}
+                            color={isFilled ? "#AD8958" : "#D1D5DB"}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#652733" }}>
+                    {getStarCount(ratingScore) === 5 && "5 Stars · Exceptional"}
+                    {getStarCount(ratingScore) === 4 && "4 Stars · Very Good"}
+                    {getStarCount(ratingScore) === 3 && "3 Stars · Good"}
+                    {getStarCount(ratingScore) === 2 && "2 Stars · Fair"}
+                    {getStarCount(ratingScore) === 1 && "1 Star · Needs Improvement"}
+                  </span>
                 </div>
               </div>
 
@@ -425,13 +518,13 @@ export function AgentFeedbackModal({
                     marginBottom: 6,
                   }}
                 >
-                  Traveler Name / Handle:
+                  Traveler Name / Reviewer Name:
                 </label>
                 <input
                   type="text"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
-                  placeholder="e.g. Maya Sharma or Anonymous Explorer"
+                  placeholder="e.g. Sahana S. or Maya Sharma"
                   style={{
                     width: "100%",
                     padding: "9px 12px",

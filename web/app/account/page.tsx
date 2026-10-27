@@ -1557,8 +1557,10 @@ export default function AccountPage() {
                               <ShieldCheck size={11} />
                               ★ {agreement.agentTrustScore || 99.4}% SEAL
                             </span>
-                            <span className="agreement-rating-pill">
-                              ★ {agreement.agentRating || getAgentRating(agreement.agentName)} / 10
+                            <span className="agreement-rating-pill" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star key={s} size={11} fill="#AD8958" color="#AD8958" />
+                              ))}
                             </span>
                           </div>
                           <div className="agreement-agent-line-2">
