@@ -55,6 +55,12 @@ import TransitTracker from "../components/TransitTracker";
 import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
 import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
+import { AgentFeedbackModal } from "../components/AgentFeedbackModal";
+import {
+  getAgentReviews,
+  getTopAgentReview,
+  type AgentReview,
+} from "../lib/agent-reviews";
 import CopyAddress from "../components/CopyAddress";
 import {
   downloadOfflinePassFile,
@@ -92,7 +98,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 99.8,
       totalTripsVerified: 1420,
-      rating: 4.98,
+      rating: 9.8,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
@@ -106,7 +112,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 99.2,
       totalTripsVerified: 1105,
-      rating: 4.95,
+      rating: 9.5,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
@@ -120,7 +126,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 98.6,
       totalTripsVerified: 1240,
-      rating: 4.91,
+      rating: 9.1,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
@@ -134,7 +140,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 98.0,
       totalTripsVerified: 980,
-      rating: 4.87,
+      rating: 8.9,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
@@ -148,7 +154,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 97.4,
       totalTripsVerified: 840,
-      rating: 4.84,
+      rating: 8.5,
       sealStatus: "Active Verified (SEAL Tier-2)",
     },
   },
@@ -162,7 +168,7 @@ const CURATED_CONCIERGE_AGENTS = [
     reputation: {
       trustScore: 96.5,
       totalTripsVerified: 750,
-      rating: 4.79,
+      rating: 7.9,
       sealStatus: "Active Verified (SEAL Tier-2)",
     },
   },
@@ -906,6 +912,7 @@ export default function Home() {
   // ── Remote Area Offline Pass & Gmail Dispatch State ──
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isOfflineModalOpen, setIsOfflineModalOpen] = useState(false);
+  const [isAgentFeedbackModalOpen, setIsAgentFeedbackModalOpen] = useState(false);
 
   const handleSelectLang = (code: LanguageCode) => {
     setLanguage(code);
@@ -1418,6 +1425,9 @@ export default function Home() {
                   <ShieldCheck size={11} />
                   ★ {activeAgent.reputation?.trustScore || 99.4}% SEAL
                 </span>
+                <span className="agreement-rating-pill">
+                  ★ {activeAgent.reputation?.rating ?? 9.8} / 10
+                </span>
               </div>
               <div style={{ fontSize: 12, color: "var(--color-oliva)", marginTop: 2 }}>
                 {activeAgent.specialty || "Heritage Itineraries & Price Protection"}
@@ -1431,29 +1441,69 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Quick Agent Switcher Dropdown */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12, color: "var(--color-oliva)", fontWeight: 600 }}>Switch Agent:</span>
-            <div className="account-select-wrapper" style={{ minWidth: 200 }}>
-              <select
-                value={activeAgent.name}
-                onChange={(e) => {
-                  const target = CURATED_CONCIERGE_AGENTS.find(a => a.name === e.target.value) || agents.find(a => a.name === e.target.value);
-                  if (target) handleSelectAgent(target);
-                }}
-                className="account-field-select"
-                style={{ height: 36, fontSize: 12, padding: "0 28px 0 10px" }}
-              >
-                {CURATED_CONCIERGE_AGENTS.map((a) => (
-                  <option key={a.name} value={a.name}>
-                    {a.displayName}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="select-chevron" />
+          {/* Quick Agent Switcher Dropdown & Reviews Button */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className="btn-agreement-feedback"
+              onClick={() => setIsAgentFeedbackModalOpen(true)}
+              title="Rate this Concierge & read verified traveler reviews"
+            >
+              <Star size={12} fill="#AD8958" />
+              <span>Feedback ({getAgentReviews(activeAgent.displayName || activeAgent.name).length})</span>
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12, color: "var(--color-oliva)", fontWeight: 600 }}>Switch:</span>
+              <div className="account-select-wrapper" style={{ minWidth: 190 }}>
+                <select
+                  value={activeAgent.name}
+                  onChange={(e) => {
+                    const target = CURATED_CONCIERGE_AGENTS.find(a => a.name === e.target.value) || agents.find(a => a.name === e.target.value);
+                    if (target) handleSelectAgent(target);
+                  }}
+                  className="account-field-select"
+                  style={{ height: 36, fontSize: 12, padding: "0 28px 0 10px" }}
+                >
+                  {CURATED_CONCIERGE_AGENTS.map((a) => (
+                    <option key={a.name} value={a.name}>
+                      {a.displayName} (SEAL {a.reputation.trustScore}%)
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={12} className="select-chevron" />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Verified Traveler Review Snippet (Feedback Preview) */}
+        {(() => {
+          const topRev = getTopAgentReview(activeAgent.displayName || activeAgent.name);
+          return (
+            <div className="agreement-review-snippet" style={{ marginBottom: 18 }}>
+              <div className="review-snippet-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span className="review-author-rating">★ {topRev.rating.toFixed(1)} / 10</span>
+                  <span className="review-author-name">{topRev.author}</span>
+                  <span className="review-verified-badge">✓ Verified Review</span>
+                </div>
+                {topRev.highlightTag && (
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 700,
+                      color: topRev.rating >= 9.0 ? "#2D5A43" : "#B45309",
+                    }}
+                  >
+                    {topRev.highlightTag}
+                  </span>
+                )}
+              </div>
+              <p className="review-quote-text">&ldquo;{topRev.quote}&rdquo;</p>
+            </div>
+          );
+        })()}
 
         {/* Guarantees Row: Price Lock + Transit Pass */}
         <div style={{
@@ -2520,7 +2570,7 @@ export default function Home() {
                               ★ {selectedAgent?.reputation?.trustScore ?? 99.8}% SEAL
                             </span>
                             <span className="wizard-agent-rating-badge">
-                              {selectedAgent?.reputation?.rating ?? 4.98} ★
+                              ★ {selectedAgent?.reputation?.rating ?? 9.8} / 10
                             </span>
                           </div>
                           <div className="wizard-agent-pda-row">
@@ -2558,6 +2608,36 @@ export default function Home() {
                           <ChevronDown size={13} className="wizard-agent-select-chevron" />
                         </div>
                       </div>
+
+                      {/* Live Traveler Review Preview for Selected Agent */}
+                      {(() => {
+                        const topRev = getTopAgentReview(selectedAgent?.displayName || selectedAgent?.name);
+                        const revCount = getAgentReviews(selectedAgent?.displayName || selectedAgent?.name).length;
+                        return (
+                          <div className="wizard-agent-review-preview">
+                            <span className="wizard-agent-review-preview-text" title={topRev.quote}>
+                              &ldquo;{topRev.quote}&rdquo; — {topRev.author} (★ {topRev.rating.toFixed(1)}/10)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setIsAgentFeedbackModalOpen(true)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#652733",
+                                fontWeight: 700,
+                                fontSize: "0.72rem",
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                                padding: "2px 4px",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Reviews ({revCount})
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -5551,6 +5631,17 @@ export default function Home() {
         travelerType={travelerType || "indian"}
         foreignCountry={foreignCountry}
         certificateId={customCommitTx || commitTx || undefined}
+      />
+
+      {/* AI Concierge Feedback & Reviews Modal */}
+      <AgentFeedbackModal
+        isOpen={isAgentFeedbackModalOpen}
+        onClose={() => setIsAgentFeedbackModalOpen(false)}
+        agentName={selectedAgent?.displayName || selectedAgent?.name || "Touristमित्र Heritage & Travel Concierge"}
+        agentRating={selectedAgent?.reputation?.rating ?? 9.8}
+        agentTrustScore={selectedAgent?.reputation?.trustScore ?? 99.8}
+        agentRole={selectedAgent?.specialty || "Autonomous Travel Concierge"}
+        itineraryTitle={plannerCity ? `${plannerCity.name} Tailored (${generatedPlan?.numDays || 3}D)` : "Curated Cultural Itinerary"}
       />
 
       {/* Interactive Solana Agent Search & Consultation Modal */}

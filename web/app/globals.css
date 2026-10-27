@@ -7815,4 +7815,130 @@ button:hover .btn__arrow {
   font-weight: 700;
 }
 
+/* ── AI Concierge Feedback & Traveler Reviews ── */
+@keyframes fadeUpModal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.agreement-rating-pill {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-ottone, #AD8958);
+  background: rgba(173, 137, 88, 0.14);
+  border: 1px solid rgba(173, 137, 88, 0.3);
+  padding: 1px 7px;
+  border-radius: var(--radius-pill, 9999px);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.agreement-review-snippet {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px dashed var(--color-sabbia, #E2D9CC);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.review-snippet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-author-rating {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--color-brunello, #652733);
+  background: rgba(101, 39, 51, 0.08);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.review-author-name {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-notte, #1E3331);
+}
+
+.review-verified-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #2D5A43;
+  background: rgba(45, 90, 67, 0.09);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.review-quote-text {
+  font-size: 0.76rem;
+  color: #4B5563;
+  line-height: 1.4;
+  font-style: italic;
+  margin: 0;
+}
+
+.btn-agreement-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill, 9999px);
+  border: 1px solid rgba(173, 137, 88, 0.4);
+  background: rgba(173, 137, 88, 0.1);
+  color: #78350F;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-agreement-feedback:hover {
+  background: #AD8958;
+  color: #FFFFFF;
+  border-color: #AD8958;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(173, 137, 88, 0.25);
+}
+
+.wizard-agent-review-preview {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  border: 1px dashed var(--color-sabbia, #E2D9CC);
+  font-size: 0.72rem;
+  color: var(--color-oliva, #5A6B68);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wizard-agent-review-preview-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+  max-width: 240px;
+}
+
 

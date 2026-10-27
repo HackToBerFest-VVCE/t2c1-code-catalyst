@@ -29,12 +29,20 @@ import {
   FileText,
   Bot,
   RefreshCw,
+  Star,
+  MessageSquare,
   Download,
   WifiOff,
   Printer,
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
 import { OfflineRemoteModal } from "../../components/OfflineRemoteModal";
+import { AgentFeedbackModal } from "../../components/AgentFeedbackModal";
+import {
+  getAgentReviews,
+  getTopAgentReview,
+  type AgentReview,
+} from "../../lib/agent-reviews";
 import {
   downloadOfflinePassFile,
   printOfflinePass,
@@ -75,6 +83,7 @@ export interface TravelAgreementRecord {
   agentRole: string;
   agentPda: string;
   agentTrustScore: number;
+  agentRating?: number;
   agentAvatar?: string;
   priceLocked: string;
   transitPass: string;
@@ -291,7 +300,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 99.8,
     sealStatus: "SEAL Tier-1 Verified",
     tripsVerified: 1420,
-    rating: 4.98,
+    rating: 9.8,
     status: "Primary Identity",
     lastUsedItinerary: "Golden Triangle & Heritage Trail",
   },
@@ -306,7 +315,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 99.2,
     sealStatus: "SEAL Tier-1 Verified",
     tripsVerified: 1105,
-    rating: 4.95,
+    rating: 9.5,
     status: "Active Auditor",
     lastUsedItinerary: "Hampi UNESCO Ruins & Tungabhadra",
   },
@@ -321,7 +330,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 98.6,
     sealStatus: "SEAL Tier-1 Verified",
     tripsVerified: 1240,
-    rating: 4.91,
+    rating: 9.1,
     status: "Recently Used",
     lastUsedItinerary: "Mysore Cultural Heritage & Palaces",
   },
@@ -336,7 +345,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 98.0,
     sealStatus: "SEAL Tier-1 Verified",
     tripsVerified: 980,
-    rating: 4.87,
+    rating: 8.9,
     status: "Verified On-Chain",
     lastUsedItinerary: "Bengaluru - Coorg Coffee Trail",
   },
@@ -351,7 +360,7 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 97.4,
     sealStatus: "SEAL Tier-2 Verified",
     tripsVerified: 840,
-    rating: 4.84,
+    rating: 8.5,
     status: "Verified Concierge",
     lastUsedItinerary: "Jaipur Pink City & Amber Fort",
   },
@@ -366,11 +375,23 @@ const REAL_CONCIERGE_AGENTS: ConciergeAgentMeta[] = [
     trustScore: 96.5,
     sealStatus: "SEAL Tier-2 Verified",
     tripsVerified: 750,
-    rating: 4.79,
+    rating: 7.9,
     status: "Verified On-Chain",
     lastUsedItinerary: "Kochi Fort & Backwaters",
   },
 ];
+
+function getAgentRating(agentName?: string): number {
+  if (!agentName) return 9.8;
+  const s = agentName.toLowerCase();
+  if (s.includes("tourist") || s.includes("mitra")) return 9.8;
+  if (s.includes("vikram") || s.includes("pricing") || s.includes("tariff")) return 9.5;
+  if (s.includes("arjun") || s.includes("heritage") || s.includes("temple")) return 9.1;
+  if (s.includes("sendero") || s.includes("transit") || s.includes("corporate")) return 8.9;
+  if (s.includes("ananya") || s.includes("cuisine") || s.includes("artisan")) return 8.5;
+  if (s.includes("priya") || s.includes("safety")) return 7.9;
+  return 9.5;
+}
 
 const PREVIOUS_AGENTS: ConciergeAgentMeta[] = REAL_CONCIERGE_AGENTS;
 
@@ -381,7 +402,8 @@ const INITIAL_SAMPLE_AGREEMENT: TravelAgreementRecord = {
   agentName: "Arjun - Cultural Heritage & Temple Guide",
   agentRole: "Heritage Itineraries & Price Protection",
   agentPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
-  agentTrustScore: 99.4,
+  agentTrustScore: 98.6,
+  agentRating: 9.1,
   priceLocked: "₹14,250",
   transitPass: "KSRTC Heritage Daily Pass",
   tx: "CERT-9A82-F41C",
@@ -409,6 +431,39 @@ export default function AccountPage() {
   } | null>(null);
   const [isOfflineModalOpen, setIsOfflineModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // AI Concierge Feedback & Reviews Modal State
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackModalData, setFeedbackModalData] = useState<{
+    agentName: string;
+    agentRating: number;
+    agentTrustScore: number;
+    agentRole: string;
+    itineraryTitle: string;
+  }>({
+    agentName: "Touristमित्र Heritage & Travel Concierge",
+    agentRating: 9.8,
+    agentTrustScore: 99.8,
+    agentRole: "All-India Municipal Fair Tariff & Verified Protection",
+    itineraryTitle: "Curated Cultural Itinerary",
+  });
+
+  const handleOpenFeedbackModal = (
+    agentName: string,
+    rating?: number,
+    trustScore?: number,
+    role?: string,
+    tripTitle?: string
+  ) => {
+    setFeedbackModalData({
+      agentName: agentName || "Touristमित्र Heritage & Travel Concierge",
+      agentRating: rating || getAgentRating(agentName),
+      agentTrustScore: trustScore || 99.2,
+      agentRole: role || "Autonomous Travel Concierge",
+      itineraryTitle: tripTitle || "Curated Cultural Itinerary",
+    });
+    setIsFeedbackModalOpen(true);
+  };
   const [activeAgentId, setActiveAgentId] = useState<string>("touristmitra");
   const [agentsList, setAgentsList] = useState<ConciergeAgentMeta[]>(REAL_CONCIERGE_AGENTS);
   const [refreshingAgents, setRefreshingAgents] = useState(false);
@@ -1155,6 +1210,9 @@ export default function AccountPage() {
                               <ShieldCheck size={11} />
                               ★ {agreement.agentTrustScore || 99.4}% SEAL
                             </span>
+                            <span className="agreement-rating-pill">
+                              ★ {agreement.agentRating || getAgentRating(agreement.agentName)} / 10
+                            </span>
                           </div>
                           <div className="agreement-agent-line-2">
                             <span>{agreement.agentRole || "Heritage Itineraries & Price Protection"}</span>
@@ -1168,6 +1226,34 @@ export default function AccountPage() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Verified Traveler Review Snippet (Feedback Preview) */}
+                      {(() => {
+                        const topReview = getTopAgentReview(agreement.agentName);
+                        return (
+                          <div className="agreement-review-snippet">
+                            <div className="review-snippet-header">
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span className="review-author-rating">★ {topReview.rating.toFixed(1)} / 10</span>
+                                <span className="review-author-name">{topReview.author}</span>
+                                <span className="review-verified-badge">✓ Verified Review</span>
+                              </div>
+                              {topReview.highlightTag && (
+                                <span
+                                  style={{
+                                    fontSize: "0.68rem",
+                                    fontWeight: 700,
+                                    color: topReview.rating >= 9.0 ? "#2D5A43" : "#B45309",
+                                  }}
+                                >
+                                  {topReview.highlightTag}
+                                </span>
+                              )}
+                            </div>
+                            <p className="review-quote-text">&ldquo;{topReview.quote}&rdquo;</p>
+                          </div>
+                        );
+                      })()}
 
                       {/* Price Lock & Transit Pass Grid */}
                       <div className="agreement-guarantees-grid">
@@ -1226,6 +1312,24 @@ export default function AccountPage() {
                         )}
 
                         <div className="agreement-actions-right">
+                          <button
+                            type="button"
+                            className="btn-agreement-feedback"
+                            onClick={() =>
+                              handleOpenFeedbackModal(
+                                agreement.agentName,
+                                agreement.agentRating || getAgentRating(agreement.agentName),
+                                agreement.agentTrustScore || 99.4,
+                                agreement.agentRole,
+                                agreement.dest
+                              )
+                            }
+                            title="Rate this Concierge & read verified traveler reviews"
+                          >
+                            <Star size={12} fill="#AD8958" />
+                            <span>Feedback ({getAgentReviews(agreement.agentName).length})</span>
+                          </button>
+
                           <button
                             type="button"
                             className={`btn-offline-save ${downloadedAgreementId === agreement.id ? "downloaded" : ""}`}
@@ -1370,10 +1474,37 @@ export default function AccountPage() {
                   <div className="agent-item-meta-row">
                     <span><strong>Trips Verified:</strong> {agent.tripsVerified.toLocaleString()}</span>
                     <span>•</span>
-                    <span><strong>Score:</strong> {agent.rating} / 5.0</span>
+                    <span><strong>Score:</strong> {agent.rating} / 10</span>
                     <span>•</span>
                     <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
                   </div>
+
+                  {/* Top Traveler Review Snippet for Agent */}
+                  {(() => {
+                    const topRev = getTopAgentReview(agent.name);
+                    return (
+                      <div className="agreement-review-snippet" style={{ margin: "8px 0", background: "rgba(255, 255, 255, 0.95)" }}>
+                        <div className="review-snippet-header">
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span className="review-author-rating">★ {topRev.rating.toFixed(1)} / 10</span>
+                            <span className="review-author-name">{topRev.author}</span>
+                          </div>
+                          {topRev.highlightTag && (
+                            <span
+                              style={{
+                                fontSize: "0.68rem",
+                                fontWeight: 700,
+                                color: topRev.rating >= 9.0 ? "#2D5A43" : "#B45309",
+                              }}
+                            >
+                              {topRev.highlightTag}
+                            </span>
+                          )}
+                        </div>
+                        <p className="review-quote-text">&ldquo;{topRev.quote}&rdquo;</p>
+                      </div>
+                    );
+                  })()}
 
                   <div className="agent-item-actions-row">
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.74rem" }}>
@@ -1404,20 +1535,41 @@ export default function AccountPage() {
                       </a>
                     </div>
 
-                    <button
-                      type="button"
-                      className={`btn-set-active-agent ${isActive ? "active" : ""}`}
-                      onClick={() => handleSetActiveAgent(agent)}
-                    >
-                      {isActive ? (
-                        <>
-                          <Check size={12} />
-                          <span>Active Concierge</span>
-                        </>
-                      ) : (
-                        <span>Set as Active</span>
-                      )}
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        type="button"
+                        className="btn-agreement-feedback"
+                        style={{ padding: "5px 12px", fontSize: "0.72rem" }}
+                        onClick={() =>
+                          handleOpenFeedbackModal(
+                            agent.name,
+                            agent.rating,
+                            agent.trustScore,
+                            agent.role,
+                            agent.lastUsedItinerary
+                          )
+                        }
+                        title="Read & Submit Traveler Reviews"
+                      >
+                        <MessageSquare size={11} />
+                        <span>Reviews ({getAgentReviews(agent.name).length})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn-set-active-agent ${isActive ? "active" : ""}`}
+                        onClick={() => handleSetActiveAgent(agent)}
+                      >
+                        {isActive ? (
+                          <>
+                            <Check size={12} />
+                            <span>Active Concierge</span>
+                          </>
+                        ) : (
+                          <span>Set as Active</span>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -1709,6 +1861,17 @@ export default function AccountPage() {
           certificateId={offlineModalData.certId}
         />
       )}
+
+      {/* ── AI Concierge Feedback & Traveler Reviews Modal ── */}
+      <AgentFeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        agentName={feedbackModalData.agentName}
+        agentRating={feedbackModalData.agentRating}
+        agentTrustScore={feedbackModalData.agentTrustScore}
+        agentRole={feedbackModalData.agentRole}
+        itineraryTitle={feedbackModalData.itineraryTitle}
+      />
 
       {/* ── Delete Confirmation Modal ── */}
       {showDeleteModal && (

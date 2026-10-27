@@ -16,7 +16,7 @@ const CURATED_TOURISM_AGENTS = [
       trustScore: 99.8,
       totalTripsVerified: 1420,
       feedbackCount: 384,
-      rating: 4.98,
+      rating: 9.8,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP" },
@@ -42,7 +42,7 @@ const CURATED_TOURISM_AGENTS = [
       trustScore: 98.0,
       totalTripsVerified: 980,
       feedbackCount: 215,
-      rating: 4.87,
+      rating: 8.9,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ" },
@@ -66,7 +66,7 @@ const CURATED_TOURISM_AGENTS = [
       trustScore: 98.6,
       totalTripsVerified: 1240,
       feedbackCount: 190,
-      rating: 4.91,
+      rating: 9.1,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A" },
@@ -90,7 +90,7 @@ const CURATED_TOURISM_AGENTS = [
       trustScore: 99.2,
       totalTripsVerified: 1105,
       feedbackCount: 260,
-      rating: 4.95,
+      rating: 9.5,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP" },
