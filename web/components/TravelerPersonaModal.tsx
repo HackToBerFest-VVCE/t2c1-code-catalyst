@@ -62,18 +62,18 @@ export default function TravelerPersonaModal({
           </button>
         )}
 
-        {/* ══ STEP 1: Two Clean Side-by-Side Cards (No Logo, No Long Text) ══ */}
+        {/* ══ STEP 1: Two Clean Side-by-Side Cards (Circular Logos, Clean & Concise) ══ */}
         {step === "persona" && (
           <div className="persona-step-wrap">
-            {/* Clean Header: New Brand Name YatraSetu without logo, No long welcome text */}
+            {/* Clean Header: Namaskara Welcome */}
             <div className="persona-header">
               <div className="persona-badge">
                 <ShieldCheck size={13} color="var(--color-brunello)" />
-                <span>YatraSetu · Travel Protection</span>
+                <span>🙏 Namaskara · Welcome to YatraSetu</span>
               </div>
-              <h2 className="persona-title">Select Traveler Category</h2>
+              <h2 className="persona-title">Namaskara · Welcome</h2>
               <p className="persona-sub">
-                Choose your traveler persona to customize transit passes, fare cards, and itinerary guidance.
+                Select your traveler category to customize transit passes, fare cards, and itinerary guidance.
               </p>
             </div>
 
@@ -86,17 +86,14 @@ export default function TravelerPersonaModal({
                 role="button"
                 tabIndex={0}
               >
-                <div className="persona-card-icon-wrap indian">
-                  <span className="persona-card-flag-emoji">🇮🇳</span>
+                <div className="persona-card-icon-wrap indian" title="Indian Citizen">
+                  <span style={{ fontSize: 18, fontWeight: 800, color: "var(--color-notte)", letterSpacing: "0.04em", fontFamily: "var(--font-jost)" }}>IN</span>
                 </div>
                 <div className="persona-card-content">
-                  <div className="persona-card-title-row">
+                  <div className="persona-card-title-row" style={{ marginBottom: 16 }}>
                     <h3 className="persona-card-title">Indian Citizen</h3>
                     <span className="persona-tag-pill green">Domestic</span>
                   </div>
-                  <p className="persona-card-desc">
-                    Direct access across all Indian states with local commuter transit passes (KSRTC, DMRC, Mumbai Chalo) and fair INR (₹) rates.
-                  </p>
                   <button
                     type="button"
                     className="persona-btn-primary"
@@ -120,17 +117,14 @@ export default function TravelerPersonaModal({
                 role="button"
                 tabIndex={0}
               >
-                <div className="persona-card-icon-wrap foreign">
+                <div className="persona-card-icon-wrap foreign" title="Foreign Traveler">
                   <Globe size={26} color="var(--color-brunello)" />
                 </div>
                 <div className="persona-card-content">
-                  <div className="persona-card-title-row">
+                  <div className="persona-card-title-row" style={{ marginBottom: 16 }}>
                     <h3 className="persona-card-title">Foreign Traveler</h3>
                     <span className="persona-tag-pill yellow">International</span>
                   </div>
-                  <p className="persona-card-desc">
-                    Official Government of India entry guidelines, currency exchange benchmarks, and 24x7 multi-lingual tourist assistance.
-                  </p>
                   <button
                     type="button"
                     className="persona-btn-primary secondary"
@@ -142,29 +136,37 @@ export default function TravelerPersonaModal({
                     <span>Continue as Foreign Traveler</span>
                     <ArrowRight size={14} />
                   </button>
-                </div>
-              </div>
-            </div>
 
-            {/* Optional Instructions & Visa Information Trigger */}
-            <div className="persona-instructions-bar">
-              <div className="persona-instructions-info">
-                <Info size={16} className="persona-info-icon" />
-                <div>
-                  <span className="persona-instructions-title">Need Visa or Entry Instructions?</span>
-                  <span className="persona-instructions-desc">
-                    View official Government photo specifications, eVisa eligibility, and documents checklist.
-                  </span>
+                  {/* Down in Foreign: Specific Visa & Entry Instructions */}
+                  <div
+                    className="foreign-visa-helper-box"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setStep("instructions");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        setStep("instructions");
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="View official foreign visa and entry instructions"
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: 12, color: "var(--color-brunello)" }}>
+                        <Info size={14} />
+                        <span>Need Visa or Entry Instructions?</span>
+                      </div>
+                      <ArrowRight size={13} color="var(--color-brunello)" />
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--color-oliva)", marginTop: 3, lineHeight: 1.35 }}>
+                      Official Gov photo specs (350x350 white bg), eVisa eligibility &amp; documents checklist
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button
-                type="button"
-                className="persona-instructions-btn"
-                onClick={() => setStep("instructions")}
-              >
-                <span>View Instructions</span>
-                <ArrowRight size={14} />
-              </button>
             </div>
           </div>
         )}

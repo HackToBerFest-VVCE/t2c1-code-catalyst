@@ -3511,27 +3511,49 @@ button:hover .btn__arrow {
 }
 
 .persona-card-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(173, 137, 88, 0.15);
   margin-bottom: 14px;
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1.5px solid var(--color-sabbia);
+  box-shadow: 0 3px 10px rgba(30, 51, 49, 0.08);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
 }
 
 .persona-card-icon-wrap.indian {
   background: rgba(234, 153, 56, 0.14);
+  border-color: rgba(234, 153, 56, 0.35);
 }
 
 .persona-card-icon-wrap.foreign {
   background: rgba(101, 39, 51, 0.1);
+  border-color: rgba(101, 39, 51, 0.25);
 }
 
 .persona-card:hover .persona-card-icon-wrap {
-  transform: scale(1.12) rotate(-3deg);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(101, 39, 51, 0.15);
+}
+
+.foreign-visa-helper-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(101, 39, 51, 0.05);
+  border: 1px dashed rgba(101, 39, 51, 0.32);
+  cursor: pointer;
+  transition: all 0.22s ease;
+  text-align: left;
+}
+
+.foreign-visa-helper-box:hover {
+  background: rgba(101, 39, 51, 0.1);
+  border-color: var(--color-brunello);
+  transform: translateY(-1px);
 }
 
 .persona-card-flag-emoji {
