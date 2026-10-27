@@ -4903,7 +4903,35 @@ button:hover .btn__arrow {
   transform: scale(0.97);
 }
 
-.customizer-back-btn,
+.customizer-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg-card, #FAF7F2);
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  color: var(--color-brunello, #652733);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(30, 51, 49, 0.07);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.customizer-back-btn:hover {
+  transform: scale(1.08) translateX(-2px);
+  color: var(--color-notte, #1E3331);
+  border-color: var(--color-ottone, #AD8958);
+  box-shadow: 0 4px 14px rgba(30, 51, 49, 0.12);
+  background: #FFFFFF;
+}
+
+.customizer-back-btn:active {
+  transform: scale(0.92);
+}
+
 .editorial-link-btn {
   display: inline-flex;
   align-items: center;
@@ -4919,13 +4947,11 @@ button:hover .btn__arrow {
               color 0.2s ease;
 }
 
-.customizer-back-btn:hover,
 .editorial-link-btn:hover {
   transform: translateX(-3px);
   color: var(--color-notte);
 }
 
-.customizer-back-btn:active,
 .editorial-link-btn:active {
   transform: scale(0.96);
 }

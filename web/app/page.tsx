@@ -2520,14 +2520,16 @@ export default function Home() {
               {/* Navigation Bar & Solana AI Agent Attestation */}
               <div className="customizer-nav-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
                 <button
+                  type="button"
                   className="customizer-back-btn"
                   onClick={() => {
                     setPlannerCity(null);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
+                  title={t.backToDestinations || "Back to All Destinations"}
+                  aria-label={t.backToDestinations || "Back to All Destinations"}
                 >
-                  <ArrowLeft size={16} />
-                  <span>{t.backToDestinations}</span>
+                  <ArrowLeft size={18} />
                 </button>
 
                 <div style={{
