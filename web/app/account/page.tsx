@@ -1483,17 +1483,9 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  <p className="agent-item-role" style={{ marginTop: 8 }}>
+                  <p className="agent-item-role" style={{ marginTop: 8, marginBottom: 14 }}>
                     {agent.specialty}
                   </p>
-
-                  <div className="agent-item-meta-row">
-                    <span><strong>Trips Verified:</strong> {agent.tripsVerified.toLocaleString()}</span>
-                    <span>•</span>
-                    <span><strong>Score:</strong> {agent.rating} / 10</span>
-                    <span>•</span>
-                    <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
-                  </div>
 
                   {/* Bottom: Only Identity PDA Row (Image 3) */}
                   <div className="agent-item-actions-row">
