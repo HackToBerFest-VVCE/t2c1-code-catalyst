@@ -443,6 +443,7 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>("");
   const [currentTimeStr, setCurrentTimeStr] = useState<string>("");
+  const [liveIndiaTime, setLiveIndiaTime] = useState<string>("");
   const [showTourModal, setShowTourModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedProgramId, setCopiedProgramId] = useState(false);
@@ -657,6 +658,27 @@ export default function AccountPage() {
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [profile.timeZone, profile.timeFormat]);
+
+  // Real-time IST India Clock for Homepage-matching Editorial Footer
+  useEffect(() => {
+    const updateIndiaTime = () => {
+      try {
+        const now = new Date();
+        const formatted = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(now);
+        setLiveIndiaTime(formatted);
+      } catch {
+        setLiveIndiaTime("16:16");
+      }
+    };
+    updateIndiaTime();
+    const timer = setInterval(updateIndiaTime, 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -1883,82 +1905,88 @@ export default function AccountPage() {
           <div className="editorial-prefooter__left scroll-reveal-left">
             <h2 className="editorial-prefooter__title">India, thoughtfully yours.</h2>
             <Link href="/" className="editorial-prefooter__plan-link">
-              <span>EXPLORE ITINERARIES</span>
+              <Sparkles size={16} color="var(--color-ottone)" style={{ marginRight: 6 }} />
+              <span>PLAN YOUR JOURNEY</span>
               <span className="editorial-plan-arrow">→</span>
             </Link>
 
             <div className="editorial-prefooter__cols">
-              {/* Column 1: PLATFORM */}
+              {/* Column 1: EXPLORE */}
               <div className="editorial-nav-col">
-                <span className="editorial-col-heading">PLATFORM</span>
+                <span className="editorial-col-heading">EXPLORE</span>
                 <ul className="editorial-col-list">
                   <li>
                     <Link href="/" className="editorial-link-btn">
-                      Itinerary Planner
+                      Discovery
                     </Link>
                   </li>
                   <li>
-                    <Link href="/?tab=fairPrice" className="editorial-link-btn">
+                    <Link href="/?tab=agents" className="editorial-link-btn">
+                      AI Concierges
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/?tab=price" className="editorial-link-btn">
                       Fair Price Checker
                     </Link>
                   </li>
                   <li>
                     <Link href="/?tab=safety" className="editorial-link-btn">
-                      Tourist Shield
+                      Travel Safety Hub
                     </Link>
                   </li>
                   <li>
-                    <Link href="/?tab=agents" className="editorial-link-btn">
-                      Solana Concierges
+                    <Link href="/?tab=records" className="editorial-link-btn">
+                      Certified Records
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/account" className="editorial-link-btn active">
+                      Account Details
                     </Link>
                   </li>
                 </ul>
               </div>
 
-              {/* Column 2: ACCOUNT */}
+              {/* Column 2: FOLLOW */}
               <div className="editorial-nav-col">
-                <span className="editorial-col-heading">ACCOUNT HUB</span>
+                <span className="editorial-col-heading">FOLLOW</span>
                 <ul className="editorial-col-list">
                   <li>
-                    <span className="editorial-link-btn active">
-                      Personal Preferences
-                    </span>
-                  </li>
-                  <li>
-                    <span className="editorial-link-btn active">
-                      Travel Agreements ({savedAgreements.length})
-                    </span>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
+                    <a
+                      href="https://instagram.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="editorial-link-btn"
-                      onClick={handleDownloadAllOffline}
                     >
-                      Offline Remote Passes
-                    </button>
+                      Instagram
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="editorial-link-btn"
+                    >
+                      Facebook
+                    </a>
                   </li>
                 </ul>
               </div>
 
-              {/* Column 3: CONCIERGES */}
+              {/* Column 3: LANGUAGE */}
               <div className="editorial-nav-col">
-                <span className="editorial-col-heading">CONCIERGES</span>
+                <span className="editorial-col-heading">LANGUAGE</span>
                 <ul className="editorial-col-list">
                   <li>
-                    <span className="editorial-link-btn">
-                      Arjun · Heritage Guide
-                    </span>
+                    <span className="editorial-link-btn active">English</span>
                   </li>
                   <li>
-                    <span className="editorial-link-btn">
-                      Touristमित्र · Municipal
-                    </span>
+                    <span className="editorial-link-btn">हिन्दी (Hindi)</span>
                   </li>
                   <li>
-                    <span className="editorial-link-btn">
-                      Kavya · Safe Transit
-                    </span>
+                    <span className="editorial-link-btn">ಕನ್ನಡ (Kannada)</span>
                   </li>
                 </ul>
               </div>
@@ -1976,16 +2004,18 @@ export default function AccountPage() {
         </div>
       </section>
 
-      {/* ── Minimal Editorial Footer Bar ── */}
-      <footer className="minimal-editorial-footer" role="contentinfo">
-        <div className="footer-single-bar-container">
-          <div className="footer-status-pill">
-            <span className="status-dot-live" />
-            <span className="status-label">Now in India</span>
-            <span className="status-time">[{currentTimeStr || "Live IST"}]</span>
+      {/* ══ MINIMAL EDITORIAL FOOTER BAR (MATCHING HOMEPAGE) ══ */}
+      <footer className="editorial-footer-bar" role="contentinfo">
+        <div className="editorial-footer-inner">
+          <div className="editorial-footer-left">
+            <span className="editorial-footer-dot">•</span>
+            <span className="editorial-footer-label">Now in India</span>
+            <span className="editorial-footer-time">{liveIndiaTime || "16:16"}</span>
+            <span className="editorial-footer-sep">·</span>
+            <span className="editorial-footer-motto">Shubh Yatra (शुभ यात्रा)</span>
           </div>
-          <div className="footer-copy-text">
-            Shubh Yatra (शुभ यात्रा) © 2026 YatraSetu · Certified on Solana Devnet · All rights reserved.
+          <div className="editorial-footer-right">
+            © {new Date().getFullYear()} YatraSetu · Certified on Solana Devnet · All rights reserved.
           </div>
         </div>
       </footer>
