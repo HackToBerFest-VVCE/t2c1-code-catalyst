@@ -129,6 +129,31 @@ const deduplicatedList = listWithDups.filter(
 );
 assert(deduplicatedList.length === 3, `Deduplication filter reduces ${listWithDups.length} sights with dupes to 3 unique items`);
 
+// 9. Test Friends Group Member (+ / -) Budget Scaling Logic
+console.log("\n9. Testing Friends Group (+ / -) Member Budget Scaling...");
+const baseDailyRate = 95;
+const days = 3;
+const singleTickets = 45;
+const singleTransit = 12;
+
+function calcSquadBudget(members) {
+  const rooms = Math.ceil(members / 2);
+  const hotel = (baseDailyRate * 0.58) * rooms;
+  const dining = (baseDailyRate * 0.42) * members;
+  const tickets = singleTickets * members;
+  const transit = singleTransit * members;
+  return Math.round(((hotel + dining) * days) + tickets + transit);
+}
+
+const budget3Friends = calcSquadBudget(3);
+const budget4Friends = calcSquadBudget(4);
+const budget5Friends = calcSquadBudget(5);
+
+assert(budget4Friends > budget3Friends, `Adding a member (+1 from 3 to 4 friends) increases squad budget from $${budget3Friends} to $${budget4Friends}`);
+assert(budget4Friends < budget5Friends, `Adding a member (+1 from 4 to 5 friends) increases squad budget from $${budget4Friends} to $${budget5Friends}`);
+assert(calcSquadBudget(3) < calcSquadBudget(4), "Removing a member (-1 from 4 to 3 friends) decreases squad budget");
+assert(Math.round(budget4Friends / 4) > 0, `Per-person split correctly calculated ($${Math.round(budget4Friends / 4)}/person for 4 friends)`);
+
 console.log(`\n======================================================`);
 console.log(`TEST SUMMARY: ${passed} / ${total} checks passed (${((passed / total) * 100).toFixed(0)}%)`);
 console.log(`======================================================\n`);

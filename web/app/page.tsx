@@ -849,6 +849,7 @@ export default function Home() {
   const [crowdTolerance, setCrowdTolerance] = useState<"tranquil" | "vibrant" | "balanced">("balanced");
   const [travelPace, setTravelPace] = useState<"leisurely" | "explorer">("explorer");
   const [travelParty, setTravelParty] = useState<"solo" | "couple" | "family" | "friends">("couple");
+  const [friendsCount, setFriendsCount] = useState<number>(4);
   const [generatedPlan, setGeneratedPlan] = useState<any | null>(null);
   const [customCommitTx, setCustomCommitTx] = useState<string | null>(null);
   const [customCommitLoading, setCustomCommitLoading] = useState(false);
@@ -998,10 +999,12 @@ export default function Home() {
   const calculateBudgetForSelection = useCallback((
     city: CuratedCity | null,
     selectedIds: string[],
-    tier: "budget" | "comfort" | "luxury" = "comfort",
+    tier: "budget" | "comfort" | "luxury" = budgetTier,
     targetCur: string = selectedCurrency,
     pace: "leisurely" | "explorer" = travelPace,
-    agentOverride?: any
+    agentOverride?: any,
+    partyOverride?: "solo" | "couple" | "family" | "friends",
+    friendsCountOverride?: number
   ): number => {
     if (!city) return 650;
     const uniqueIds = Array.from(new Set(selectedIds));
@@ -1009,17 +1012,32 @@ export default function Home() {
     const spotsPerDay = pace === "leisurely" ? 2 : 3;
     const computedDays = Math.max(1, Math.ceil(count / spotsPerDay));
 
-    // Sum actual tickets for the chosen sights (deduplicated by name)
+    const effectiveParty = partyOverride || travelParty;
+    const effectiveFriends = typeof friendsCountOverride === "number" ? friendsCountOverride : friendsCount;
+    const members = effectiveParty === "solo" ? 1
+      : effectiveParty === "couple" ? 2
+      : effectiveParty === "family" ? 4
+      : Math.max(1, effectiveFriends);
+
+    // Sum actual tickets for the chosen sights (deduplicated by name) per person
     const selectedListRaw = city.attractions.filter(a => uniqueIds.includes(a.id));
     const selectedList = selectedListRaw.filter(
       (a, idx, self) => idx === self.findIndex(x => x.name.trim().toLowerCase() === a.name.trim().toLowerCase())
     );
-    const totalTicketsUSD = selectedList.reduce((sum, a) => sum + (a.costUSD || 15), 0);
-    const transitUSD = (city.transit?.passPriceUSD || 4) * computedDays;
+    const singleTicketsUSD = selectedList.reduce((sum, a) => sum + (a.costUSD || 15), 0);
+    const totalTicketsUSD = singleTicketsUSD * members;
 
-    // Daily hotel + food rate by selected tier
+    // Public transit passes: 1 pass per member for the trip duration
+    const transitUSD = (city.transit?.passPriceUSD || 4) * computedDays * members;
+
+    // Daily hotel + food rate by selected tier:
+    // Stays & rooms: shared double/twin rooms = Math.ceil(members / 2)
+    // Dining: per member
     const dailyRateUSD = tier === "budget" ? 35 : tier === "luxury" ? 240 : 95;
-    const baseTotalUSD = (dailyRateUSD * computedDays) + totalTicketsUSD + transitUSD;
+    const roomsCount = Math.max(1, Math.ceil(members / 2));
+    const dailyHotelUSD = (dailyRateUSD * 0.58) * roomsCount;
+    const dailyDiningUSD = (dailyRateUSD * 0.42) * members;
+    const baseTotalUSD = ((dailyHotelUSD + dailyDiningUSD) * computedDays) + totalTicketsUSD + transitUSD;
 
     // AI Concierge Trust Score Discount / Municipal Benchmark Optimization:
     // Higher trust score = lower price. Subtle yet noticeable difference on every agent change.
@@ -1032,7 +1050,7 @@ export default function Home() {
     const totalUSD = Math.round(baseTotalUSD * discountMultiplier);
 
     return convertAmount(totalUSD, targetCur);
-  }, [convertAmount, selectedCurrency, travelPace, selectedAgent]);
+  }, [convertAmount, selectedCurrency, travelPace, selectedAgent, travelParty, friendsCount, budgetTier]);
 
   const handleCurrencyChange = (newCur: string) => {
     setSelectedCurrency(newCur);
@@ -1053,6 +1071,45 @@ export default function Home() {
     setTravelPace(newPace);
     if (plannerCity) {
       const scaled = calculateBudgetForSelection(plannerCity, selectedAttractionIds, budgetTier, selectedCurrency, newPace);
+      setBudgetAmount(scaled);
+      setBudget(scaled);
+    }
+  };
+
+  // Handle trip party changes & recalculate budget
+  const handleTravelPartyChange = (party: "solo" | "couple" | "family" | "friends") => {
+    setTravelParty(party);
+    if (plannerCity) {
+      const scaled = calculateBudgetForSelection(
+        plannerCity,
+        selectedAttractionIds,
+        budgetTier,
+        selectedCurrency,
+        travelPace,
+        undefined,
+        party,
+        friendsCount
+      );
+      setBudgetAmount(scaled);
+      setBudget(scaled);
+    }
+  };
+
+  // Handle increasing/decreasing number of friends (+ / -) & dynamic budget scaling
+  const handleFriendsCountChange = (newCount: number) => {
+    const clamped = Math.max(2, Math.min(20, newCount));
+    setFriendsCount(clamped);
+    if (plannerCity) {
+      const scaled = calculateBudgetForSelection(
+        plannerCity,
+        selectedAttractionIds,
+        budgetTier,
+        selectedCurrency,
+        travelPace,
+        undefined,
+        "friends",
+        clamped
+      );
       setBudgetAmount(scaled);
       setBudget(scaled);
     }
@@ -1362,8 +1419,14 @@ export default function Home() {
       });
     }
 
-    const totalAttractionsUSD = activeAttractions.reduce((sum, a) => sum + a.costUSD, 0);
-    const transitTotalUSD = plannerCity.transit.passPriceUSD * numDays;
+    const members = travelParty === "solo" ? 1
+      : travelParty === "couple" ? 2
+      : travelParty === "family" ? 4
+      : Math.max(1, friendsCount);
+
+    const singleAttractionsUSD = activeAttractions.reduce((sum, a) => sum + a.costUSD, 0);
+    const totalAttractionsUSD = singleAttractionsUSD * members;
+    const transitTotalUSD = plannerCity.transit.passPriceUSD * numDays * members;
     const targetBudgetUSD = getBudgetInUSD(currentBudget, selectedCurrency);
     const diningStayUSD = Math.max(0, targetBudgetUSD - totalAttractionsUSD - transitTotalUSD);
 
@@ -1375,6 +1438,9 @@ export default function Home() {
       pace: effectivePace,
       crowd: crowdTolerance,
       party: travelParty,
+      partyMembers: members,
+      partyLabel: travelParty === "friends" ? `${members} Friends Group` : travelParty === "couple" ? "Couple / Romantic (2 Travelers)" : travelParty === "family" ? `${members} Family Members` : "Solo Explorer",
+      perPersonBudget: Math.round(currentBudget / members),
       currency: selectedCurrency,
       totalBudget: currentBudget,
       totalBudgetUSD: targetBudgetUSD,
@@ -3313,24 +3379,120 @@ export default function Home() {
 
                   {/* Travel Party */}
                   <div className="field-label" style={{ marginBottom: 12 }}>Who is traveling?</div>
-                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: travelParty === "friends" ? 16 : 32 }}>
                     {[
                       { id: "solo", label: "Solo Explorer", icon: <Users size={16} /> },
                       { id: "couple", label: "Couple / Romantic", icon: <Heart size={16} color="#FF7B72" /> },
                       { id: "family", label: "Family with Kids", icon: <Users size={16} /> },
-                      { id: "friends", label: "Friends Group", icon: <Users size={16} /> },
+                      { id: "friends", label: travelParty === "friends" ? `Friends Group (${friendsCount})` : "Friends Group", icon: <Users size={16} /> },
                     ].map(p => (
                       <button
                         key={p.id}
+                        type="button"
                         className={`pill-btn ${travelParty === p.id ? "active" : ""}`}
                         style={{ padding: "10px 20px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
-                        onClick={() => setTravelParty(p.id as any)}
+                        onClick={() => handleTravelPartyChange(p.id as any)}
                       >
                         <span>{p.icon}</span>
                         <span>{p.label}</span>
                       </button>
                     ))}
                   </div>
+
+                  {/* Friends Group Member Stepper Control (+ / -) */}
+                  {travelParty === "friends" && (
+                    <div
+                      className="party-members-counter-box"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 16,
+                        background: "var(--color-bg-card, #FAF7F2)",
+                        border: "1px solid var(--color-sabbia, #E2D9CC)",
+                        borderRadius: 14,
+                        padding: "16px 20px",
+                        marginBottom: 32,
+                        boxShadow: "0 2px 8px rgba(30, 51, 49, 0.05)",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--color-notte, #1E3331)", display: "flex", alignItems: "center", gap: 8 }}>
+                          <Users size={17} color="var(--color-brunello, #652733)" />
+                          <span>Number of Friends Traveling: <strong style={{ color: "var(--color-brunello, #652733)", fontSize: 15 }}>{friendsCount}</strong></span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--color-oliva, #5E6660)", marginTop: 3 }}>
+                          Use <strong>+</strong> or <strong>−</strong> to add or remove members · Auto-scales tickets, transit passes &amp; shared rooms
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                        {/* Stepper Buttons */}
+                        <div style={{ display: "inline-flex", alignItems: "center", background: "#FFFFFF", border: "1px solid var(--color-sabbia, #E2D9CC)", borderRadius: 12, padding: "4px 8px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                          <button
+                            type="button"
+                            onClick={() => handleFriendsCountChange(friendsCount - 1)}
+                            disabled={friendsCount <= 2}
+                            aria-label="Remove a member"
+                            title="Remove a friend"
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 8,
+                              border: "none",
+                              background: friendsCount <= 2 ? "rgba(0,0,0,0.04)" : "rgba(101, 39, 51, 0.08)",
+                              color: friendsCount <= 2 ? "#BBB" : "var(--color-brunello, #652733)",
+                              cursor: friendsCount <= 2 ? "not-allowed" : "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <Minus size={16} />
+                          </button>
+
+                          <div style={{ minWidth: 95, textAlign: "center", fontWeight: 700, fontSize: 15, color: "var(--color-notte, #1E3331)", fontFamily: "var(--font-jost)" }}>
+                            {friendsCount} Friends
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleFriendsCountChange(friendsCount + 1)}
+                            disabled={friendsCount >= 20}
+                            aria-label="Add a member"
+                            title="Add a friend"
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 8,
+                              border: "none",
+                              background: friendsCount >= 20 ? "rgba(0,0,0,0.04)" : "var(--color-brunello, #652733)",
+                              color: friendsCount >= 20 ? "#BBB" : "#FFFFFF",
+                              cursor: friendsCount >= 20 ? "not-allowed" : "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+
+                        {/* Split Price Display */}
+                        <div style={{ textAlign: "right", borderLeft: "1px solid var(--color-sabbia, #E2D9CC)", paddingLeft: 16 }}>
+                          <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.06em" }}>Per Person Share</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-brunello, #652733)" }}>
+                            ~{selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : ""}{Math.round(budgetAmount / friendsCount).toLocaleString()} {selectedCurrency}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="wizard-footer-nav">
                     <button
@@ -3471,13 +3633,24 @@ export default function Home() {
 
                     {/* Summary Bar */}
                     <div style={{
-                      display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                      display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
                       gap: 16, background: "var(--color-bg-card, #FAF7F2)", border: "1px solid var(--color-sabbia, #E2D9CC)",
                       borderRadius: 14, padding: "18px 22px", marginBottom: 28, boxShadow: "var(--shadow-subtle)",
                     }}>
                       <div>
                         <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Duration</div>
                         <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-notte)" }}>{generatedPlan.numDays} Days</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Party / Squad</div>
+                        <div style={{ fontFamily: "var(--font-mollie)", fontSize: "1.35rem", fontWeight: 600, color: "var(--color-notte)" }}>
+                          {generatedPlan.partyMembers > 1 ? `${generatedPlan.partyMembers} Members` : "Solo"}
+                        </div>
+                        {generatedPlan.partyMembers > 1 && (
+                          <div style={{ fontSize: 12, color: "var(--color-brunello, #652733)", fontWeight: 700, marginTop: 2 }}>
+                            ~{generatedPlan.currency === "INR" ? "₹" : generatedPlan.currency === "USD" ? "$" : ""}{generatedPlan.perPersonBudget?.toLocaleString()} / person
+                          </div>
+                        )}
                       </div>
                       <div>
                         <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.08em" }}>Pace &amp; Crowd</div>
@@ -3570,25 +3743,32 @@ export default function Home() {
                       <div className="field-label" style={{ marginBottom: 16 }}>Curated Budget Breakdown</div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 14 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
-                          <span style={{ color: "var(--gray-light)" }}>Sightseeing Admissions & Tickets</span>
+                          <span style={{ color: "var(--gray-light)" }}>Sightseeing Admissions &amp; Tickets {generatedPlan.partyMembers > 1 ? `(${generatedPlan.partyMembers} tickets/sight)` : ""}</span>
                           <span style={{ fontWeight: 700 }}>
                             {generatedPlan.costs.attractions.toLocaleString()} {generatedPlan.currency}
                           </span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
-                          <span style={{ color: "var(--gray-light)" }}>Public Transit Pass ({generatedPlan.transitPass.slice(0, 32)})</span>
+                          <span style={{ color: "var(--gray-light)" }}>Public Transit Pass ({generatedPlan.transitPass.slice(0, 28)}{generatedPlan.partyMembers > 1 ? ` × ${generatedPlan.partyMembers}` : ""})</span>
                           <span style={{ fontWeight: 700 }}>
                             {generatedPlan.costs.transit.toLocaleString()} {generatedPlan.currency}
                           </span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8 }}>
-                          <span style={{ color: "var(--gray-light)" }}>Estimated Stays & Local Dining</span>
+                          <span style={{ color: "var(--gray-light)" }}>Estimated Stays &amp; Local Dining {generatedPlan.partyMembers > 1 ? `(${Math.ceil(generatedPlan.partyMembers / 2)} rooms + ${generatedPlan.partyMembers} meals)` : ""}</span>
                           <span style={{ fontWeight: 700 }}>
                             {generatedPlan.costs.diningStay.toLocaleString()} {generatedPlan.currency}
                           </span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, fontSize: 16, fontWeight: 800, color: "var(--yellow)" }}>
-                          <span>Total Target Plan</span>
+                          <div>
+                            <div>Total Target Plan</div>
+                            {generatedPlan.partyMembers > 1 && (
+                              <div style={{ fontSize: 12, fontWeight: 600, color: "#E2D9CC", opacity: 0.85, marginTop: 2 }}>
+                                ~{generatedPlan.currency === "INR" ? "₹" : generatedPlan.currency === "USD" ? "$" : ""}{generatedPlan.perPersonBudget?.toLocaleString()} {generatedPlan.currency} per person
+                              </div>
+                            )}
+                          </div>
                           <span>
                             {generatedPlan.totalBudget.toLocaleString()} {generatedPlan.currency} (≈ ◎ {generatedPlan.totalBudgetSOL} SOL)
                           </span>
