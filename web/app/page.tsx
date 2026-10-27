@@ -3989,6 +3989,7 @@ export default function Home() {
                         }
                       }}
                     >
+                      <Sparkles size={16} color="var(--color-ottone-light)" />
                       <span>Plan your journey</span>
                       <span className="btn__arrow">→</span>
                     </button>
@@ -5941,6 +5942,7 @@ export default function Home() {
                 }, 60);
               }}
             >
+              <Sparkles size={16} color="var(--color-ottone)" style={{ marginRight: 6 }} />
               <span>PLAN YOUR JOURNEY</span>
               <span className="editorial-plan-arrow">→</span>
             </button>
