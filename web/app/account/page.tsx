@@ -28,8 +28,18 @@ import {
   BadgeCheck,
   FileText,
   Bot,
+  Download,
+  WifiOff,
+  Printer,
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
+import { OfflineRemoteModal } from "../../components/OfflineRemoteModal";
+import {
+  downloadOfflinePassFile,
+  printOfflinePass,
+  type ItineraryPlan,
+  type ItineraryDay,
+} from "../../lib/offline-pass-generator";
 
 // Client-only dynamic import of WalletMultiButton to prevent Next.js SSR hydration mismatches
 const WalletMultiButton = dynamic(
@@ -72,6 +82,143 @@ export interface TravelAgreementRecord {
   date: string;
   time: string;
   status: string;
+  plan?: ItineraryPlan;
+}
+
+function buildPlanFromAgreement(
+  agreement: TravelAgreementRecord,
+  travelerCountry: string = "India"
+): ItineraryPlan {
+  if (agreement.plan && agreement.plan.days && agreement.plan.days.length > 0) {
+    return {
+      ...agreement.plan,
+      certificateId: agreement.tx || agreement.plan.certificateId,
+      transitPass: agreement.transitPass || agreement.plan.transitPass,
+      country: travelerCountry,
+    };
+  }
+
+  const rawNum = parseInt(agreement.priceLocked.replace(/[^0-9]/g, ""), 10);
+  const totalBudget = isNaN(rawNum) || rawNum === 0 ? 14250 : rawNum;
+  const attractionsCost = Math.round(totalBudget * 0.35);
+  const transitCost = Math.round(totalBudget * 0.15);
+  const diningStayCost = totalBudget - attractionsCost - transitCost;
+
+  const cityName = agreement.cityName || "India Destination";
+  const numDays = agreement.dest.includes("5D")
+    ? 5
+    : agreement.dest.includes("3D")
+    ? 3
+    : 3;
+
+  const days: ItineraryDay[] = [
+    {
+      dayNumber: 1,
+      theme: `${cityName} Heritage Foundations & Royal Architecture`,
+      stops: [
+        {
+          time: "08:30 AM",
+          name: agreement.dest.replace(/\s*\(\d+D\)/i, ""),
+          category: "Monument & Heritage Site",
+          duration: "2.5 hours",
+          tip: `Official admission verified under ${agreement.agentName}. Present certificate ${agreement.tx} for expedited entry.`,
+          costDisplay: "Included in Pass (₹450 value)",
+          transitHop: agreement.transitPass,
+        },
+        {
+          time: "01:00 PM",
+          name: `Authentic ${cityName} Traditional Dining`,
+          category: "Certified Culinary",
+          duration: "1.5 hours",
+          tip: "Fixed-price fair tariff certified dining. No unexpected service markups.",
+          costDisplay: "₹450 - ₹750 per person",
+        },
+        {
+          time: "03:30 PM",
+          name: `Historic Artisan Bazaar & Cultural Promenade`,
+          category: "Artisans & Handicrafts",
+          duration: "2 hours",
+          tip: "Govt-recognized cooperative stalls with fixed standard pricing.",
+          costDisplay: "Free Entry",
+          transitHop: `${agreement.transitPass} connection`,
+        },
+      ],
+    },
+    {
+      dayNumber: 2,
+      theme: `${cityName} Sacred Shrines & Sunset Panoramic Overlooks`,
+      stops: [
+        {
+          time: "09:00 AM",
+          name: `${cityName} Sacred Shrines & Temple Precincts`,
+          category: "Cultural Heritage",
+          duration: "2 hours",
+          tip: "Early morning darshan with queue assistance. Modest attire requested.",
+          costDisplay: "Special Darshan Pass Included",
+          transitHop: agreement.transitPass,
+        },
+        {
+          time: "02:00 PM",
+          name: `${cityName} Regional Museum & Royal Gardens`,
+          category: "Botanical & Royal History",
+          duration: "2.5 hours",
+          tip: "Protected green corridor with tranquil shaded walking trails.",
+          costDisplay: "₹150 (Included)",
+        },
+        {
+          time: "05:30 PM",
+          name: `${cityName} Panoramic Sunset Viewpoint`,
+          category: "Scenic Nature",
+          duration: "1.5 hours",
+          tip: "Optimal viewpoint for photography as golden hour illuminates the valley.",
+          costDisplay: "Open Scenic Area",
+        },
+      ],
+    },
+    {
+      dayNumber: 3,
+      theme: `${cityName} Living Traditions, Craft Villages & Departure Prep`,
+      stops: [
+        {
+          time: "09:30 AM",
+          name: `Regional Heritage Craft Workshop`,
+          category: "Living Traditions",
+          duration: "2 hours",
+          tip: "Direct engagement with master artisans with anti-commission seal.",
+          costDisplay: "Workshop Entry Included",
+          transitHop: agreement.transitPass,
+        },
+        {
+          time: "01:30 PM",
+          name: "Farewell Thali & Certified Spice Merchants",
+          category: "Culinary & Souvenirs",
+          duration: "2 hours",
+          tip: "Certified pure spices sealed with municipal quality mark.",
+          costDisplay: "₹600 - ₹900",
+        },
+      ],
+    },
+  ];
+
+  return {
+    city: cityName,
+    numDays,
+    totalBudget,
+    currency: "INR",
+    totalBudgetSOL: ((totalBudget / 15000) * 0.95).toFixed(2),
+    crowd: "balanced",
+    pace: "explorer",
+    days,
+    costs: {
+      attractions: attractionsCost,
+      transit: transitCost,
+      diningStay: diningStayCost,
+    },
+    transitPass: agreement.transitPass,
+    operatorCode: "YATRASETU-GOV-SOLANA",
+    certificateId: agreement.tx,
+    country: travelerCountry,
+  };
 }
 
 const DEFAULT_PROFILE: AccountProfile = {
@@ -236,6 +383,13 @@ export default function AccountPage() {
   const [copiedProgramId, setCopiedProgramId] = useState(false);
   const [savedAgreements, setSavedAgreements] = useState<TravelAgreementRecord[]>([]);
   const [copiedCertId, setCopiedCertId] = useState<string | null>(null);
+  const [downloadedAgreementId, setDownloadedAgreementId] = useState<string | null>(null);
+  const [offlineModalData, setOfflineModalData] = useState<{
+    plan: ItineraryPlan;
+    cityName: string;
+    certId?: string;
+  } | null>(null);
+  const [isOfflineModalOpen, setIsOfflineModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeAgentId, setActiveAgentId] = useState<string>("arjun");
 
@@ -403,6 +557,57 @@ export default function AccountPage() {
     });
     setSaveStatus("Travel agreement removed.");
     setTimeout(() => setSaveStatus(""), 2500);
+  };
+
+  const handleDownloadOfflineAgreement = (agreement: TravelAgreementRecord) => {
+    try {
+      const plan = buildPlanFromAgreement(agreement, profile.country);
+      downloadOfflinePassFile(plan, {
+        travelerType: profile.country.toLowerCase() === "india" ? "indian" : "foreign",
+        foreignCountry: profile.country.toLowerCase() !== "india" ? profile.country : undefined,
+        generatedDate: `${agreement.date} · ${agreement.time}`,
+      });
+      setDownloadedAgreementId(agreement.id);
+      setSaveStatus(`Offline Remote Pass for ${agreement.cityName || agreement.dest} downloaded!`);
+      setTimeout(() => {
+        setDownloadedAgreementId(null);
+        setSaveStatus("");
+      }, 3500);
+    } catch (err) {
+      console.error("Offline download failed:", err);
+      setSaveStatus("Failed to download offline pass. Please try again.");
+      setTimeout(() => setSaveStatus(""), 3000);
+    }
+  };
+
+  const handleOpenOfflineModal = (agreement: TravelAgreementRecord) => {
+    const plan = buildPlanFromAgreement(agreement, profile.country);
+    setOfflineModalData({
+      plan,
+      cityName: agreement.cityName || agreement.dest,
+      certId: agreement.tx,
+    });
+    setIsOfflineModalOpen(true);
+  };
+
+  const handleDownloadAllOffline = () => {
+    if (savedAgreements.length === 0) return;
+    try {
+      savedAgreements.forEach((ag, idx) => {
+        setTimeout(() => {
+          const plan = buildPlanFromAgreement(ag, profile.country);
+          downloadOfflinePassFile(plan, {
+            travelerType: profile.country.toLowerCase() === "india" ? "indian" : "foreign",
+            foreignCountry: profile.country.toLowerCase() !== "india" ? profile.country : undefined,
+            generatedDate: `${ag.date} · ${ag.time}`,
+          });
+        }, idx * 600);
+      });
+      setSaveStatus(`All ${savedAgreements.length} offline passes downloaded successfully!`);
+      setTimeout(() => setSaveStatus(""), 4500);
+    } catch (err) {
+      console.error("Download all offline failed:", err);
+    }
   };
 
   const copyCertId = (tx: string) => {
@@ -759,9 +964,22 @@ export default function AccountPage() {
                     </p>
                   </div>
                 </div>
-                <span className="agreements-active-badge">
-                  {savedAgreements.length} Certified
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {savedAgreements.length > 0 && (
+                    <button
+                      type="button"
+                      className="btn-save-all-offline"
+                      onClick={handleDownloadAllOffline}
+                      title="Download offline travel passes for all certified agreements"
+                    >
+                      <Download size={13} />
+                      <span>Download All Offline</span>
+                    </button>
+                  )}
+                  <span className="agreements-active-badge">
+                    {savedAgreements.length} Certified
+                  </span>
+                </div>
               </div>
 
               {savedAgreements.length === 0 ? (
@@ -885,15 +1103,46 @@ export default function AccountPage() {
                           </span>
                         )}
 
-                        <button
-                          type="button"
-                          className="btn-remove-agreement"
-                          onClick={() => handleDeleteAgreement(agreement.id)}
-                          title="Remove this agreement"
-                        >
-                          <Trash2 size={13} />
-                          <span>Remove</span>
-                        </button>
+                        <div className="agreement-actions-right">
+                          <button
+                            type="button"
+                            className={`btn-offline-save ${downloadedAgreementId === agreement.id ? "downloaded" : ""}`}
+                            onClick={() => handleDownloadOfflineAgreement(agreement)}
+                            title="Download self-contained offline travel pass (.html) - opens in airplane mode without internet"
+                          >
+                            {downloadedAgreementId === agreement.id ? (
+                              <>
+                                <Check size={13} color="#2D5A43" />
+                                <span>Saved Offline!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download size={13} />
+                                <span>Save Offline (.html)</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn-offline-kit"
+                            onClick={() => handleOpenOfflineModal(agreement)}
+                            title="Open Offline Travel Kit & Print Voucher"
+                          >
+                            <WifiOff size={13} />
+                            <span>Offline Kit</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn-remove-agreement"
+                            onClick={() => handleDeleteAgreement(agreement.id)}
+                            title="Remove this agreement"
+                          >
+                            <Trash2 size={13} />
+                            <span>Remove</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1192,6 +1441,19 @@ export default function AccountPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Offline Remote Travel Pass & SOS Guide Modal ── */}
+      {offlineModalData && (
+        <OfflineRemoteModal
+          isOpen={isOfflineModalOpen}
+          onClose={() => setIsOfflineModalOpen(false)}
+          plan={offlineModalData.plan}
+          cityName={offlineModalData.cityName}
+          travelerType={profile.country.toLowerCase() === "india" ? "indian" : "foreign"}
+          foreignCountry={profile.country.toLowerCase() !== "india" ? profile.country : undefined}
+          certificateId={offlineModalData.certId}
+        />
       )}
 
       {/* ── Delete Confirmation Modal ── */}

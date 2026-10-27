@@ -5578,9 +5578,94 @@ button:hover .btn__arrow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-top: 10px;
+  gap: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--color-sabbia);
+  flex-wrap: wrap;
+}
+
+.agreement-actions-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-offline-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(45, 90, 67, 0.35);
+  background: rgba(45, 90, 67, 0.08);
+  color: #2D5A43;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-offline-save:hover {
+  background: #2D5A43;
+  color: #FFFFFF;
+  border-color: #2D5A43;
+  box-shadow: 0 2px 8px rgba(45, 90, 67, 0.22);
+  transform: translateY(-1px);
+}
+
+.btn-offline-save.downloaded {
+  background: rgba(45, 90, 67, 0.18);
+  border-color: #2D5A43;
+  color: #1e3e2e;
+}
+
+.btn-offline-kit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid rgba(101, 39, 51, 0.25);
+  background: rgba(101, 39, 51, 0.06);
+  color: var(--color-brunello, #652733);
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-offline-kit:hover {
+  background: var(--color-brunello, #652733);
+  color: #FFFFFF;
+  border-color: var(--color-brunello, #652733);
+  box-shadow: 0 2px 8px rgba(101, 39, 51, 0.22);
+  transform: translateY(-1px);
+}
+
+.btn-save-all-offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 90, 67, 0.35);
+  background: rgba(45, 90, 67, 0.08);
+  color: #2D5A43;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save-all-offline:hover {
+  background: #2D5A43;
+  color: #FFFFFF;
+  border-color: #2D5A43;
+  box-shadow: 0 2px 6px rgba(45, 90, 67, 0.2);
 }
 
 .btn-view-explorer {

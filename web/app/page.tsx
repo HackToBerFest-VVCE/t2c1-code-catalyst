@@ -1222,6 +1222,7 @@ export default function Home() {
         date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: "Certified & Price Locked",
+        plan: activeItineraryPlan || undefined,
       };
 
       // Save to localStorage for Account section persistence in dedicated column
