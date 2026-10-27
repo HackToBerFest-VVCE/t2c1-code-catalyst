@@ -3463,6 +3463,15 @@ button:hover .btn__arrow {
   margin-bottom: 12px;
 }
 
+.persona-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 .persona-title {
   font-family: var(--font-mollie), serif;
   font-size: clamp(1.6rem, 2.5vw, 2.1rem);
@@ -3470,6 +3479,7 @@ button:hover .btn__arrow {
   color: var(--color-notte);
   margin-bottom: 6px;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 .persona-sub {

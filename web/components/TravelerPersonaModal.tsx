@@ -66,8 +66,8 @@ export default function TravelerPersonaModal({
         {step === "persona" && (
           <div className="persona-step-wrap">
             {/* Clean Header */}
-            <div className="persona-header" style={{ marginBottom: 8 }}>
-              <h2 className="persona-title" style={{ margin: 0 }}>Namaskara · Welcome</h2>
+            <div className="persona-header" style={{ marginBottom: 8, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <h2 className="persona-title" style={{ margin: 0, textAlign: "center" }}>Namaskara · Welcome</h2>
             </div>
 
             {/* ══ TWO CIRCLES SIDE-BY-SIDE (Image 2 - Styled with Luxury Site Palette) ══ */}
