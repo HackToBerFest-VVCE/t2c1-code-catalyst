@@ -66,11 +66,8 @@ export default function TravelerPersonaModal({
         {step === "persona" && (
           <div className="persona-step-wrap">
             {/* Clean Header */}
-            <div className="persona-header">
-              <h2 className="persona-title">Namaskara · Welcome</h2>
-              <p className="persona-sub">
-                Select your traveler category to customize transit passes, fare cards, and itinerary guidance.
-              </p>
+            <div className="persona-header" style={{ marginBottom: 8 }}>
+              <h2 className="persona-title" style={{ margin: 0 }}>Namaskara · Welcome</h2>
             </div>
 
             {/* ══ TWO CIRCLES SIDE-BY-SIDE (Image 2 - Styled with Luxury Site Palette) ══ */}
