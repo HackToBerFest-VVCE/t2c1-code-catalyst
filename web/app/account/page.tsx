@@ -744,20 +744,20 @@ export default function AccountPage() {
   const handleDownloadOfflineAgreement = (agreement: TravelAgreementRecord) => {
     try {
       const plan = buildPlanFromAgreement(agreement, profile.country);
-      downloadOfflinePassFile(plan, {
+      printOfflinePass(plan, {
         travelerType: profile.country.toLowerCase() === "india" ? "indian" : "foreign",
         foreignCountry: profile.country.toLowerCase() !== "india" ? profile.country : undefined,
         generatedDate: `${agreement.date} · ${agreement.time}`,
       });
       setDownloadedAgreementId(agreement.id);
-      setSaveStatus(`Offline Remote Pass for ${agreement.cityName || agreement.dest} downloaded!`);
+      setSaveStatus(`Downloading PDF Pass for ${agreement.cityName || agreement.dest}...`);
       setTimeout(() => {
         setDownloadedAgreementId(null);
         setSaveStatus("");
       }, 3500);
     } catch (err) {
-      console.error("Offline download failed:", err);
-      setSaveStatus("Failed to download offline pass. Please try again.");
+      console.error("PDF download failed:", err);
+      setSaveStatus("Failed to generate PDF pass. Please try again.");
       setTimeout(() => setSaveStatus(""), 3000);
     }
   };
@@ -779,20 +779,17 @@ export default function AccountPage() {
       return;
     }
     try {
-      savedAgreements.forEach((ag, idx) => {
-        setTimeout(() => {
-          const plan = buildPlanFromAgreement(ag, profile.country);
-          downloadOfflinePassFile(plan, {
-            travelerType: profile.country.toLowerCase() === "india" ? "indian" : "foreign",
-            foreignCountry: profile.country.toLowerCase() !== "india" ? profile.country : undefined,
-            generatedDate: `${ag.date} · ${ag.time}`,
-          });
-        }, idx * 600);
+      const firstAgreement = savedAgreements[0];
+      const plan = buildPlanFromAgreement(firstAgreement, profile.country);
+      printOfflinePass(plan, {
+        travelerType: profile.country.toLowerCase() === "india" ? "indian" : "foreign",
+        foreignCountry: profile.country.toLowerCase() !== "india" ? profile.country : undefined,
+        generatedDate: `${firstAgreement.date} · ${firstAgreement.time}`,
       });
-      setSaveStatus(`All ${savedAgreements.length} offline passes downloaded successfully!`);
-      setTimeout(() => setSaveStatus(""), 4500);
+      setSaveStatus(`Downloading PDF travel pass for ${firstAgreement.cityName || firstAgreement.dest}...`);
+      setTimeout(() => setSaveStatus(""), 4000);
     } catch (err) {
-      console.error("Download all offline failed:", err);
+      console.error("Download offline PDF failed:", err);
     }
   };
 
@@ -1216,10 +1213,10 @@ export default function AccountPage() {
                       type="button"
                       className="btn-save-all-offline"
                       onClick={handleDownloadAllOffline}
-                      title="Download offline travel passes for all certified agreements"
+                      title="Download PDF travel passes for certified agreements"
                     >
                       <Download size={13} />
-                      <span>Download All Offline</span>
+                      <span>Download All in PDF</span>
                     </button>
                   )}
                   <span className="agreements-active-badge">
@@ -1403,29 +1400,19 @@ export default function AccountPage() {
                             type="button"
                             className={`btn-offline-save ${downloadedAgreementId === agreement.id ? "downloaded" : ""}`}
                             onClick={() => handleDownloadOfflineAgreement(agreement)}
-                            title="Download self-contained offline travel pass (.html) - opens in airplane mode without internet"
+                            title="Download verified travel pass directly in PDF"
                           >
                             {downloadedAgreementId === agreement.id ? (
                               <>
                                 <Check size={13} color="#2D5A43" />
-                                <span>Saved Offline!</span>
+                                <span>PDF Ready!</span>
                               </>
                             ) : (
                               <>
                                 <Download size={13} />
-                                <span>Save Offline (.html)</span>
+                                <span>Download PDF</span>
                               </>
                             )}
-                          </button>
-
-                          <button
-                            type="button"
-                            className="btn-offline-kit"
-                            onClick={() => handleOpenOfflineModal(agreement)}
-                            title="Open Offline Travel Kit & Print Voucher"
-                          >
-                            <WifiOff size={13} />
-                            <span>Offline Kit</span>
                           </button>
 
                           <button
@@ -1918,18 +1905,7 @@ export default function AccountPage() {
         </div>
       )}
 
-      {/* ── Offline Remote Travel Pass & SOS Guide Modal ── */}
-      {offlineModalData && (
-        <OfflineRemoteModal
-          isOpen={isOfflineModalOpen}
-          onClose={() => setIsOfflineModalOpen(false)}
-          plan={offlineModalData.plan}
-          cityName={offlineModalData.cityName}
-          travelerType={profile.country.toLowerCase() === "india" ? "indian" : "foreign"}
-          foreignCountry={profile.country.toLowerCase() !== "india" ? profile.country : undefined}
-          certificateId={offlineModalData.certId}
-        />
-      )}
+
 
       {/* ── AI Concierge Feedback & Traveler Reviews Modal ── */}
       <AgentFeedbackModal

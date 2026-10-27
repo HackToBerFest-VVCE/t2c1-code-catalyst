@@ -1598,12 +1598,21 @@ export default function Home() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => setIsOfflineModalOpen(true)}
+                  onClick={() => {
+                    const planToPrint = activeItineraryPlan || generatedPlan;
+                    if (planToPrint) {
+                      printOfflinePass(planToPrint, {
+                        travelerType: travelerType || "indian",
+                        foreignCountry,
+                      });
+                    }
+                  }}
                   className="btn-remote-download"
                   style={{ fontSize: 12, padding: "7px 14px", textDecoration: "none" }}
+                  title="Download verified travel pass directly in PDF"
                 >
                   <Download size={12} />
-                  <span>Save Offline Pass</span>
+                  <span>Download in PDF</span>
                 </button>
               </div>
             )}
@@ -3196,12 +3205,16 @@ export default function Home() {
                       <div className="remote-action-buttons">
                         <button
                           type="button"
-                          onClick={() => setIsOfflineModalOpen(true)}
+                          onClick={() => {
+                            if (generatedPlan) {
+                              printOfflinePass(generatedPlan, { travelerType: travelerType || "indian", foreignCountry });
+                            }
+                          }}
                           className="btn-remote-download"
-                          title="Download self-contained offline travel pass for remote areas"
+                          title="Download verified travel agreement directly in PDF"
                         >
                           <Download size={15} />
-                          <span>Download Remote Pass (Offline)</span>
+                          <span>Download in PDF</span>
                         </button>
 
                         <button
@@ -3212,16 +3225,6 @@ export default function Home() {
                         >
                           <Mail size={15} />
                           <span>Send to Gmail</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => printOfflinePass(generatedPlan, { travelerType: travelerType || "indian", foreignCountry })}
-                          className="btn-print-action"
-                          title="Print itinerary or save to PDF"
-                        >
-                          <Printer size={15} />
-                          <span>Print / PDF</span>
                         </button>
                       </div>
                     </div>
@@ -5623,16 +5626,7 @@ export default function Home() {
         certificateId={customCommitTx || commitTx || undefined}
       />
 
-      {/* Offline Remote Travel Pass & SOS Guide Modal */}
-      <OfflineRemoteModal
-        isOpen={isOfflineModalOpen}
-        onClose={() => setIsOfflineModalOpen(false)}
-        plan={activeItineraryPlan}
-        cityName={activeItineraryPlan?.city || plannerCity?.name || selectedDest?.name || "India"}
-        travelerType={travelerType || "indian"}
-        foreignCountry={foreignCountry}
-        certificateId={customCommitTx || commitTx || undefined}
-      />
+
 
       {/* AI Concierge Feedback & Reviews Modal */}
       <AgentFeedbackModal

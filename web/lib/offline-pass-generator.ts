@@ -428,24 +428,30 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
     }
 
     /* Print Styles */
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
     @media print {
-      body { background: #FFFFFF; color: #000000; padding: 0; }
-      .container { max-width: 100%; }
+      body { background: #FFFFFF; color: #000000; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .container { max-width: 100%; margin: 0; }
       .offline-banner, .btn-actions { display: none !important; }
       .header-card, .day-card, .budget-card, .sos-card, .fair-price-card, .remote-tips, .cert-box {
         background: #FFFFFF !important;
-        border: 1px solid #CCC !important;
-        color: #000000 !important;
+        border: 1px solid #D1D5DB !important;
+        color: #111827 !important;
         box-shadow: none !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
-      .city-title, .stop-name, .day-theme { color: #000000 !important; }
+      .city-title, .stop-name, .day-theme { color: #111827 !important; }
       .stop-time, .brand-eyebrow, .rate-box strong, .cert-code { color: #8A6D00 !important; }
       .meta-tag, .day-badge, .sos-item, .rate-box, .transit-hop {
         background: #F4F4F6 !important;
-        color: #000000 !important;
-        border: 1px solid #DDD !important;
+        color: #111827 !important;
+        border: 1px solid #E5E7EB !important;
       }
-      .stop-tip, .stop-cost, .sos-note { color: #333333 !important; }
+      .stop-tip, .stop-cost, .sos-note { color: #374151 !important; }
     }
   </style>
 </head>
@@ -815,21 +821,53 @@ export function downloadOfflinePassFile(plan: ItineraryPlan, options: PassGenera
 }
 
 /**
- * Opens print preview window for the offline pass
+ * Directly prints / downloads the offline travel pass as a PDF document.
+ * Opens native PDF print preview directly with zero intermediate modals.
  */
 export function printOfflinePass(plan: ItineraryPlan, options: PassGeneratorOptions = {}): void {
   if (typeof window === "undefined") return;
   const htmlContent = generateOfflinePassHTML(plan, options);
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("Please allow popups to print the offline travel pass.");
-    return;
+
+  try {
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 400);
+      return;
+    }
+  } catch (e) {
+    console.warn("Direct window.open blocked, using iframe print fallback", e);
   }
-  printWindow.document.open();
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(() => {
-    printWindow.print();
-  }, 500);
+
+  // Fallback: invisible iframe for seamless direct PDF download
+  try {
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "none";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+      iframe.contentWindow?.focus();
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          try { document.body.removeChild(iframe); } catch {}
+        }, 3000);
+      }, 400);
+    }
+  } catch (err) {
+    console.error("Direct PDF print failed:", err);
+  }
 }
