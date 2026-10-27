@@ -95,6 +95,40 @@ const patternMatches = [
 ];
 assert(patternMatches.every(Boolean), "Scam checker flags 'landmark closed', 'family shop redirect', and 'upfront payment'");
 
+// 8. Test Attraction Deduplication Logic
+console.log("\n8. Testing Attraction Deduplication & Duplicate Prevention...");
+const testAttractions = [
+  { id: "1", name: "Mysore Palace" },
+  { id: "2", name: "Chamundi Hill" },
+  { id: "3", name: "Brindavan Gardens" },
+];
+const normalizeName = (s) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
+// Duplicate attempt: "  mysore  palace " with varying case and spaces
+const dupInput = "  mysore   palace  ";
+const normalizedDup = normalizeName(dupInput);
+const alreadyExists = testAttractions.some(a => normalizeName(a.name) === normalizedDup);
+assert(alreadyExists === true, "Case-insensitive and whitespace-normalized check detects existing destination landmark");
+
+// Unique attempt: "Devaraja Market"
+const uniqueInput = "Devaraja Market";
+const normalizedUnique = normalizeName(uniqueInput);
+const uniqueExists = testAttractions.some(a => normalizeName(a.name) === normalizedUnique);
+assert(uniqueExists === false, "Truly new spot is correctly recognized as unique");
+
+// Array deduplication filter
+const listWithDups = [
+  { id: "1", name: "Mysore Palace" },
+  { id: "2", name: "Chamundi Hill" },
+  { id: "custom-1", name: "mysore palace" },
+  { id: "custom-2", name: "Chamundi   hill" },
+  { id: "custom-3", name: "St. Philomena's Cathedral" },
+];
+const deduplicatedList = listWithDups.filter(
+  (attr, idx, self) => idx === self.findIndex(a => normalizeName(a.name) === normalizeName(attr.name))
+);
+assert(deduplicatedList.length === 3, `Deduplication filter reduces ${listWithDups.length} sights with dupes to 3 unique items`);
+
 console.log(`\n======================================================`);
 console.log(`TEST SUMMARY: ${passed} / ${total} checks passed (${((passed / total) * 100).toFixed(0)}%)`);
 console.log(`======================================================\n`);

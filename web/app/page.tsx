@@ -835,6 +835,7 @@ export default function Home() {
   const [plannerStep, setPlannerStep] = useState<number>(1);
   const [selectedAttractionIds, setSelectedAttractionIds] = useState<string[]>([]);
   const [customAttractionInput, setCustomAttractionInput] = useState("");
+  const [customAttractionNotice, setCustomAttractionNotice] = useState<{ text: string; type: "error" | "info" } | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("USD");
   const [budgetAmount, setBudgetAmount] = useState<number>(650);
   const [budgetTier, setBudgetTier] = useState<"budget" | "comfort" | "luxury">("comfort");
@@ -1003,12 +1004,16 @@ export default function Home() {
     agentOverride?: any
   ): number => {
     if (!city) return 650;
-    const count = Math.max(1, selectedIds.length);
+    const uniqueIds = Array.from(new Set(selectedIds));
+    const count = Math.max(1, uniqueIds.length);
     const spotsPerDay = pace === "leisurely" ? 2 : 3;
     const computedDays = Math.max(1, Math.ceil(count / spotsPerDay));
 
-    // Sum actual tickets for the chosen sights (or standard fallback)
-    const selectedList = city.attractions.filter(a => selectedIds.includes(a.id));
+    // Sum actual tickets for the chosen sights (deduplicated by name)
+    const selectedListRaw = city.attractions.filter(a => uniqueIds.includes(a.id));
+    const selectedList = selectedListRaw.filter(
+      (a, idx, self) => idx === self.findIndex(x => x.name.trim().toLowerCase() === a.name.trim().toLowerCase())
+    );
     const totalTicketsUSD = selectedList.reduce((sum, a) => sum + (a.costUSD || 15), 0);
     const transitUSD = (city.transit?.passPriceUSD || 4) * computedDays;
 
@@ -1043,6 +1048,78 @@ export default function Home() {
     }
   };
 
+  // Add custom spot with strict duplicate check (prevents adding same place multiple times)
+  const handleAddCustomAttraction = () => {
+    const trimmed = customAttractionInput.trim();
+    if (!trimmed || !plannerCity) return;
+
+    // Normalize input name for comparison (lowercase, trimmed whitespace)
+    const normalizedInput = trimmed.toLowerCase().replace(/\s+/g, " ");
+
+    // Check if place already exists in plannerCity.attractions
+    const existingAttr = plannerCity.attractions.find(
+      (a) => a.name.trim().toLowerCase().replace(/\s+/g, " ") === normalizedInput
+    );
+
+    if (existingAttr) {
+      // Check if already in selectedAttractionIds
+      if (selectedAttractionIds.includes(existingAttr.id)) {
+        setCustomAttractionNotice({
+          text: `"${existingAttr.name}" is already added and selected in your top sights!`,
+          type: "error",
+        });
+        setTimeout(() => setCustomAttractionNotice(null), 4000);
+        return;
+      }
+
+      // If present in city attractions but not selected, select it instead of adding a duplicate card
+      setSelectedAttractionIds((prev) => {
+        const next = [...prev, existingAttr.id];
+        if (plannerCity) {
+          const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
+          setBudgetAmount(scaled);
+          setBudget(scaled);
+        }
+        return next;
+      });
+      setCustomAttractionInput("");
+      setCustomAttractionNotice({
+        text: `✓ "${existingAttr.name}" was already in destination catalog and is now selected.`,
+        type: "info",
+      });
+      setTimeout(() => setCustomAttractionNotice(null), 4000);
+      return;
+    }
+
+    // New unique custom spot
+    const newId = `custom-${Date.now()}`;
+    const newAttr: CityAttraction = {
+      id: newId,
+      name: trimmed,
+      category: "Custom Selection",
+      duration: "2 hours",
+      costDisplay: "Free / Local",
+      costUSD: 5,
+      img: plannerCity.heroImg,
+      bestTime: "Flexible",
+      tip: "Traveler requested custom destination.",
+      crowdRating: "Moderate",
+    };
+
+    plannerCity.attractions.push(newAttr);
+    setSelectedAttractionIds((prev) => {
+      const next = [...prev, newId];
+      if (plannerCity) {
+        const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
+        setBudgetAmount(scaled);
+        setBudget(scaled);
+      }
+      return next;
+    });
+    setCustomAttractionInput("");
+    setCustomAttractionNotice(null);
+  };
+
   // Select destination and open curated customizer flow
   const handleSelectDestination = (cityName: string, fallbackHero?: string) => {
     const clean = cityName.trim();
@@ -1075,6 +1152,8 @@ export default function Home() {
     setGeneratedPlan(null);
     setCustomCommitTx(null);
     setCustomCommitError("");
+    setCustomAttractionInput("");
+    setCustomAttractionNotice(null);
     setActiveTab("discover");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -1101,8 +1180,13 @@ export default function Home() {
   // Generate Tailored Itinerary based strictly on chosen attractions, budget & crowd vibe
   const generateTailoredPlan = () => {
     if (!plannerCity) return;
-    const chosenAttractions = plannerCity.attractions.filter(a => selectedAttractionIds.includes(a.id));
-    const activeAttractions = chosenAttractions.length > 0 ? chosenAttractions : plannerCity.attractions.slice(0, 3);
+    const chosenAttractionsRaw = plannerCity.attractions.filter(a => selectedAttractionIds.includes(a.id));
+    const activeAttractionsRaw = chosenAttractionsRaw.length > 0 ? chosenAttractionsRaw : plannerCity.attractions.slice(0, 3);
+    // Strict deduplication by normalized name to guarantee no duplicate places in the itinerary
+    const activeAttractions = activeAttractionsRaw.filter(
+      (attr, idx, self) =>
+        idx === self.findIndex((a) => a.name.trim().toLowerCase().replace(/\s+/g, " ") === attr.name.trim().toLowerCase().replace(/\s+/g, " "))
+    );
     const spotsPerDay = travelPace === "leisurely" ? 2 : 3;
     const numDays = Math.max(1, Math.ceil(activeAttractions.length / spotsPerDay));
     
@@ -2605,22 +2689,13 @@ export default function Home() {
                           <ChevronDown size={13} className="wizard-agent-select-chevron" />
                         </div>
                       </div>
-
-                      {/* E-Commerce Product Style: Verified Tourist Feedback & Reviews */}
-                      <TouristAgentFeedbackCard
-                        agentName={selectedAgent?.name || "touristmitra"}
-                        agentDisplayName={selectedAgent?.displayName || selectedAgent?.name || "Touristमित्र Heritage & Travel Concierge"}
-                        agentRole={selectedAgent?.specialty}
-                        agentRating={selectedAgent?.reputation?.rating ?? 9.8}
-                        agentTrustScore={selectedAgent?.reputation?.trustScore ?? 99.8}
-                        agentPda={selectedAgent?.identityPda}
-                        tripContext={plannerCity ? `${plannerCity.name} Cultural Tour` : "Verified Cultural Itinerary"}
-                      />
                     </div>
                   </div>
 
                   <div className="attraction-grid stagger-children">
-                    {plannerCity.attractions.map(attr => {
+                    {plannerCity.attractions
+                      .filter((attr, idx, self) => idx === self.findIndex(a => a.name.trim().toLowerCase().replace(/\s+/g, " ") === attr.name.trim().toLowerCase().replace(/\s+/g, " ")))
+                      .map(attr => {
                       const isSelected = selectedAttractionIds.includes(attr.id);
                       return (
                         <div
@@ -2678,7 +2753,7 @@ export default function Home() {
                   </div>
 
                   {/* Add Custom Spot Box */}
-                  <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 12, marginBottom: customAttractionNotice ? 12 : 28, flexWrap: "wrap" }}>
                     <input
                       style={{
                         flex: 1, minWidth: 260,
@@ -2695,70 +2770,51 @@ export default function Home() {
                       onChange={e => setCustomAttractionInput(e.target.value)}
                       aria-label={`Add another specific spot or market in ${plannerCity.name}`}
                       onKeyDown={e => {
-                        if (e.key === "Enter" && customAttractionInput.trim()) {
-                          const newId = `custom-${Date.now()}`;
-                          const newAttr: CityAttraction = {
-                            id: newId,
-                            name: customAttractionInput.trim(),
-                            category: "Custom Selection",
-                            duration: "2 hours",
-                            costDisplay: "Free / Local",
-                            costUSD: 5,
-                            img: plannerCity.heroImg,
-                            bestTime: "Flexible",
-                            tip: "Traveler requested custom destination.",
-                            crowdRating: "Moderate",
-                          };
-                          plannerCity.attractions.push(newAttr);
-                          setSelectedAttractionIds(prev => {
-                            const next = [...prev, newId];
-                            if (plannerCity) {
-                              const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
-                              setBudgetAmount(scaled);
-                              setBudget(scaled);
-                            }
-                            return next;
-                          });
-                          setCustomAttractionInput("");
+                        if (e.key === "Enter") {
+                          handleAddCustomAttraction();
                         }
                       }}
                     />
                     <button
+                      type="button"
                       className="btn-dark"
                       style={{ width: "auto", padding: "0 22px", borderRadius: 12 }}
                       aria-label="Add custom spot to itinerary"
-                      onClick={() => {
-                        if (customAttractionInput.trim()) {
-                          const newId = `custom-${Date.now()}`;
-                          const newAttr: CityAttraction = {
-                            id: newId,
-                            name: customAttractionInput.trim(),
-                            category: "Custom Selection",
-                            duration: "2 hours",
-                            costDisplay: "Free / Local",
-                            costUSD: 5,
-                            img: plannerCity.heroImg,
-                            bestTime: "Flexible",
-                            tip: "Traveler requested custom destination.",
-                            crowdRating: "Moderate",
-                          };
-                          plannerCity.attractions.push(newAttr);
-                          setSelectedAttractionIds(prev => {
-                            const next = [...prev, newId];
-                            if (plannerCity) {
-                              const scaled = calculateBudgetForSelection(plannerCity, next, budgetTier, selectedCurrency, travelPace);
-                              setBudgetAmount(scaled);
-                              setBudget(scaled);
-                            }
-                            return next;
-                          });
-                          setCustomAttractionInput("");
-                        }
-                      }}
+                      onClick={handleAddCustomAttraction}
                     >
                       <Plus size={16} /> Add Place
                     </button>
                   </div>
+
+                  {/* Duplicate / Existing Place Notice */}
+                  {customAttractionNotice && (
+                    <div
+                      role="alert"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "11px 18px",
+                        borderRadius: 10,
+                        marginBottom: 24,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        background: customAttractionNotice.type === "error"
+                          ? "rgba(101, 39, 51, 0.08)"
+                          : "rgba(30, 51, 49, 0.08)",
+                        border: `1px solid ${customAttractionNotice.type === "error" ? "rgba(101, 39, 51, 0.3)" : "rgba(30, 51, 49, 0.3)"}`,
+                        color: customAttractionNotice.type === "error" ? "var(--color-brunello, #652733)" : "var(--color-notte, #1E3331)",
+                        transition: "all 0.2s ease-in-out",
+                      }}
+                    >
+                      {customAttractionNotice.type === "error" ? (
+                        <AlertCircle size={16} style={{ flexShrink: 0, color: "var(--color-brunello, #652733)" }} />
+                      ) : (
+                        <Check size={16} style={{ flexShrink: 0, color: "var(--color-notte, #1E3331)" }} />
+                      )}
+                      <span>{customAttractionNotice.text}</span>
+                    </div>
+                  )}
 
                   <div className="wizard-footer-nav">
                     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>

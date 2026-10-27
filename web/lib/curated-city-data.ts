@@ -1660,14 +1660,19 @@ export const CURATED_CITIES: Record<string, CuratedCity> = {
 // Smart lookup helper for any Indian city
 export function getCuratedCityData(cityName: string, fallbackHero?: string): CuratedCity {
   const key = cityName.toLowerCase().trim();
-  if (CURATED_CITIES[key]) {
-    return CURATED_CITIES[key];
+  let baseCity: CuratedCity | undefined = CURATED_CITIES[key];
+
+  if (!baseCity) {
+    // Check partial match
+    const foundKey = Object.keys(CURATED_CITIES).find(k => key.includes(k) || k.includes(key));
+    if (foundKey) {
+      baseCity = CURATED_CITIES[foundKey];
+    }
   }
 
-  // Check partial match
-  const foundKey = Object.keys(CURATED_CITIES).find(k => key.includes(k) || k.includes(key));
-  if (foundKey) {
-    return CURATED_CITIES[foundKey];
+  if (baseCity) {
+    // Deep clone to prevent mutating global master city data when custom spots are added
+    return JSON.parse(JSON.stringify(baseCity));
   }
 
   // Fallback high-precision Indian city generator
