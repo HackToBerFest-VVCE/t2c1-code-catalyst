@@ -1422,15 +1422,12 @@ export default function AccountPage() {
         {/* ── FULL-WIDTH HORIZONTAL SECTION: AI Concierge Agents Used & Assigned ── */}
         <div className="account-agents-card account-agents-card--horizontal scroll-reveal">
           <div className="account-agents-card-header">
-            <div className="agreements-title-wrap">
+            <div className="agreements-title-wrap" style={{ alignItems: "center" }}>
               <div className="agreements-lock-badge" style={{ background: "rgba(37, 99, 235, 0.08)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
                 <Bot size={18} color="#2563eb" />
               </div>
               <div>
-                <h2 className="agreements-column-title">Real AI Agents on Solana Devnet</h2>
-                <p className="agreements-column-sub">
-                  Authentic on-chain concierges discovered from the Solana Devnet Agent Registry with verified PDAs &amp; SEAL trust scores.
-                </p>
+                <h2 className="agreements-column-title" style={{ margin: 0 }}>Real AI Agents on Solana Devnet</h2>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -1449,9 +1446,6 @@ export default function AccountPage() {
                 <RefreshCw size={13} className={refreshingAgents ? "spin-clockwise" : ""} />
                 <span>{refreshingAgents ? "Refreshing..." : "Refresh AI Agents"}</span>
               </button>
-              <span className="agreements-active-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" }}>
-                {agentsList.length} Concierges
-              </span>
             </div>
           </div>
 
