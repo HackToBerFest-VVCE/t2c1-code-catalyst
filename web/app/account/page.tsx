@@ -900,140 +900,140 @@ export default function AccountPage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* ── AI Concierge Agents Used & Assigned Card ── */}
-            <div className="account-agents-card">
-              <div className="account-agents-card-header">
-                <div className="agreements-title-wrap">
-                  <div className="agreements-lock-badge" style={{ background: "rgba(37, 99, 235, 0.08)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
-                    <Bot size={18} color="#2563eb" />
-                  </div>
-                  <div>
-                    <h2 className="agreements-column-title">AI Agents Used &amp; Assigned</h2>
-                    <p className="agreements-column-sub">
-                      Specialized autonomous concierges on Solana Devnet that have planned and authenticated your itineraries.
-                    </p>
-                  </div>
-                </div>
-                <span className="agreements-active-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" }}>
-                  {PREVIOUS_AGENTS.length} Concierges
-                </span>
+        {/* ── FULL-WIDTH HORIZONTAL SECTION: AI Concierge Agents Used & Assigned ── */}
+        <div className="account-agents-card account-agents-card--horizontal">
+          <div className="account-agents-card-header">
+            <div className="agreements-title-wrap">
+              <div className="agreements-lock-badge" style={{ background: "rgba(37, 99, 235, 0.08)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
+                <Bot size={18} color="#2563eb" />
               </div>
-
-              <div className="agents-used-list">
-                {PREVIOUS_AGENTS.map((agent) => {
-                  const isActive = activeAgentId === agent.id;
-                  return (
-                    <div
-                      key={agent.id}
-                      className={`agent-used-item-card ${isActive ? "is-active" : ""}`}
-                    >
-                      <div className="agent-item-header">
-                        <div className="agent-item-avatar-row">
-                          <div className="agent-item-avatar">
-                            <span>{agent.shortName.slice(0, 2).toUpperCase()}</span>
-                            <span
-                              style={{
-                                position: "absolute",
-                                bottom: 0,
-                                right: 0,
-                                width: 8,
-                                height: 8,
-                                borderRadius: "50%",
-                                background: isActive ? "#10B981" : "#9CA3AF",
-                                border: "1.5px solid #FFFFFF",
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                              <span className="agent-item-name">{agent.name}</span>
-                              {isActive && (
-                                <span style={{
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                  color: "#2D5A43",
-                                  background: "rgba(45, 90, 67, 0.12)",
-                                  padding: "2px 7px",
-                                  borderRadius: 10,
-                                }}>
-                                  Active Assigned
-                                </span>
-                              )}
-                            </div>
-                            <span style={{ fontSize: "0.74rem", color: "var(--color-oliva)" }}>
-                              {agent.role}
-                            </span>
-                          </div>
-                        </div>
-
-                        <span className="agreement-seal-badge">
-                          <ShieldCheck size={11} />
-                          ★ {agent.trustScore}% SEAL
-                        </span>
-                      </div>
-
-                      <p className="agent-item-role">
-                        {agent.specialty}
-                      </p>
-
-                      <div className="agent-item-meta-row">
-                        <span><strong>Trips Verified:</strong> {agent.tripsVerified.toLocaleString()}</span>
-                        <span>•</span>
-                        <span><strong>Score:</strong> {agent.rating} / 5.0</span>
-                        <span>•</span>
-                        <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
-                      </div>
-
-                      <div className="agent-item-actions-row">
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.74rem" }}>
-                          <span className="pda-label">Identity PDA:</span>
-                          <code className="pda-val">
-                            {`${agent.identityPda.slice(0, 6)}...${agent.identityPda.slice(-4)}`}
-                          </code>
-                          <button
-                            type="button"
-                            className="btn-cert-copy"
-                            onClick={() => copyCertId(agent.identityPda)}
-                            title="Copy Agent Identity PDA"
-                          >
-                            {copiedCertId === agent.identityPda ? (
-                              <Check size={11} color="#2D5A43" />
-                            ) : (
-                              <Copy size={11} />
-                            )}
-                          </button>
-                          <a
-                            href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-view-explorer"
-                            style={{ marginLeft: 4 }}
-                          >
-                            <ExternalLink size={11} />
-                          </a>
-                        </div>
-
-                        <button
-                          type="button"
-                          className={`btn-set-active-agent ${isActive ? "active" : ""}`}
-                          onClick={() => handleSetActiveAgent(agent)}
-                        >
-                          {isActive ? (
-                            <>
-                              <Check size={12} />
-                              <span>Active Concierge</span>
-                            </>
-                          ) : (
-                            <span>Set as Active</span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div>
+                <h2 className="agreements-column-title">AI Agents Used &amp; Assigned</h2>
+                <p className="agreements-column-sub">
+                  Specialized autonomous concierges on Solana Devnet that have planned and authenticated your itineraries.
+                </p>
               </div>
             </div>
+            <span className="agreements-active-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "#1d4ed8", borderColor: "rgba(37, 99, 235, 0.25)" }}>
+              {PREVIOUS_AGENTS.length} Concierges
+            </span>
+          </div>
+
+          <div className="agents-used-list agents-used-list--horizontal">
+            {PREVIOUS_AGENTS.map((agent) => {
+              const isActive = activeAgentId === agent.id;
+              return (
+                <div
+                  key={agent.id}
+                  className={`agent-used-item-card ${isActive ? "is-active" : ""}`}
+                >
+                  <div className="agent-item-header">
+                    <div className="agent-item-avatar-row">
+                      <div className="agent-item-avatar">
+                        <span>{agent.shortName.slice(0, 2).toUpperCase()}</span>
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            right: 0,
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: isActive ? "#10B981" : "#9CA3AF",
+                            border: "1.5px solid #FFFFFF",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <span className="agent-item-name">{agent.name}</span>
+                          {isActive && (
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: "#2D5A43",
+                              background: "rgba(45, 90, 67, 0.12)",
+                              padding: "2px 7px",
+                              borderRadius: 10,
+                            }}>
+                              Active Assigned
+                            </span>
+                          )}
+                        </div>
+                        <span style={{ fontSize: "0.74rem", color: "var(--color-oliva)" }}>
+                          {agent.role}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="agreement-seal-badge">
+                      <ShieldCheck size={11} />
+                      ★ {agent.trustScore}% SEAL
+                    </span>
+                  </div>
+
+                  <p className="agent-item-role">
+                    {agent.specialty}
+                  </p>
+
+                  <div className="agent-item-meta-row">
+                    <span><strong>Trips Verified:</strong> {agent.tripsVerified.toLocaleString()}</span>
+                    <span>•</span>
+                    <span><strong>Score:</strong> {agent.rating} / 5.0</span>
+                    <span>•</span>
+                    <span><strong>Recent:</strong> {agent.lastUsedItinerary}</span>
+                  </div>
+
+                  <div className="agent-item-actions-row">
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.74rem" }}>
+                      <span className="pda-label">Identity PDA:</span>
+                      <code className="pda-val">
+                        {`${agent.identityPda.slice(0, 6)}...${agent.identityPda.slice(-4)}`}
+                      </code>
+                      <button
+                        type="button"
+                        className="btn-cert-copy"
+                        onClick={() => copyCertId(agent.identityPda)}
+                        title="Copy Agent Identity PDA"
+                      >
+                        {copiedCertId === agent.identityPda ? (
+                          <Check size={11} color="#2D5A43" />
+                        ) : (
+                          <Copy size={11} />
+                        )}
+                      </button>
+                      <a
+                        href={`https://explorer.solana.com/address/${agent.mintAddress}?cluster=devnet`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-view-explorer"
+                        style={{ marginLeft: 4 }}
+                      >
+                        <ExternalLink size={11} />
+                      </a>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`btn-set-active-agent ${isActive ? "active" : ""}`}
+                      onClick={() => handleSetActiveAgent(agent)}
+                    >
+                      {isActive ? (
+                        <>
+                          <Check size={12} />
+                          <span>Active Concierge</span>
+                        </>
+                      ) : (
+                        <span>Set as Active</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
