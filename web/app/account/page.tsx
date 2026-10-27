@@ -838,7 +838,7 @@ export default function AccountPage() {
       {/* ── Main Content Container ── */}
       <main className="account-main-content">
         {/* Header Bar matching Reference Image 3 */}
-        <div className="account-details-header">
+        <div className="account-details-header scroll-reveal">
           <div className="account-details-title-row">
             <h1 className="account-details-title">Account Details</h1>
           </div>
@@ -877,7 +877,7 @@ export default function AccountPage() {
         {/* ── 2-Column Responsive Dashboard Layout ── */}
         <div className="account-dashboard-columns">
           {/* Column 1: Account Profile Form (matching Reference Image 3) */}
-          <div className="account-column-profile">
+          <div className="account-column-profile scroll-reveal-left">
             <div className="account-card-frame">
               {/* Avatar Upload / Remove Row */}
               <div className="account-avatar-section">
@@ -1127,7 +1127,7 @@ export default function AccountPage() {
           </div>
 
           {/* Column 2: Certified Travel Agreements & Assigned Agents (SEPARATE COLUMN) */}
-          <div className="account-column-agreements">
+          <div className="account-column-agreements scroll-reveal-right">
             <div className="account-agreements-card">
               <div className="agreements-card-header">
                 <div className="agreements-title-wrap">
@@ -1183,7 +1183,7 @@ export default function AccountPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="agreements-list">
+                <div className="agreements-list stagger-children">
                   {savedAgreements.map((agreement) => (
                     <div key={agreement.id} className="agreement-record-card">
                       {/* Top Header of Record */}
@@ -1379,7 +1379,7 @@ export default function AccountPage() {
         </div>
 
         {/* ── FULL-WIDTH HORIZONTAL SECTION: AI Concierge Agents Used & Assigned ── */}
-        <div className="account-agents-card account-agents-card--horizontal">
+        <div className="account-agents-card account-agents-card--horizontal scroll-reveal">
           <div className="account-agents-card-header">
             <div className="agreements-title-wrap">
               <div className="agreements-lock-badge" style={{ background: "rgba(37, 99, 235, 0.08)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
@@ -1414,7 +1414,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className="agents-used-list agents-used-list--horizontal">
+          <div className="agents-used-list agents-used-list--horizontal stagger-children">
             {agentsList.map((agent) => {
               const isActive = activeAgentId === agent.id || activeAgentId === agent.name;
               return (
@@ -1578,8 +1578,8 @@ export default function AccountPage() {
         </div>
 
         {/* ── Seamless Web3 & Solana Devnet Hub Integration ── */}
-        <div className="account-web3-section">
-          <div className="web3-hub-card">
+        <div className="account-web3-section scroll-reveal">
+          <div className="web3-hub-card scroll-reveal-scale">
             <div className="web3-hub-header">
               <div className="web3-hub-title-col">
                 <span className="web3-eyebrow">SOLANA DEVNET HUB · DECENTRALIZED IDENTITY</span>
@@ -1641,7 +1641,7 @@ export default function AccountPage() {
       </main>
 
       {/* ── Signature Architectural Pre-Footer Matching Main Site ── */}
-      <section className="editorial-prefooter" style={{ borderBottom: "1px solid rgba(101, 39, 51, 0.18)" }}>
+      <section className="editorial-prefooter scroll-reveal" style={{ borderBottom: "1px solid rgba(101, 39, 51, 0.18)" }}>
         {/* Top Wave Transition */}
         <div className="editorial-prefooter__curve-wrap" aria-hidden="true">
           <svg
@@ -1659,7 +1659,7 @@ export default function AccountPage() {
 
         <div className="editorial-prefooter__inner">
           {/* Left: Large Editorial Statement & Quick Links */}
-          <div className="editorial-prefooter__left">
+          <div className="editorial-prefooter__left scroll-reveal-left">
             <h2 className="editorial-prefooter__title">India, thoughtfully yours.</h2>
             <Link href="/" className="editorial-prefooter__plan-link">
               <span>EXPLORE ITINERARIES</span>
@@ -1745,7 +1745,7 @@ export default function AccountPage() {
           </div>
 
           {/* Right: Signature Architectural Line-Art (Pure Artwork with Matching Site Background) */}
-          <div className="editorial-prefooter__right" aria-hidden="true">
+          <div className="editorial-prefooter__right scroll-reveal-right" aria-hidden="true">
             <img
               src="/images/art/taj-mahal.png"
               alt="Taj Mahal Architectural Artwork"

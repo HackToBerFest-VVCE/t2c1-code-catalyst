@@ -2435,7 +2435,7 @@ export default function Home() {
             /* ══════════════════════════════════════════════════════════ */
             /* BESPOKE TRIP CUSTOMIZER WIZARD (Interactive Form Flow)    */
             /* ══════════════════════════════════════════════════════════ */
-            <div className="customizer-container">
+            <div className="customizer-container scroll-reveal">
               {/* Navigation Bar & Solana AI Agent Attestation */}
               <div className="customizer-nav-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
                 <button
@@ -2536,7 +2536,7 @@ export default function Home() {
 
               {/* ── STEP 1: Top Attractions Selection ── */}
               {plannerStep === 1 && (
-                <div className="wizard-panel">
+                <div className="wizard-panel scroll-reveal">
                   <div className="wizard-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, flexWrap: "wrap", marginBottom: 20 }}>
                     <div style={{ flex: 1, minWidth: 280 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
@@ -2641,7 +2641,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="attraction-grid">
+                  <div className="attraction-grid stagger-children">
                     {plannerCity.attractions.map(attr => {
                       const isSelected = selectedAttractionIds.includes(attr.id);
                       return (
@@ -2805,7 +2805,7 @@ export default function Home() {
 
               {/* ── STEP 2: Budget & Currencies with Live CoinGecko API ── */}
               {plannerStep === 2 && (
-                <div className="wizard-panel">
+                <div className="wizard-panel scroll-reveal">
                   <div className="wizard-header">
                     <span className="wizard-step-label">Step 2 of 4 · Finances & Currencies</span>
                     <h2 className="wizard-title">What Budget Are You Willing to Spend?</h2>
@@ -2851,7 +2851,7 @@ export default function Home() {
                   </div>
 
                   {/* Preset Budget Tier Cards (Dynamically Scaled on Places Count) */}
-                  <div className="budget-tiers-grid">
+                  <div className="budget-tiers-grid stagger-children">
                     <div
                       className={`budget-tier-card ${budgetTier === "budget" ? "selected" : ""}`}
                       onClick={() => {
@@ -2963,7 +2963,7 @@ export default function Home() {
 
               {/* ── STEP 3: Public Transport & City Transit Passes ── */}
               {plannerStep === 3 && (
-                <div className="wizard-panel">
+                <div className="wizard-panel scroll-reveal">
                   <div className="wizard-header">
                     <span className="wizard-step-label">Step 3 of 4 · Transit Passes</span>
                     <h2 className="wizard-title">Public Transport Available in {plannerCity.name}</h2>
@@ -3063,7 +3063,7 @@ export default function Home() {
 
               {/* ── STEP 4: Crowd Tolerance & Style ── */}
               {plannerStep === 4 && (
-                <div className="wizard-panel">
+                <div className="wizard-panel scroll-reveal">
                   <div className="wizard-header">
                     <span className="wizard-step-label">Step 4 of 4 · Atmosphere & Flow</span>
                     <h2 className="wizard-title">Crowd Preference & Travel Atmosphere</h2>
@@ -3170,7 +3170,7 @@ export default function Home() {
               {/* ── STEP 5: Generated Tailored Itinerary & Solana Devnet Commitment ── */}
               {plannerStep === 5 && generatedPlan && (
                 <div>
-                  <div className="wizard-panel">
+                  <div className="wizard-panel scroll-reveal">
                     <div className="wizard-header">
                       <span className="wizard-step-label">✦ Bespoke Verified Travel Plan</span>
                       <h2 className="wizard-title">Tailored Travel Agreement for {generatedPlan.city}</h2>
@@ -3259,7 +3259,7 @@ export default function Home() {
                     <div style={{ marginBottom: 32 }}>
                       <div className="field-label" style={{ marginBottom: 16 }}>Day-by-Day Route & Scheduled Sights</div>
                       {generatedPlan.days.map((day: any) => (
-                        <div key={day.dayNumber} className="itinerary-day-box">
+                        <div key={day.dayNumber} className="itinerary-day-box scroll-reveal">
                           <div className="itinerary-day-title">
                             <Calendar size={18} />
                             <span>Day {day.dayNumber} · {day.theme}</span>
@@ -3450,9 +3450,9 @@ export default function Home() {
               {/* ══════════════════════════════════════════════════════════ */}
               {/* Q'IN SABA EDITORIAL SPLIT HERO                             */}
               {/* ══════════════════════════════════════════════════════════ */}
-              <section className="home-hero split">
+              <section className="home-hero split scroll-reveal">
                 {/* Left Column: Editorial Content */}
-                <div className="home-hero__content">
+                <div className="home-hero__content scroll-reveal-left">
                   <p className="t-label t-accent">Private &amp; Curated Journeys</p>
                   
                   <h1 className="home-hero__title">
@@ -3621,7 +3621,7 @@ export default function Home() {
                 </div>
 
                 {/* Right Column: Framed Editorial Carousel (Interactive 1-Click Destination Launch) */}
-                <div className="home-hero__media">
+                <div className="home-hero__media scroll-reveal-right">
                   <div
                     className="hero-carousel"
                     role="button"
@@ -3690,8 +3690,8 @@ export default function Home() {
               {/* ══════════════════════════════════════════════════════════ */}
               {/* DEDICATED DESTINATION GALLERY (Direct Visual Selection)     */}
               {/* ══════════════════════════════════════════════════════════ */}
-              <section className="gallery-section page-section" id="gallery-section">
-                <div className="gallery-header">
+              <section className="gallery-section page-section scroll-reveal" id="gallery-section">
+                <div className="gallery-header scroll-reveal">
                   <div className="gallery-kicker">
                     <span className="gallery-kicker-dot" />
                     <span>Visual Discovery · No Search Typing Required</span>
@@ -3720,7 +3720,7 @@ export default function Home() {
                 </div>
 
                 {/* Gallery Visual Grid */}
-                <div className="gallery-grid">
+                <div className="gallery-grid stagger-children">
                   {displayedGalleryDests.map((dest) => {
                     const stateName = dest.state || DESTINATION_STATES[dest.id] || "India";
                     return (
@@ -3986,7 +3986,7 @@ export default function Home() {
               <p>The network query returned 0 results. Try clicking Refresh.</p>
             </div>
           ) : (
-            <div className="agents-grid">
+            <div className="agents-grid stagger-children">
               {agents.map((agent, i) => {
                 const isAssigned = selectedAgent?.mintAddress === agent.mintAddress;
                 const isVerified = verifiedAsset === agent.mintAddress || agent.verifiedOnDevnet;
@@ -5403,7 +5403,7 @@ export default function Home() {
       )}
 
       {/* ══ Q'IN SABA SIGNATURE EDITORIAL PRE-FOOTER (India, thoughtfully yours) ══ */}
-      <section className="editorial-prefooter" aria-label="Footer Editorial Navigation">
+      <section className="editorial-prefooter scroll-reveal" aria-label="Footer Editorial Navigation">
         {/* Overhead Catenary Hairline Curve from Q'in Saba Reference */}
         <div className="editorial-prefooter__curve-wrap" aria-hidden="true">
           <svg className="editorial-prefooter__curve-svg" viewBox="0 0 1440 80" fill="none" preserveAspectRatio="none">
@@ -5413,7 +5413,7 @@ export default function Home() {
 
         <div className="editorial-prefooter__inner">
           {/* Left Content & Navigation Columns */}
-          <div className="editorial-prefooter__left">
+          <div className="editorial-prefooter__left scroll-reveal-left">
             <h2 className="editorial-prefooter__title">
               India, thoughtfully yours.
             </h2>

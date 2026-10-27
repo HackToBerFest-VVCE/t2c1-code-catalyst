@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { ScrollAnimationManager } from "../components/ScrollAnimationManager";
 
 const SafeConnectionProvider = ConnectionProvider as unknown as React.ComponentType<{ endpoint: string; children: React.ReactNode }>;
 const SafeWalletProvider = WalletProvider as unknown as React.ComponentType<{ wallets: any[]; autoConnect?: boolean; children: React.ReactNode }>;
@@ -20,7 +21,10 @@ export function Providers({ children }: Readonly<{ children: React.ReactNode }>)
   return (
     <SafeConnectionProvider endpoint={endpoint}>
       <SafeWalletProvider wallets={wallets} autoConnect={false}>
-        <SafeWalletModalProvider>{children}</SafeWalletModalProvider>
+        <SafeWalletModalProvider>
+          <ScrollAnimationManager />
+          {children}
+        </SafeWalletModalProvider>
       </SafeWalletProvider>
     </SafeConnectionProvider>
   );
