@@ -4037,6 +4037,50 @@ button:hover .btn__arrow {
   padding-right: 28px;
 }
 
+/* Curated Places View-All / Less Toggle (prevents endless destination wall) */
+.gallery-curation-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+  text-align: center;
+}
+
+.btn-curated-places-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--color-bg-card, #FAF7F2);
+  border: 1.5px solid var(--color-ottone, #AD8958);
+  color: var(--color-notte, #1E3331);
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30, 51, 49, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-curated-places-toggle:hover {
+  background: var(--color-brunello, #652733);
+  border-color: var(--color-brunello, #652733);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(101, 39, 51, 0.22);
+}
+
+.gallery-curation-note {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-oliva, #706F54);
+  letter-spacing: 0.02em;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    ACCOUNT & SOLANA TRAVEL HUB MODAL
    ══════════════════════════════════════════════════════════════════════════ */

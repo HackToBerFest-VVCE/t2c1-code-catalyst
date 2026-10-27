@@ -30,7 +30,7 @@ import {
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
   Mail, Download, WifiOff, Printer, X, Send, Award,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
-  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, Info,
+  Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, ChevronUp, Info,
   Shield, Ambulance, FireExtinguisher, PhoneCall, LifeBuoy, Utensils, ShoppingBag
 } from "lucide-react";
 import {
@@ -861,6 +861,7 @@ export default function Home() {
 
   // ── Visual Gallery Category Filter State ──
   const [galleryCategory, setGalleryCategory] = useState<string>("All");
+  const [showAllPlaces, setShowAllPlaces] = useState<boolean>(false);
 
   // ── Remote Area Offline Pass & Gmail Dispatch State ──
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -2038,6 +2039,15 @@ export default function Home() {
     }
     return list;
   }, [galleryCategory, searchQuery]);
+
+  // Curated limited view to prevent suggesting too many places at once
+  const displayedGalleryDests = React.useMemo(() => {
+    if (showAllPlaces || searchQuery.trim().length > 0) {
+      return filteredGalleryDests;
+    }
+    // Limit suggestions to top 4 curated destinations
+    return filteredGalleryDests.slice(0, 4);
+  }, [filteredGalleryDests, showAllPlaces, searchQuery]);
 
   // Smoothly reload detail panel and sync destination when user searches
   useEffect(() => {
@@ -3485,7 +3495,7 @@ export default function Home() {
                   </div>
                   <h2 className="gallery-title">The Grand Gallery of India</h2>
                   <p className="gallery-sub">
-                    Select any destination photograph below to instantly configure your personalized journey. Customize costs, explore iconic sights, choose transit passes, and cryptographically verify on Solana without typing in a search bar.
+                    A curated selection of India's premier destinations. Focus on a select few iconic routes—curated for zero-surge fair tariffs and verified protection without overwhelming choices.
                   </p>
                 </div>
 
@@ -3507,7 +3517,7 @@ export default function Home() {
 
                 {/* Gallery Visual Grid */}
                 <div className="gallery-grid">
-                  {filteredGalleryDests.map((dest) => {
+                  {displayedGalleryDests.map((dest) => {
                     const stateName = dest.state || DESTINATION_STATES[dest.id] || "India";
                     return (
                       <article
@@ -3561,7 +3571,7 @@ export default function Home() {
 
                             {dest.stops && dest.stops.length > 0 && (
                               <div className="gallery-card-sights-row">
-                                {dest.stops.slice(0, 3).map((stop, sIdx) => (
+                                {dest.stops.slice(0, 2).map((stop, sIdx) => (
                                   <span key={sIdx} className="gallery-card-sight-chip">
                                     {stop.name}
                                   </span>
@@ -3580,6 +3590,32 @@ export default function Home() {
                     );
                   })}
                 </div>
+
+                {/* Curated Suggestions Toggle (Prevents overwhelming wall of places) */}
+                {filteredGalleryDests.length > 4 && !searchQuery.trim() && (
+                  <div className="gallery-curation-footer">
+                    <button
+                      type="button"
+                      className="btn-curated-places-toggle"
+                      onClick={() => setShowAllPlaces(!showAllPlaces)}
+                    >
+                      {showAllPlaces ? (
+                        <>
+                          <ChevronUp size={15} />
+                          <span>Show Curated Top 4 Places</span>
+                        </>
+                      ) : (
+                        <>
+                          <Compass size={15} />
+                          <span>Explore All {filteredGalleryDests.length} Destinations</span>
+                        </>
+                      )}
+                    </button>
+                    <span className="gallery-curation-note">
+                      Showing a focused selection of curated places to prevent choice overload.
+                    </span>
+                  </div>
+                )}
               </section>
             </>
           )}
