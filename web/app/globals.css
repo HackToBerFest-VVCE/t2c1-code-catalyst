@@ -5365,6 +5365,355 @@ button:hover .btn__arrow {
   margin-bottom: 32px;
 }
 
+/* ── Account Profile Card Topbar & View Toggle ── */
+.account-profile-card-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-sabbia);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account-profile-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-status-indicator {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #9CA3AF;
+  box-shadow: 0 0 6px rgba(156, 163, 175, 0.4);
+}
+
+.profile-status-indicator.saved-active {
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: pulseGreen 2s infinite ease-in-out;
+}
+
+.profile-status-text {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-notte);
+}
+
+.account-profile-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-bg-alt);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--color-sabbia);
+  gap: 2px;
+}
+
+.profile-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-oliva);
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-toggle-btn:hover {
+  color: var(--color-notte);
+}
+
+.profile-toggle-btn.active {
+  background: #FFFFFF;
+  color: var(--color-notte);
+  box-shadow: 0 2px 6px rgba(30, 51, 49, 0.08);
+}
+
+/* ── Saved Profile Display View (Visible after saving) ── */
+.saved-profile-display-view {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hero Identity Section */
+.saved-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(250, 247, 242, 0.9) 0%, rgba(242, 237, 228, 0.6) 100%);
+  border: 1.5px solid var(--color-sabbia);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.saved-profile-avatar-wrap {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(30, 51, 49, 0.12);
+  border: 2.5px solid var(--color-ottone);
+  background: #FFFFFF;
+  padding: 2px;
+}
+
+.saved-profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.saved-profile-avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-notte);
+  color: var(--color-avorio);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.saved-avatar-check-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+
+.saved-profile-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.saved-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.saved-profile-name {
+  font-family: var(--font-mollie), Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--color-notte);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.saved-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #065F46;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.saved-profile-meta-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.saved-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  color: var(--color-oliva);
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.saved-meta-flag {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* 4-Box Profile Details Grid */
+.saved-profile-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .saved-profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.saved-detail-card {
+  padding: 16px 18px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(30, 51, 49, 0.03);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.saved-detail-card:hover {
+  border-color: var(--color-ottone);
+  transform: translateY(-1px);
+}
+
+.saved-detail-label {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-oliva);
+  text-transform: uppercase;
+}
+
+.saved-detail-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saved-country-flag {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.saved-detail-value {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-notte);
+}
+
+.saved-detail-sub {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  color: var(--color-oliva);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Welcome Quote Callout */
+.saved-welcome-quote-card {
+  padding: 16px 20px;
+  background: rgba(173, 137, 88, 0.06);
+  border-left: 3px solid var(--color-ottone);
+  border-radius: 0 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-quote-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saved-quote-title {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ottone);
+}
+
+.saved-quote-body {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-notte);
+  margin: 0;
+}
+
+/* Solana Attestation Strip */
+.saved-profile-solana-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-sabbia);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saved-solana-live-pill {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Saved Profile Bottom Actions */
+.saved-profile-bottom-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-sabbia);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 /* Avatar row */
 .account-avatar-section {
   display: flex;

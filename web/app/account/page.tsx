@@ -32,6 +32,11 @@ import {
   Download,
   WifiOff,
   Printer,
+  Edit3,
+  UserCheck,
+  Globe,
+  Quote,
+  MapPin,
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
 import { OfflineRemoteModal } from "../../components/OfflineRemoteModal";
@@ -230,6 +235,26 @@ function buildPlanFromAgreement(
   };
 }
 
+function getCountryFlag(country?: string): string {
+  if (!country) return "🇮🇳";
+  const c = country.toLowerCase().trim();
+  if (c.includes("india")) return "🇮🇳";
+  if (c.includes("indonesia")) return "🇮🇩";
+  if (c.includes("united states") || c.includes("usa") || c === "us") return "🇺🇸";
+  if (c.includes("united kingdom") || c.includes("uk")) return "🇬🇧";
+  if (c.includes("germany")) return "🇩🇪";
+  if (c.includes("france")) return "🇫🇷";
+  if (c.includes("japan")) return "🇯🇵";
+  if (c.includes("australia")) return "🇦🇺";
+  if (c.includes("canada")) return "🇨🇦";
+  if (c.includes("singapore")) return "🇸🇬";
+  if (c.includes("emirates") || c.includes("uae") || c.includes("dubai")) return "🇦🇪";
+  if (c.includes("switzerland")) return "🇨🇭";
+  if (c.includes("italy")) return "🇮🇹";
+  if (c.includes("spain")) return "🇪🇸";
+  return "🌐";
+}
+
 const DEFAULT_PROFILE: AccountProfile = {
   name: "Can Saas",
   language: "English",
@@ -414,6 +439,8 @@ const INITIAL_SAMPLE_AGREEMENT: TravelAgreementRecord = {
 
 export default function AccountPage() {
   const [profile, setProfile] = useState<AccountProfile>(DEFAULT_PROFILE);
+  const [hasSavedProfile, setHasSavedProfile] = useState<boolean>(true);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>("");
   const [currentTimeStr, setCurrentTimeStr] = useState<string>("");
   const [showTourModal, setShowTourModal] = useState(false);
@@ -557,6 +584,8 @@ export default function AccountPage() {
       const savedProfile = localStorage.getItem("yatrasetu_account_profile");
       if (savedProfile) {
         setProfile((prev) => ({ ...prev, ...JSON.parse(savedProfile) }));
+        setHasSavedProfile(true);
+        setIsEditing(false);
       } else if (wasDeleted) {
         setProfile({
           name: "",
@@ -568,6 +597,11 @@ export default function AccountPage() {
           welcomeMessage: "",
           avatarUrl: "",
         });
+        setHasSavedProfile(false);
+        setIsEditing(true);
+      } else {
+        setHasSavedProfile(true);
+        setIsEditing(false);
       }
     } catch {
       // fallback
@@ -652,7 +686,16 @@ export default function AccountPage() {
     try {
       localStorage.setItem("yatrasetu_account_profile", JSON.stringify(profile));
       localStorage.removeItem("yatrasetu_account_deleted");
-      setSaveStatus("Changes saved successfully!");
+      // Synchronize traveler persona for main site
+      if (profile.country.toLowerCase() === "india") {
+        localStorage.setItem("touristmatram_traveler_type", "indian");
+      } else {
+        localStorage.setItem("touristmatram_traveler_type", "foreign");
+        localStorage.setItem("touristmatram_foreign_country", profile.country);
+      }
+      setHasSavedProfile(true);
+      setIsEditing(false);
+      setSaveStatus("Profile details saved! Active in account section.");
       setTimeout(() => setSaveStatus(""), 3500);
     } catch {
       setSaveStatus("Error saving profile to storage.");
@@ -666,6 +709,8 @@ export default function AccountPage() {
       const saved = localStorage.getItem("yatrasetu_account_profile");
       if (saved) {
         setProfile(JSON.parse(saved));
+        setHasSavedProfile(true);
+        setIsEditing(false);
         setSaveStatus("Form reset to saved values.");
       } else if (wasDeleted) {
         setProfile({
@@ -678,14 +723,19 @@ export default function AccountPage() {
           welcomeMessage: "",
           avatarUrl: "",
         });
+        setHasSavedProfile(false);
+        setIsEditing(true);
         setSaveStatus("Form cleared.");
       } else {
         setProfile(DEFAULT_PROFILE);
+        setHasSavedProfile(true);
+        setIsEditing(false);
         setSaveStatus("Reset to default profile.");
       }
       setTimeout(() => setSaveStatus(""), 2500);
     } catch {
       setProfile(DEFAULT_PROFILE);
+      setIsEditing(false);
     }
   };
 
@@ -717,6 +767,8 @@ export default function AccountPage() {
       setAgentsList(REAL_CONCIERGE_AGENTS);
       setRefreshAgentsNotice(null);
       setShowDeleteModal(false);
+      setHasSavedProfile(false);
+      setIsEditing(true);
 
       // 3. User confirmation notification
       setSaveStatus("✓ Account deleted. All agreements and preferences have been cleared.");
@@ -923,261 +975,479 @@ export default function AccountPage() {
               <span>Create</span>
             </Link>
 
-            <div className="account-brand-mark" title="YatraSetu Travel Attestation">
-              <span className="brand-mark-text">YS</span>
+            <div
+              className="account-brand-mark"
+              title={profile.name ? `${profile.name} · Verified Traveler` : "YatraSetu Travel Attestation"}
+              style={{ overflow: "hidden" }}
+            >
+              {profile.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name || "User Avatar"}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                />
+              ) : (
+                <span className="brand-mark-text">
+                  {profile.name
+                    ? profile.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : "YS"}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         {/* ── 2-Column Responsive Dashboard Layout ── */}
         <div className="account-dashboard-columns">
-          {/* Column 1: Account Profile Form (matching Reference Image 3) */}
+          {/* Column 1: Account Profile (Saved Display & Edit Form) */}
           <div className="account-column-profile scroll-reveal-left">
             <div className="account-card-frame">
-              {/* Avatar Upload / Remove Row */}
-              <div className="account-avatar-section">
-                <div className="avatar-preview-wrapper">
-                  {profile.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profile.avatarUrl}
-                      alt="Account Avatar"
-                      className="avatar-image-circle"
-                    />
-                  ) : (
-                    <div className="avatar-placeholder-circle">
-                      <span className="avatar-initials">
-                        {profile.name
-                          ? profile.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .slice(0, 2)
-                              .toUpperCase()
-                          : "YS"}
-                      </span>
-                    </div>
-                  )}
+              {/* Top Bar: Live Status & Visibility Mode Switcher */}
+              <div className="account-profile-card-topbar">
+                <div className="account-profile-status-wrap">
+                  <span className={`profile-status-indicator ${hasSavedProfile ? "saved-active" : ""}`} />
+                  <span className="profile-status-text">
+                    {hasSavedProfile && !isEditing
+                      ? "Saved Account Profile · Active"
+                      : isEditing
+                      ? "Editing Account Details"
+                      : "Account Details"}
+                  </span>
                 </div>
 
-                <div className="avatar-actions-col">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                    style={{ display: "none" }}
-                  />
+                <div className="account-profile-view-toggle">
                   <button
                     type="button"
-                    className="account-btn-upload"
-                    onClick={() => fileInputRef.current?.click()}
+                    className={`profile-toggle-btn ${!isEditing ? "active" : ""}`}
+                    onClick={() => setIsEditing(false)}
+                    title="View saved account details"
                   >
-                    <Upload size={14} />
-                    <span>Upload</span>
+                    <UserCheck size={13} />
+                    <span>Saved Profile</span>
                   </button>
-
                   <button
                     type="button"
-                    className="account-btn-remove"
-                    onClick={handleRemoveAvatar}
+                    className={`profile-toggle-btn ${isEditing ? "active" : ""}`}
+                    onClick={() => setIsEditing(true)}
+                    title="Edit account details"
                   >
-                    <Trash2 size={14} />
-                    <span>Remove</span>
+                    <Edit3 size={13} />
+                    <span>Edit Details</span>
                   </button>
                 </div>
               </div>
 
-              {/* Form Grid matching Reference Image 3 */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSave();
-                }}
-                className="account-form-grid"
-              >
-                {/* Row 1: Name and Language */}
-                <div className="account-field-group">
-                  <label className="account-field-label" htmlFor="account-name">
-                    Name
-                  </label>
-                  <input
-                    id="account-name"
-                    name="name"
-                    type="text"
-                    className="account-field-input"
-                    value={profile.name}
-                    onChange={handleInputChange}
-                    placeholder="Can Saas"
-                  />
+              {/* Notification / Toast Message */}
+              {saveStatus && (
+                <div className="account-toast-msg" role="status" aria-live="polite" style={{ marginBottom: 20 }}>
+                  <Check size={14} />
+                  <span>{saveStatus}</span>
                 </div>
+              )}
 
-                <div className="account-field-group">
-                  <label className="account-field-label" htmlFor="account-language">
-                    Language
-                  </label>
-                  <div className="account-select-wrapper">
-                    <select
-                      id="account-language"
-                      name="language"
-                      className="account-field-select"
-                      value={profile.language}
-                      onChange={handleInputChange}
-                    >
-                      {SUPPORTED_LANGUAGES.map((l) => (
-                        <option key={l.code} value={l.name}>
-                          {l.name} ({l.nativeName})
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="select-chevron" />
-                  </div>
-                </div>
+              {!isEditing ? (
+                /* ── SAVED PROFILE DISPLAY (Visible after saving) ── */
+                <div className="saved-profile-display-view">
+                  {/* Hero Identity Banner */}
+                  <div className="saved-profile-hero">
+                    <div className="saved-profile-avatar-wrap">
+                      {profile.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={profile.avatarUrl}
+                          alt={profile.name || "User Avatar"}
+                          className="saved-profile-avatar-img"
+                        />
+                      ) : (
+                        <div className="saved-profile-avatar-initials">
+                          <span>
+                            {profile.name
+                              ? profile.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()
+                              : "YS"}
+                          </span>
+                        </div>
+                      )}
+                      <div className="saved-avatar-check-badge" title="Verified Traveler">
+                        <BadgeCheck size={14} color="#FFFFFF" />
+                      </div>
+                    </div>
 
-                {/* Row 2: Date Format, Time Format, and Country */}
-                <div className="account-field-group-row">
-                  <div className="account-field-subgroup">
-                    <label className="account-field-label" htmlFor="account-date-format">
-                      Date Format
-                    </label>
-                    <div className="account-select-wrapper">
-                      <select
-                        id="account-date-format"
-                        name="dateFormat"
-                        className="account-field-select"
-                        value={profile.dateFormat}
-                        onChange={handleInputChange}
-                      >
-                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                      </select>
-                      <ChevronDown size={14} className="select-chevron" />
+                    <div className="saved-profile-hero-info">
+                      <div className="saved-profile-name-row">
+                        <h2 className="saved-profile-name">{profile.name || "Can Saas"}</h2>
+                        <span className="saved-verified-pill">
+                          <ShieldCheck size={12} />
+                          <span>Verified Traveler</span>
+                        </span>
+                      </div>
+
+                      <div className="saved-profile-meta-pills">
+                        <span className="saved-meta-pill">
+                          <span className="saved-meta-flag">{getCountryFlag(profile.country)}</span>
+                          <span>{profile.country}</span>
+                        </span>
+                        <span className="saved-meta-pill">
+                          <Globe size={12} />
+                          <span>{profile.language}</span>
+                        </span>
+                        <span className="saved-meta-pill">
+                          <Clock size={12} />
+                          <span>{profile.timeFormat} · {profile.dateFormat}</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="account-field-subgroup">
-                    <label className="account-field-label" htmlFor="account-time-format">
-                      Time Format
-                    </label>
-                    <div className="account-select-wrapper">
-                      <select
-                        id="account-time-format"
-                        name="timeFormat"
-                        className="account-field-select"
-                        value={profile.timeFormat}
-                        onChange={handleInputChange}
+                  {/* 4-Box Key Profile Metadata Grid */}
+                  <div className="saved-profile-details-grid">
+                    <div className="saved-detail-card">
+                      <span className="saved-detail-label">CITIZENSHIP / REGION</span>
+                      <div className="saved-detail-value-row">
+                        <span className="saved-country-flag">{getCountryFlag(profile.country)}</span>
+                        <span className="saved-detail-value">{profile.country}</span>
+                      </div>
+                      <span className="saved-detail-sub">
+                        {profile.country.toLowerCase() === "india"
+                          ? "Domestic Citizen · Municipal Fair Tariff Access"
+                          : "International Traveler · Foreign Protection Seal"}
+                      </span>
+                    </div>
+
+                    <div className="saved-detail-card">
+                      <span className="saved-detail-label">LANGUAGE &amp; INTERFACE</span>
+                      <div className="saved-detail-value-row">
+                        <Globe size={15} color="var(--color-ottone)" />
+                        <span className="saved-detail-value">{profile.language}</span>
+                      </div>
+                      <span className="saved-detail-sub">
+                        Curated itineraries &amp; concierge translations
+                      </span>
+                    </div>
+
+                    <div className="saved-detail-card">
+                      <span className="saved-detail-label">TIME ZONE &amp; LOCAL TIME</span>
+                      <div className="saved-detail-value-row">
+                        <Clock size={15} color="#2563eb" />
+                        <span className="saved-detail-value font-mono">{currentTimeStr || "22:37"}</span>
+                      </div>
+                      <span className="saved-detail-sub" title={profile.timeZone}>
+                        {profile.timeZone.split(" (")[0]}
+                      </span>
+                    </div>
+
+                    <div className="saved-detail-card">
+                      <span className="saved-detail-label">DATE &amp; TIME FORMAT</span>
+                      <div className="saved-detail-value-row">
+                        <Calendar size={15} color="var(--color-brunello)" />
+                        <span className="saved-detail-value">{profile.dateFormat} · {profile.timeFormat}</span>
+                      </div>
+                      <span className="saved-detail-sub">
+                        Synchronized on all travel agreements
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Welcome Message Editorial Quote Box */}
+                  {profile.welcomeMessage && (
+                    <div className="saved-welcome-quote-card">
+                      <div className="saved-quote-header">
+                        <Quote size={14} color="var(--color-ottone)" />
+                        <span className="saved-quote-title">Welcome Message &amp; Traveler Note</span>
+                      </div>
+                      <p className="saved-quote-body">
+                        &ldquo;{profile.welcomeMessage}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Solana Attestation Banner */}
+                  <div className="saved-profile-solana-strip">
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Lock size={14} color="var(--color-ottone)" />
+                      <span style={{ fontSize: "0.78rem", color: "var(--color-oliva)", fontWeight: 600 }}>
+                        Solana Devnet Identity: Attested &amp; Ready for Zero-Commission Trip Locks
+                      </span>
+                    </div>
+                    <span className="saved-solana-live-pill">Live on Devnet</span>
+                  </div>
+
+                  {/* Bottom Actions Row in Saved View */}
+                  <div className="saved-profile-bottom-actions">
+                    <div className="bottom-left-actions">
+                      <button
+                        type="button"
+                        className="account-btn-save-change"
+                        onClick={() => setIsEditing(true)}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
                       >
-                        <option value="24h">24h</option>
-                        <option value="12h">12h</option>
-                      </select>
-                      <ChevronDown size={14} className="select-chevron" />
+                        <Edit3 size={15} />
+                        <span>Edit Details</span>
+                      </button>
+                    </div>
+
+                    <div className="bottom-right-actions">
+                      <button
+                        type="button"
+                        className="account-btn-delete-account"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        Delete Account
+                      </button>
                     </div>
                   </div>
                 </div>
+              ) : (
+                /* ── EDIT FORM (Matching Reference Image 3) ── */
+                <div>
+                  {/* Avatar Upload / Remove Row */}
+                  <div className="account-avatar-section">
+                    <div className="avatar-preview-wrapper">
+                      {profile.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={profile.avatarUrl}
+                          alt="Account Avatar"
+                          className="avatar-image-circle"
+                        />
+                      ) : (
+                        <div className="avatar-placeholder-circle">
+                          <span className="avatar-initials">
+                            {profile.name
+                              ? profile.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()
+                              : "YS"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                <div className="account-field-group">
-                  <label className="account-field-label" htmlFor="account-country">
-                    Country
-                  </label>
-                  <div className="account-select-wrapper">
-                    <select
-                      id="account-country"
-                      name="country"
-                      className="account-field-select"
-                      value={profile.country}
-                      onChange={handleInputChange}
-                    >
-                      {COUNTRIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="select-chevron" />
+                    <div className="avatar-actions-col">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        style={{ display: "none" }}
+                      />
+                      <button
+                        type="button"
+                        className="account-btn-upload"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload size={14} />
+                        <span>Upload</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="account-btn-remove"
+                        onClick={handleRemoveAvatar}
+                      >
+                        <Trash2 size={14} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Form Grid matching Reference Image 3 */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSave();
+                    }}
+                    className="account-form-grid"
+                  >
+                    {/* Row 1: Name and Language */}
+                    <div className="account-field-group">
+                      <label className="account-field-label" htmlFor="account-name">
+                        Name
+                      </label>
+                      <input
+                        id="account-name"
+                        name="name"
+                        type="text"
+                        className="account-field-input"
+                        value={profile.name}
+                        onChange={handleInputChange}
+                        placeholder="Can Saas"
+                      />
+                    </div>
+
+                    <div className="account-field-group">
+                      <label className="account-field-label" htmlFor="account-language">
+                        Language
+                      </label>
+                      <div className="account-select-wrapper">
+                        <select
+                          id="account-language"
+                          name="language"
+                          className="account-field-select"
+                          value={profile.language}
+                          onChange={handleInputChange}
+                        >
+                          {SUPPORTED_LANGUAGES.map((l) => (
+                            <option key={l.code} value={l.name}>
+                              {l.name} ({l.nativeName})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="select-chevron" />
+                      </div>
+                    </div>
+
+                    {/* Row 2: Date Format, Time Format, and Country */}
+                    <div className="account-field-group-row">
+                      <div className="account-field-subgroup">
+                        <label className="account-field-label" htmlFor="account-date-format">
+                          Date Format
+                        </label>
+                        <div className="account-select-wrapper">
+                          <select
+                            id="account-date-format"
+                            name="dateFormat"
+                            className="account-field-select"
+                            value={profile.dateFormat}
+                            onChange={handleInputChange}
+                          >
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                          </select>
+                          <ChevronDown size={14} className="select-chevron" />
+                        </div>
+                      </div>
+
+                      <div className="account-field-subgroup">
+                        <label className="account-field-label" htmlFor="account-time-format">
+                          Time Format
+                        </label>
+                        <div className="account-select-wrapper">
+                          <select
+                            id="account-time-format"
+                            name="timeFormat"
+                            className="account-field-select"
+                            value={profile.timeFormat}
+                            onChange={handleInputChange}
+                          >
+                            <option value="24h">24h</option>
+                            <option value="12h">12h</option>
+                          </select>
+                          <ChevronDown size={14} className="select-chevron" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="account-field-group">
+                      <label className="account-field-label" htmlFor="account-country">
+                        Country
+                      </label>
+                      <div className="account-select-wrapper">
+                        <select
+                          id="account-country"
+                          name="country"
+                          className="account-field-select"
+                          value={profile.country}
+                          onChange={handleInputChange}
+                        >
+                          {COUNTRIES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="select-chevron" />
+                      </div>
+                    </div>
+
+                    {/* Row 3: Time Zone with Live Current Time & Welcome Message */}
+                    <div className="account-field-group">
+                      <div className="field-label-with-time">
+                        <label className="account-field-label" htmlFor="account-time-zone">
+                          Time Zone
+                        </label>
+                        <span className="live-current-time-text">
+                          Current Time: {currentTimeStr || "22:37"}
+                        </span>
+                      </div>
+                      <div className="account-select-wrapper">
+                        <select
+                          id="account-time-zone"
+                          name="timeZone"
+                          className="account-field-select"
+                          value={profile.timeZone}
+                          onChange={handleInputChange}
+                        >
+                          {TIMEZONES.map((tz) => (
+                            <option key={tz.label} value={tz.label}>
+                              {tz.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="select-chevron" />
+                      </div>
+                    </div>
+
+                    <div className="account-field-group">
+                      <label className="account-field-label" htmlFor="account-welcome-msg">
+                        Welcome Message
+                      </label>
+                      <textarea
+                        id="account-welcome-msg"
+                        name="welcomeMessage"
+                        rows={2}
+                        className="account-field-textarea"
+                        value={profile.welcomeMessage}
+                        onChange={handleInputChange}
+                        placeholder="Welcome to my scheduling page. Please follow the instruction to add an event calendar"
+                      />
+                    </div>
+
+                    {/* Bottom Button Row matching Reference Image 3 */}
+                    <div className="account-form-bottom-row">
+                      <div className="bottom-left-actions">
+                        <button
+                          type="submit"
+                          className="account-btn-save-change"
+                        >
+                          Save Change
+                        </button>
+                        <button
+                          type="button"
+                          className="account-btn-cancel"
+                          onClick={handleCancel}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      <div className="bottom-right-actions">
+                        <button
+                          type="button"
+                          className="account-btn-delete-account"
+                          onClick={() => setShowDeleteModal(true)}
+                        >
+                          Delete Account
+                        </button>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-
-                {/* Row 3: Time Zone with Live Current Time & Welcome Message */}
-                <div className="account-field-group">
-                  <div className="field-label-with-time">
-                    <label className="account-field-label" htmlFor="account-time-zone">
-                      Time Zone
-                    </label>
-                    <span className="live-current-time-text">
-                      Current Time: {currentTimeStr || "22:37"}
-                    </span>
-                  </div>
-                  <div className="account-select-wrapper">
-                    <select
-                      id="account-time-zone"
-                      name="timeZone"
-                      className="account-field-select"
-                      value={profile.timeZone}
-                      onChange={handleInputChange}
-                    >
-                      {TIMEZONES.map((tz) => (
-                        <option key={tz.label} value={tz.label}>
-                          {tz.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="select-chevron" />
-                  </div>
-                </div>
-
-                <div className="account-field-group">
-                  <label className="account-field-label" htmlFor="account-welcome-msg">
-                    Welcome Message
-                  </label>
-                  <textarea
-                    id="account-welcome-msg"
-                    name="welcomeMessage"
-                    rows={2}
-                    className="account-field-textarea"
-                    value={profile.welcomeMessage}
-                    onChange={handleInputChange}
-                    placeholder="Welcome to my scheduling page. Please follow the instruction to add an event calendar"
-                  />
-                </div>
-
-                {/* Notification / Toast Message */}
-                {saveStatus && (
-                  <div className="account-toast-msg" role="status" aria-live="polite">
-                    <Check size={14} />
-                    <span>{saveStatus}</span>
-                  </div>
-                )}
-
-                {/* Bottom Button Row matching Reference Image 3 */}
-                <div className="account-form-bottom-row">
-                  <div className="bottom-left-actions">
-                    <button
-                      type="submit"
-                      className="account-btn-save-change"
-                    >
-                      Save Change
-                    </button>
-                    <button
-                      type="button"
-                      className="account-btn-cancel"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-
-                  <div className="bottom-right-actions">
-                    <button
-                      type="button"
-                      className="account-btn-delete-account"
-                      onClick={() => setShowDeleteModal(true)}
-                    >
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
-              </form>
+              )}
             </div>
           </div>
 

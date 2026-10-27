@@ -70,6 +70,21 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   selectedCurrency,
 }) => {
   const wallet = useWallet();
+  const [savedProfile, setSavedProfile] = React.useState<{
+    name?: string;
+    country?: string;
+    language?: string;
+    avatarUrl?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (isOpen && typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("yatrasetu_account_profile");
+        if (raw) setSavedProfile(JSON.parse(raw));
+      } catch {}
+    }
+  }, [isOpen]);
 
   // Close on Escape key
   const handleKeyDown = useCallback(
@@ -138,49 +153,128 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
         {/* Modal Body */}
         <div className="account-modal-body">
-          {/* Quick Direct Link to Dedicated Account Page */}
-          <div style={{
-            background: "rgba(37, 99, 235, 0.08)",
-            border: "1px solid rgba(37, 99, 235, 0.25)",
-            borderRadius: 14,
-            padding: "14px 18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            marginBottom: 20,
-            flexWrap: "wrap",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <Sparkles size={18} color="#2563eb" />
-              <div>
-                <div style={{ fontSize: "0.88rem", color: "var(--color-notte)", fontWeight: 700 }}>
-                  Looking for full Account Profile &amp; AI Agents Settings?
+          {/* Saved Account Profile Banner or Quick Direct Link */}
+          {savedProfile?.name ? (
+            <div style={{
+              background: "linear-gradient(135deg, rgba(250, 247, 242, 0.95) 0%, rgba(242, 237, 228, 0.8) 100%)",
+              border: "1.5px solid var(--color-sabbia)",
+              borderRadius: 14,
+              padding: "14px 18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 20,
+              flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "50%",
+                  border: "2px solid var(--color-ottone)",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "var(--color-notte)",
+                  color: "var(--color-avorio)",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  flexShrink: 0
+                }}>
+                  {savedProfile.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={savedProfile.avatarUrl} alt={savedProfile.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span>{savedProfile.name.slice(0, 2).toUpperCase()}</span>
+                  )}
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "var(--color-oliva)", marginTop: 2 }}>
-                  Edit your name, country, date/time format, welcome message, and view assigned concierges in separate columns.
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: "0.95rem", color: "var(--color-notte)", fontWeight: 700 }}>
+                      {savedProfile.name}
+                    </span>
+                    <span style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      color: "#065F46",
+                      background: "rgba(16, 185, 129, 0.14)",
+                      padding: "2px 8px",
+                      borderRadius: 10,
+                      border: "1px solid rgba(16, 185, 129, 0.3)"
+                    }}>
+                      ✓ Saved Profile
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--color-oliva)", marginTop: 2 }}>
+                    {savedProfile.country || "India"} · {savedProfile.language || "English"} · Attested on Devnet
+                  </div>
                 </div>
               </div>
+              <NextLink
+                href="/account"
+                onClick={onClose}
+                className="account-btn-save-change"
+                style={{
+                  height: 34,
+                  padding: "0 16px",
+                  fontSize: "0.8rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>View Full Account Details</span>
+                <ExternalLink size={13} />
+              </NextLink>
             </div>
-            <NextLink
-              href="/account"
-              onClick={onClose}
-              className="account-btn-save-change"
-              style={{
-                height: 36,
-                padding: "0 16px",
-                fontSize: "0.82rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                textDecoration: "none",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>Open Dedicated Account Page</span>
-              <ExternalLink size={13} />
-            </NextLink>
-          </div>
+          ) : (
+            <div style={{
+              background: "rgba(37, 99, 235, 0.08)",
+              border: "1px solid rgba(37, 99, 235, 0.25)",
+              borderRadius: 14,
+              padding: "14px 18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 20,
+              flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Sparkles size={18} color="#2563eb" />
+                <div>
+                  <div style={{ fontSize: "0.88rem", color: "var(--color-notte)", fontWeight: 700 }}>
+                    Looking for full Account Profile &amp; AI Agents Settings?
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--color-oliva)", marginTop: 2 }}>
+                    Edit your name, country, date/time format, welcome message, and view assigned concierges in separate columns.
+                  </div>
+                </div>
+              </div>
+              <NextLink
+                href="/account"
+                onClick={onClose}
+                className="account-btn-save-change"
+                style={{
+                  height: 36,
+                  padding: "0 16px",
+                  fontSize: "0.82rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>Open Dedicated Account Page</span>
+                <ExternalLink size={13} />
+              </NextLink>
+            </div>
+          )}
 
           {/* 1. Phantom / Solflare Wallet Section */}
           <div className="account-card account-card--wallet">

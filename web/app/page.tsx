@@ -907,6 +907,16 @@ export default function Home() {
 
   // ── Account & Solana Travel Hub Modal State ──
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [navProfile, setNavProfile] = useState<{ name?: string; avatarUrl?: string } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("yatrasetu_account_profile");
+        if (raw) setNavProfile(JSON.parse(raw));
+      } catch {}
+    }
+  }, []);
 
   // ── Visual Gallery Category Filter State ──
   const [galleryCategory, setGalleryCategory] = useState<string>("All");
@@ -2554,8 +2564,34 @@ export default function Home() {
               href="/account"
               className="nav-editorial-link"
               aria-label="Account details"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              ACCOUNT
+              {navProfile?.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={navProfile.avatarUrl}
+                  alt="Profile Avatar"
+                  style={{ width: 18, height: 18, borderRadius: "50%", objectFit: "cover" }}
+                />
+              ) : navProfile?.name ? (
+                <span
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    background: "var(--color-notte)",
+                    color: "var(--color-avorio)",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {navProfile.name.slice(0, 1).toUpperCase()}
+                </span>
+              ) : null}
+              <span>ACCOUNT</span>
             </Link>
 
             {/* Quick Language Switcher: EN / HI / KN (matching EN / IT / ES in reference) */}
