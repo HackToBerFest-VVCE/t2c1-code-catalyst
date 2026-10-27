@@ -2473,6 +2473,210 @@ button:hover .btn__arrow {
   margin-bottom: 24px;
 }
 
+/* ── Wizard Step 1 AI Concierge Selector (Image 1 Red Box) ── */
+.wizard-agent-selector-box {
+  background: var(--color-bg-card, #FAF7F2);
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 14px rgba(30, 51, 49, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 320px;
+  max-width: 440px;
+}
+
+.wizard-agent-selector-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wizard-agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.wizard-agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.wizard-agent-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.wizard-agent-name {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-notte, #1E3331);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+.wizard-agent-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #2D5A43;
+  background: rgba(45, 90, 67, 0.1);
+  border: 1px solid rgba(45, 90, 67, 0.25);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.wizard-agent-rating-badge {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-ottone, #AD8958);
+  background: rgba(173, 137, 88, 0.12);
+  border: 1px solid rgba(173, 137, 88, 0.25);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.wizard-agent-pda-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--color-oliva);
+  flex-wrap: wrap;
+}
+
+.wizard-agent-pda-row .pda-code {
+  font-family: monospace;
+  background: rgba(30, 51, 49, 0.05);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--color-notte);
+  font-size: 0.68rem;
+}
+
+.wizard-agent-pda-row .tariff-cap-tag {
+  color: #2D5A43;
+  font-weight: 700;
+  font-size: 0.7rem;
+  background: rgba(45, 90, 67, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.wizard-agent-dropdown-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-sabbia, #E2D9CC);
+}
+
+.wizard-agent-dropdown-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-oliva);
+  white-space: nowrap;
+}
+
+.wizard-agent-select-container {
+  position: relative;
+  flex: 1;
+}
+
+.wizard-agent-dropdown-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  border-radius: 8px;
+  padding: 6px 26px 6px 10px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-notte, #1E3331);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wizard-agent-dropdown-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.wizard-agent-select-chevron {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-oliva);
+}
+
+.btn-refresh-agents {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill, 9999px);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh-agents:hover:not(:disabled) {
+  background: #2563eb;
+  color: #FFFFFF;
+  border-color: #2563eb;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-refresh-agents:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spin-clockwise {
+  animation: spin 1s linear infinite;
+}
+
 .wizard-step-label {
   display: inline-block;
   font-size: 11px;

@@ -28,7 +28,7 @@ import {
   Zap, Receipt, MapPin, Clock, Star, Train, Bus, Car, Ship,
   Bike, Check, Users, ShieldCheck, Flame, Leaf, Coffee,
   Calendar, RotateCcw, ClipboardList, Ticket, Compass,
-  Mail, Download, WifiOff, Printer, X, Send, Award,
+  Mail, Download, WifiOff, Printer, X, Send, Award, Bot,
   Headset, MessageCircle, IndianRupee, FileCheck, FileText, Hotel, Wallet, Plane,
   Heart, AlertTriangle, AlertCircle, ShieldAlert, Link as LinkIcon, ChevronDown, ChevronUp, Info,
   Shield, Ambulance, FireExtinguisher, PhoneCall, LifeBuoy, Utensils, ShoppingBag
@@ -83,68 +83,87 @@ const FALLBACK_THUMB = "/images/destinations/hawa-mahal.jpg";
 // ── Curated Solana Concierge Agents (Devnet & Metaplex Verified) ──────────────
 const CURATED_CONCIERGE_AGENTS = [
   {
-    name: "Arjun - Cultural Heritage & Temple Guide",
-    displayName: "Arjun - Cultural Heritage & Temple Guide",
-    specialty: "Heritage Itineraries & Price Protection",
+    name: "Touristमित्र Heritage & Travel Concierge",
+    displayName: "Touristमित्र Heritage & Travel Concierge",
+    shortName: "Touristमित्र",
+    specialty: "All-India Municipal Fair Tariff & Verified Protection",
     mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
     reputation: {
-      trustScore: 99.4,
+      trustScore: 99.8,
       totalTripsVerified: 1420,
-      rating: 4.95,
-      sealStatus: "Active Verified (SEAL Tier-1)",
-    },
-  },
-  {
-    name: "Priya - Transport & Safety Specialist",
-    displayName: "Priya - Transport & Safety Specialist",
-    specialty: "Flights, Hotel Stays & Ground Transit",
-    mintAddress: "5KXXM4PnaKHHbjgKshQgGNhV66srYbnEnqB5L2tY3hGn",
-    identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
-    reputation: {
-      trustScore: 98.1,
-      totalTripsVerified: 980,
-      rating: 4.88,
+      rating: 4.98,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
   {
     name: "Vikram - Fair Pricing & Tariff Auditor",
     displayName: "Vikram - Fair Pricing & Tariff Auditor",
-    specialty: "Fare Auditing & Trail Safety",
+    shortName: "Vikram",
+    specialty: "Fare Auditing & Municipal Benchmarks",
     mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
     reputation: {
-      trustScore: 99.1,
+      trustScore: 99.2,
       totalTripsVerified: 1105,
-      rating: 4.94,
+      rating: 4.95,
+      sealStatus: "Active Verified (SEAL Tier-1)",
+    },
+  },
+  {
+    name: "Arjun - Cultural Heritage & Temple Guide",
+    displayName: "Arjun - Cultural Heritage & Temple Guide",
+    shortName: "Arjun",
+    specialty: "Heritage Itineraries & Temple Architecture",
+    mintAddress: "AJ7XTKj5VJHXo87qQogjckmSz3upbLX9MVzK5fy9TgX",
+    identityPda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A",
+    reputation: {
+      trustScore: 98.6,
+      totalTripsVerified: 1240,
+      rating: 4.91,
+      sealStatus: "Active Verified (SEAL Tier-1)",
+    },
+  },
+  {
+    name: "Sendero - Smart Transit & Route Optimizer",
+    displayName: "Sendero - Smart Transit & Route Optimizer",
+    shortName: "Sendero",
+    specialty: "Flights, Hotel Stays & Ground Transit",
+    mintAddress: "5KXXM4PnaKHHbjgKshQgGNhV66srYbnEnqB5L2tY3hGn",
+    identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
+    reputation: {
+      trustScore: 98.0,
+      totalTripsVerified: 980,
+      rating: 4.87,
       sealStatus: "Active Verified (SEAL Tier-1)",
     },
   },
   {
     name: "Ananya - Local Cuisine & Artisan Scout",
     displayName: "Ananya - Local Cuisine & Artisan Scout",
+    shortName: "Ananya",
     specialty: "Cultural History & Artisan Audio Tours",
     mintAddress: "AJ7XTKj5VJHXo87qQogjckmSz3upbLX9MVzK5fy9TgX",
     identityPda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A",
     reputation: {
-      trustScore: 97.8,
+      trustScore: 97.4,
       totalTripsVerified: 840,
-      rating: 4.92,
+      rating: 4.84,
       sealStatus: "Active Verified (SEAL Tier-2)",
     },
   },
   {
-    name: "Touristमित्र Heritage & Travel Concierge",
-    displayName: "Touristमित्र Heritage & Travel Concierge",
-    specialty: "All-India Municipal Fair Tariff & Verified Protection",
-    mintAddress: "CnhuTNUvdwn6aMKjwDFhmQujf1E8j9xqQ2xLCR7ZXXbn",
-    identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
+    name: "Priya - Transport & Safety Specialist",
+    displayName: "Priya - Transport & Safety Specialist",
+    shortName: "Priya",
+    specialty: "Safe Route Mapping & Night Transit Passes",
+    mintAddress: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
+    identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
     reputation: {
-      trustScore: 99.4,
-      totalTripsVerified: 1420,
-      rating: 4.95,
-      sealStatus: "Active Verified (SEAL Tier-1)",
+      trustScore: 96.5,
+      totalTripsVerified: 750,
+      rating: 4.79,
+      sealStatus: "Active Verified (SEAL Tier-2)",
     },
   },
 ];
@@ -827,6 +846,27 @@ export default function Home() {
   const [customCommitLoading, setCustomCommitLoading] = useState(false);
   const [customCommitError, setCustomCommitError] = useState("");
 
+  // ── Curated Solana Concierge Agent Selection State ──
+  const [selectedAgent, setSelectedAgent] = useState<any>(CURATED_CONCIERGE_AGENTS[0]);
+
+  // Load saved agent from localStorage on client mount if available
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("yatrasetu_selected_agent");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.name) {
+          const match = CURATED_CONCIERGE_AGENTS.find(a => a.name === parsed.name || a.displayName === parsed.name);
+          if (match) {
+            setSelectedAgent(match);
+          } else {
+            setSelectedAgent(parsed);
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
   // ── Native Solana AI Concierge Search State ──
   const [isAiSearchingCity, setIsAiSearchingCity] = useState(false);
   const [aiSearchingCityName, setAiSearchingCityName] = useState("");
@@ -944,12 +984,15 @@ export default function Home() {
   }, [exchangeRates, solInCurrencies]);
 
   // Dynamic Budget Calculation scaling with number of selected places: More places -> More days & entry costs!
+  // Plus AI Concierge Trust Score Discount / Fair Tariff Adjustment:
+  // Higher trust score -> lower price (more efficient municipal route negotiation & fair tariffs)
   const calculateBudgetForSelection = useCallback((
     city: CuratedCity | null,
     selectedIds: string[],
     tier: "budget" | "comfort" | "luxury" = "comfort",
     targetCur: string = selectedCurrency,
-    pace: "leisurely" | "explorer" = travelPace
+    pace: "leisurely" | "explorer" = travelPace,
+    agentOverride?: any
   ): number => {
     if (!city) return 650;
     const count = Math.max(1, selectedIds.length);
@@ -963,10 +1006,20 @@ export default function Home() {
 
     // Daily hotel + food rate by selected tier
     const dailyRateUSD = tier === "budget" ? 35 : tier === "luxury" ? 240 : 95;
-    const totalUSD = (dailyRateUSD * computedDays) + totalTicketsUSD + transitUSD;
+    const baseTotalUSD = (dailyRateUSD * computedDays) + totalTicketsUSD + transitUSD;
+
+    // AI Concierge Trust Score Discount / Municipal Benchmark Optimization:
+    // Higher trust score = lower price. Subtle yet noticeable difference on every agent change.
+    const activeAgentObj = agentOverride || selectedAgent;
+    const scoreVal = typeof activeAgentObj?.reputation?.trustScore === "number"
+      ? activeAgentObj.reputation.trustScore
+      : 99.0;
+    // Base reference: 96.0%. Discount multiplier: each 1% above 96.0% reduces price by 1.2%
+    const discountMultiplier = Math.max(0.90, Math.min(1.0, 1 - ((scoreVal - 96.0) * 0.012)));
+    const totalUSD = Math.round(baseTotalUSD * discountMultiplier);
 
     return convertAmount(totalUSD, targetCur);
-  }, [convertAmount, selectedCurrency, travelPace]);
+  }, [convertAmount, selectedCurrency, travelPace, selectedAgent]);
 
   const handleCurrencyChange = (newCur: string) => {
     setSelectedCurrency(newCur);
@@ -1651,13 +1704,23 @@ export default function Home() {
   const [agentStatus, setAgentStatus] = useState("");
   const [verifiedAsset, setVerifiedAsset] = useState<string | null>(null);
   const [verifyingAsset, setVerifyingAsset] = useState<string | null>(null);
-  const [selectedAgent, setSelectedAgent] = useState<any>(CURATED_CONCIERGE_AGENTS[0]);
-
   const handleSelectAgent = (agent: any) => {
     setSelectedAgent(agent);
     try {
       localStorage.setItem("yatrasetu_selected_agent", JSON.stringify(agent));
     } catch {}
+    if (plannerCity) {
+      const scaled = calculateBudgetForSelection(
+        plannerCity,
+        selectedAttractionIds,
+        budgetTier,
+        selectedCurrency,
+        travelPace,
+        agent
+      );
+      setBudgetAmount(scaled);
+      setBudget(scaled);
+    }
   };
   const [agentVerifyDetails, setAgentVerifyDetails] = useState<Record<string, any>>({});
 
@@ -2424,17 +2487,78 @@ export default function Home() {
               {/* ── STEP 1: Top Attractions Selection ── */}
               {plannerStep === 1 && (
                 <div className="wizard-panel">
-                  <div className="wizard-header">
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                      <span className="wizard-step-label">Step 1 of 5 · Destination Curation</span>
-                      <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.15)", color: "var(--success)", border: "1px solid rgba(0, 217, 149, 0.3)", padding: "2px 8px", borderRadius: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                        <CheckCircle2 size={12} /> Authenticated by Solana AI Registry
-                      </span>
+                  <div className="wizard-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20, flexWrap: "wrap", marginBottom: 20 }}>
+                    <div style={{ flex: 1, minWidth: 280 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                        <span className="wizard-step-label">Step 1 of 5 · Destination Curation</span>
+                        <span style={{ fontSize: 11, background: "rgba(0, 217, 149, 0.15)", color: "var(--success)", border: "1px solid rgba(0, 217, 149, 0.3)", padding: "2px 8px", borderRadius: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <CheckCircle2 size={12} /> Authenticated by Solana AI Registry
+                        </span>
+                      </div>
+                      <h2 className="wizard-title">{t.selectSights} {plannerCity.name}</h2>
+                      <p className="wizard-subtitle">
+                        Curated sights and benchmark timings verified by <strong>{selectedAgent?.displayName || "YatraSetu AI Concierge"}</strong>. Choose your landmarks to optimize the day-by-day route.
+                      </p>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, padding: "5px 12px", background: "rgba(45, 90, 67, 0.08)", border: "1px solid rgba(45, 90, 67, 0.2)", borderRadius: 10, fontSize: 12.5, color: "#2D5A43", fontWeight: 600 }}>
+                        <Sparkles size={13} />
+                        <span>AI-Audited Trip Rate: <strong style={{ fontSize: 14, color: "#2D5A43" }}>{budgetAmount.toLocaleString()} {selectedCurrency}</strong> <span style={{ opacity: 0.8 }}>({selectedAttractionIds.length} sight{selectedAttractionIds.length === 1 ? "" : "s"} · {selectedAgent?.reputation?.trustScore ?? 99.8}% SEAL discount applied)</span></span>
+                      </div>
                     </div>
-                    <h2 className="wizard-title">{t.selectSights} {plannerCity.name}</h2>
-                    <p className="wizard-subtitle">
-                      Curated sights and benchmark timings verified by <strong>{selectedAgent?.displayName || "YatraSetu AI Concierge"}</strong>. Choose your landmarks to optimize the day-by-day route.
-                    </p>
+
+                    {/* AI Concierge Agent Selector (Circled in User Reference) */}
+                    <div className="wizard-agent-selector-box">
+                      <div className="wizard-agent-selector-top">
+                        <div className="wizard-agent-avatar">
+                          <Bot size={20} />
+                        </div>
+                        <div className="wizard-agent-info">
+                          <div className="wizard-agent-name-row">
+                            <span className="wizard-agent-name" title={selectedAgent?.displayName || selectedAgent?.name}>
+                              {selectedAgent?.displayName || selectedAgent?.name}
+                            </span>
+                            <span className="wizard-agent-score-badge">
+                              ★ {selectedAgent?.reputation?.trustScore ?? 99.8}% SEAL
+                            </span>
+                            <span className="wizard-agent-rating-badge">
+                              {selectedAgent?.reputation?.rating ?? 4.98} ★
+                            </span>
+                          </div>
+                          <div className="wizard-agent-pda-row">
+                            <span>PDA:</span>
+                            <span className="pda-code">
+                              {(selectedAgent?.identityPda || "1xEXUh3Y").slice(0, 4)}...{(selectedAgent?.identityPda || "4FeBP").slice(-4)}
+                            </span>
+                            <span className="tariff-cap-tag">
+                              {(selectedAgent?.reputation?.trustScore ?? 99) >= 99 ? "Top Fair Tariff -4.5%" : "Verified Tariff Safe"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="wizard-agent-dropdown-wrap">
+                        <span className="wizard-agent-dropdown-lbl">
+                          <Sparkles size={12} color="var(--color-ottone, #AD8958)" />
+                          Switch Agent:
+                        </span>
+                        <div className="wizard-agent-select-container">
+                          <select
+                            value={selectedAgent?.name}
+                            onChange={(e) => {
+                              const target = CURATED_CONCIERGE_AGENTS.find(a => a.name === e.target.value) || agents.find(a => a.name === e.target.value);
+                              if (target) handleSelectAgent(target);
+                            }}
+                            className="wizard-agent-dropdown-select"
+                          >
+                            {CURATED_CONCIERGE_AGENTS.map((a) => (
+                              <option key={a.name} value={a.name}>
+                                {a.displayName} (SEAL {a.reputation.trustScore}%)
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={13} className="wizard-agent-select-chevron" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="attraction-grid">

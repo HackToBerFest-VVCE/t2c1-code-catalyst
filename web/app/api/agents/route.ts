@@ -13,10 +13,10 @@ const CURATED_TOURISM_AGENTS = [
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
     specialty: "Heritage Itineraries & Price Protection",
     reputation: {
-      trustScore: 99.4,
+      trustScore: 99.8,
       totalTripsVerified: 1420,
       feedbackCount: 384,
-      rating: 4.95,
+      rating: 4.98,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP" },
@@ -39,10 +39,10 @@ const CURATED_TOURISM_AGENTS = [
     identityPda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ",
     specialty: "Flights, Hotel Stays & Seamless Booking",
     reputation: {
-      trustScore: 98.1,
+      trustScore: 98.0,
       totalTripsVerified: 980,
       feedbackCount: 215,
-      rating: 4.88,
+      rating: 4.87,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "HA93hVGrCaZVEPTNcPjsquys99ibBCoqYUkSnSTDaQwJ" },
@@ -63,11 +63,11 @@ const CURATED_TOURISM_AGENTS = [
     identityPda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A",
     specialty: "Cultural History & Audio Tours",
     reputation: {
-      trustScore: 97.8,
-      totalTripsVerified: 840,
+      trustScore: 98.6,
+      totalTripsVerified: 1240,
       feedbackCount: 190,
-      rating: 4.92,
-      sealStatus: "Active Verified (SEAL Tier-2)",
+      rating: 4.91,
+      sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "73fpiE4YdPRMpfb86rcuBoZ33KDkVtyFmU6nVQpKGP2A" },
         { type: "Curated Knowledge Base", status: "Verified Cultural Archive", protocol: "Audio & Historical API" }
@@ -87,10 +87,10 @@ const CURATED_TOURISM_AGENTS = [
     identityPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
     specialty: "Fare Auditing & Trail Safety",
     reputation: {
-      trustScore: 99.1,
+      trustScore: 99.2,
       totalTripsVerified: 1105,
       feedbackCount: 260,
-      rating: 4.94,
+      rating: 4.95,
       sealStatus: "Active Verified (SEAL Tier-1)",
       validationRecords: [
         { type: "Identity Registry", status: "Verified on Solana Devnet", pda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP" },
