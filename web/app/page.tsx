@@ -1293,6 +1293,7 @@ export default function Home() {
         const filtered = existingAgreements.filter((a: any) => a.dest !== agreementRecord.dest);
         const updatedAgreements = [agreementRecord, ...filtered];
         localStorage.setItem("yatrasetu_travel_agreements", JSON.stringify(updatedAgreements));
+        localStorage.removeItem("yatrasetu_account_deleted");
       } catch (storageErr) {
         console.error("Storage error:", storageErr);
       }

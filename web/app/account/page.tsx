@@ -41,6 +41,7 @@ import { AgentFeedbackModal } from "../../components/AgentFeedbackModal";
 import {
   getAgentReviews,
   getTopAgentReview,
+  normalizeAgentKey,
   type AgentReview,
 } from "../../lib/agent-reviews";
 import {
@@ -480,8 +481,9 @@ export default function AccountPage() {
         if (rawList.length > 0) {
           const mapped: ConciergeAgentMeta[] = rawList.map((a: any, idx: number) => {
             const short = a.displayName ? a.displayName.split(" ")[0] : a.name.slice(0, 10);
+            const stableId = normalizeAgentKey(a.displayName || a.name);
             return {
-              id: a.mintAddress ? `${a.mintAddress.slice(0, 8)}-${idx}` : `agent-${idx}`,
+              id: stableId,
               name: a.displayName || a.name,
               shortName: short,
               role: a.specialty || "Verified Concierge",
@@ -491,7 +493,7 @@ export default function AccountPage() {
               trustScore: a.reputation?.trustScore ?? 99.0,
               sealStatus: a.reputation?.sealStatus || "SEAL Tier-1 Verified",
               tripsVerified: a.reputation?.totalTripsVerified || 1000,
-              rating: a.reputation?.rating ?? 4.95,
+              rating: a.reputation?.rating ?? getAgentRating(a.displayName || a.name),
               status: "Live Devnet Registry",
               lastUsedItinerary: "Solana Registry Synced",
             };
@@ -551,10 +553,23 @@ export default function AccountPage() {
 
   // Load profile and agreements from localStorage on mount
   useEffect(() => {
+    const wasDeleted = typeof window !== "undefined" && localStorage.getItem("yatrasetu_account_deleted") === "true";
+
     try {
       const savedProfile = localStorage.getItem("yatrasetu_account_profile");
       if (savedProfile) {
         setProfile((prev) => ({ ...prev, ...JSON.parse(savedProfile) }));
+      } else if (wasDeleted) {
+        setProfile({
+          name: "",
+          language: "English",
+          dateFormat: "DD/MM/YYYY",
+          timeFormat: "24h",
+          country: "India",
+          timeZone: "IST - India Standard Time (UTC+05:30)",
+          welcomeMessage: "",
+          avatarUrl: "",
+        });
       }
     } catch {
       // fallback
@@ -562,16 +577,25 @@ export default function AccountPage() {
 
     try {
       const savedAgr = localStorage.getItem("yatrasetu_travel_agreements");
+
+      // If user explicitly deleted their account or cleared all agreements, preserve empty state
+      if (wasDeleted || savedAgr === "[]") {
+        setSavedAgreements([]);
+        return;
+      }
+
       if (savedAgr) {
         const parsed = JSON.parse(savedAgr);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setSavedAgreements(parsed);
           return;
         }
       }
+
+      // Initial first visit default agreement
       setSavedAgreements([INITIAL_SAMPLE_AGREEMENT]);
     } catch {
-      setSavedAgreements([INITIAL_SAMPLE_AGREEMENT]);
+      setSavedAgreements([]);
     }
   }, []);
 
@@ -629,6 +653,7 @@ export default function AccountPage() {
   const handleSave = () => {
     try {
       localStorage.setItem("yatrasetu_account_profile", JSON.stringify(profile));
+      localStorage.removeItem("yatrasetu_account_deleted");
       setSaveStatus("Changes saved successfully!");
       setTimeout(() => setSaveStatus(""), 3500);
     } catch {
@@ -639,13 +664,27 @@ export default function AccountPage() {
 
   const handleCancel = () => {
     try {
+      const wasDeleted = localStorage.getItem("yatrasetu_account_deleted") === "true";
       const saved = localStorage.getItem("yatrasetu_account_profile");
       if (saved) {
         setProfile(JSON.parse(saved));
+        setSaveStatus("Form reset to saved values.");
+      } else if (wasDeleted) {
+        setProfile({
+          name: "",
+          language: "English",
+          dateFormat: "DD/MM/YYYY",
+          timeFormat: "24h",
+          country: "India",
+          timeZone: "IST - India Standard Time (UTC+05:30)",
+          welcomeMessage: "",
+          avatarUrl: "",
+        });
+        setSaveStatus("Form cleared.");
       } else {
         setProfile(DEFAULT_PROFILE);
+        setSaveStatus("Reset to default profile.");
       }
-      setSaveStatus("Form reset to saved values.");
       setTimeout(() => setSaveStatus(""), 2500);
     } catch {
       setProfile(DEFAULT_PROFILE);
@@ -654,12 +693,38 @@ export default function AccountPage() {
 
   const handleDeleteAccount = () => {
     try {
+      // 1. Wipe all local storage keys related to account, agreements, active agents, and reviews
       localStorage.removeItem("yatrasetu_account_profile");
-      setProfile(DEFAULT_PROFILE);
+      localStorage.setItem("yatrasetu_travel_agreements", JSON.stringify([]));
+      localStorage.removeItem("yatrasetu_selected_agent");
+      localStorage.removeItem("yatrasetu_agent_user_reviews");
+      localStorage.removeItem("prooftrip_records");
+      localStorage.removeItem("touristmatram_traveler_type");
+      localStorage.removeItem("touristmatram_foreign_country");
+      localStorage.setItem("yatrasetu_account_deleted", "true");
+
+      // 2. Reset all in-memory component states so the screen immediately reflects the deletion
+      setProfile({
+        name: "",
+        language: "English",
+        dateFormat: "DD/MM/YYYY",
+        timeFormat: "24h",
+        country: "India",
+        timeZone: "IST - India Standard Time (UTC+05:30)",
+        welcomeMessage: "",
+        avatarUrl: "",
+      });
+      setSavedAgreements([]);
+      setActiveAgentId("touristmitra");
+      setAgentsList(REAL_CONCIERGE_AGENTS);
+      setRefreshAgentsNotice(null);
       setShowDeleteModal(false);
-      setSaveStatus("Account profile reset to default defaults.");
-      setTimeout(() => setSaveStatus(""), 3500);
-    } catch {
+
+      // 3. User confirmation notification
+      setSaveStatus("✓ Account deleted. All agreements and preferences have been cleared.");
+      setTimeout(() => setSaveStatus(""), 4000);
+    } catch (e) {
+      console.warn("Delete account error:", e);
       setShowDeleteModal(false);
     }
   };
@@ -708,7 +773,11 @@ export default function AccountPage() {
   };
 
   const handleDownloadAllOffline = () => {
-    if (savedAgreements.length === 0) return;
+    if (savedAgreements.length === 0) {
+      setSaveStatus("No travel agreements to download. Explore destinations to create one!");
+      setTimeout(() => setSaveStatus(""), 3500);
+      return;
+    }
     try {
       savedAgreements.forEach((ag, idx) => {
         setTimeout(() => {
@@ -1878,10 +1947,10 @@ export default function AccountPage() {
         <div className="account-modal-backdrop" onClick={() => setShowDeleteModal(false)}>
           <div className="account-dialog-card" onClick={(e) => e.stopPropagation()}>
             <h3 className="dialog-title" style={{ color: "#991B1B" }}>
-              Reset Account Details?
+              Delete Account &amp; Wipe All Data?
             </h3>
             <p className="dialog-sub">
-              This will reset all your saved local account details, timezone preferences, and custom avatar. This action cannot be undone.
+              This will permanently delete your personal profile, all certified travel agreements ({savedAgreements.length}), assigned concierges, custom reviews, and offline passes. Once deleted and refreshed, all saved and clicked items will remain completely cleared.
             </p>
             <div className="dialog-actions-row" style={{ marginTop: 24 }}>
               <button
@@ -1889,7 +1958,7 @@ export default function AccountPage() {
                 className="account-btn-delete-account"
                 onClick={handleDeleteAccount}
               >
-                Confirm Delete
+                Confirm Delete Everything
               </button>
               <button
                 type="button"
