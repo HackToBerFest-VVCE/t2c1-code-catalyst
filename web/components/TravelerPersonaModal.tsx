@@ -65,12 +65,8 @@ export default function TravelerPersonaModal({
         {/* ══ STEP 1: Two Clean Side-by-Side Cards (Circular Logos, Clean & Concise) ══ */}
         {step === "persona" && (
           <div className="persona-step-wrap">
-            {/* Clean Header: Namaskara Welcome */}
+            {/* Clean Header */}
             <div className="persona-header">
-              <div className="persona-badge">
-                <ShieldCheck size={13} color="var(--color-brunello)" />
-                <span>🙏 Namaskara · Welcome to YatraSetu</span>
-              </div>
               <h2 className="persona-title">Namaskara · Welcome</h2>
               <p className="persona-sub">
                 Select your traveler category to customize transit passes, fare cards, and itinerary guidance.
