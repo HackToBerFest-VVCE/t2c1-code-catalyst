@@ -4344,7 +4344,7 @@ button:hover .btn__arrow {
 }
 
 .account-main-content {
-  max-width: 980px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 44px 24px 80px 24px;
   width: 100%;
@@ -4787,6 +4787,439 @@ button:hover .btn__arrow {
 
 .account-btn-delete-account:active {
   transform: scale(0.97);
+}
+
+
+/* ── 2-Column Responsive Dashboard Layout ── */
+.account-dashboard-columns {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 28px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.account-column-profile {
+  min-width: 0;
+}
+
+.account-column-agreements {
+  min-width: 0;
+}
+
+@media (max-width: 1060px) {
+  .account-dashboard-columns {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+/* ── Agreements Column Card Container ── */
+.account-agreements-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 8px 28px -4px rgba(30, 51, 49, 0.06);
+}
+
+.agreements-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-sabbia);
+  margin-bottom: 22px;
+}
+
+.agreements-title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.agreements-lock-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(173, 137, 88, 0.12);
+  border: 1px solid rgba(173, 137, 88, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.agreements-column-title {
+  font-family: var(--font-mollie), Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--color-notte);
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.agreements-column-sub {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.8rem;
+  color: var(--color-oliva);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.agreements-active-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(45, 90, 67, 0.1);
+  border: 1px solid rgba(45, 90, 67, 0.25);
+  color: #2D5A43;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Empty State */
+.agreements-empty-state {
+  text-align: center;
+  padding: 36px 16px;
+  border-radius: 14px;
+  background: var(--color-bg-card);
+  border: 1.5px dashed var(--color-sabbia);
+}
+
+/* Agreement Record Card */
+.agreements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.agreement-record-card {
+  background: var(--color-bg-card, #FAF7F2);
+  border: 1px solid var(--color-sabbia, #E2D9CC);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px -2px rgba(30, 51, 49, 0.04);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+.agreement-record-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(30, 51, 49, 0.08);
+  border-color: var(--color-ottone, #AD8958);
+}
+
+.agreement-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.agreement-dest-badge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agreement-city-pill {
+  display: inline-block;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ottone);
+}
+
+.agreement-record-title {
+  font-family: var(--font-mollie), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-notte);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.agreement-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(45, 90, 67, 0.12);
+  border: 1px solid rgba(45, 90, 67, 0.3);
+  color: #2D5A43;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Assigned Agent Box inside Agreement Card */
+.agreement-agent-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  margin-bottom: 14px;
+}
+
+.agreement-agent-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-notte);
+  color: var(--color-avorio);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-jost), sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.agreement-agent-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.agreement-agent-line-1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+
+.agreement-agent-display-name {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--color-notte);
+}
+
+.agreement-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2D5A43;
+  background: rgba(45, 90, 67, 0.1);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.agreement-agent-line-2 {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-oliva);
+  margin-bottom: 4px;
+}
+
+.agreement-agent-line-3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+}
+
+.pda-label {
+  color: var(--color-oliva);
+  font-size: 0.72rem;
+}
+
+.pda-val {
+  font-family: monospace;
+  font-size: 0.74rem;
+  color: var(--color-notte);
+  background: rgba(30, 51, 49, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.pda-devnet-tag {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-ottone);
+  background: rgba(173, 137, 88, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Guarantees Grid */
+.agreement-guarantees-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.guarantee-box {
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.guarantee-lbl {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-oliva);
+  text-transform: uppercase;
+}
+
+.guarantee-val {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--color-notte);
+}
+
+.guarantee-val.price-green {
+  color: #2D5A43;
+}
+
+.guarantee-sub {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.7rem;
+  color: var(--color-oliva);
+}
+
+/* Certificate & Hash Bar */
+.agreement-cert-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(30, 51, 49, 0.04);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.cert-copy-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cert-label {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-oliva);
+}
+
+.cert-code-text {
+  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-notte);
+}
+
+.btn-cert-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-sabbia);
+  color: var(--color-oliva);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cert-copy:hover {
+  border-color: var(--color-ottone);
+  color: var(--color-notte);
+}
+
+.cert-datetime-text {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.72rem;
+  color: var(--color-oliva);
+}
+
+/* Card Actions Bar */
+.agreement-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-sabbia);
+}
+
+.btn-view-explorer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-view-explorer:hover {
+  color: #1d4ed8;
+}
+
+.cert-verified-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2D5A43;
+}
+
+.btn-remove-agreement {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-sabbia);
+  background: #FFFFFF;
+  color: var(--color-oliva);
+  font-family: var(--font-jost), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-agreement:hover {
+  border-color: #991b1b;
+  color: #991b1b;
+  background: rgba(153, 27, 27, 0.05);
 }
 
 /* ── Web3 Devnet Hub Section ── */

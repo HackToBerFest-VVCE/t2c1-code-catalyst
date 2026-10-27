@@ -20,6 +20,13 @@ import {
   Layers,
   Compass,
   Wallet,
+  Lock,
+  Tag,
+  CheckCircle2,
+  Calendar,
+  Sparkle,
+  BadgeCheck,
+  FileText,
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
 
@@ -36,7 +43,7 @@ const WalletMultiButton = dynamic(
   }
 );
 
-interface AccountProfile {
+export interface AccountProfile {
   name: string;
   language: string;
   dateFormat: string;
@@ -47,13 +54,32 @@ interface AccountProfile {
   avatarUrl: string;
 }
 
+export interface TravelAgreementRecord {
+  id: string;
+  dest: string;
+  cityName: string;
+  heroImg?: string;
+  agentName: string;
+  agentRole: string;
+  agentPda: string;
+  agentTrustScore: number;
+  agentAvatar?: string;
+  priceLocked: string;
+  transitPass: string;
+  tx: string;
+  hash: string;
+  date: string;
+  time: string;
+  status: string;
+}
+
 const DEFAULT_PROFILE: AccountProfile = {
   name: "Can Saas",
   language: "English",
   dateFormat: "DD/MM/YYYY",
   timeFormat: "24h",
   country: "Indonesia",
-  timeZone: "Eastern - US & Canada",
+  timeZone: "Eastern - US & Canada (UTC-05:00)",
   welcomeMessage:
     "Welcome to my scheduling page. Please follow the instruction to add an event calendar",
   avatarUrl: "",
@@ -87,6 +113,23 @@ const TIMEZONES = [
   { label: "JST - Japan Standard Time (UTC+09:00)", offset: 9 },
 ];
 
+const INITIAL_SAMPLE_AGREEMENT: TravelAgreementRecord = {
+  id: "AGREE-INIT-1",
+  dest: "Mysore Cultural Heritage & Palaces (3D)",
+  cityName: "Mysore",
+  agentName: "Arjun - Cultural Heritage & Temple Guide",
+  agentRole: "Heritage Itineraries & Price Protection",
+  agentPda: "1xEXUh3Ygpo8xzWyTyFzih249FihsbDNC1G4SE4FeBP",
+  agentTrustScore: 99.4,
+  priceLocked: "₹14,250",
+  transitPass: "KSRTC Heritage Daily Pass",
+  tx: "CERT-9A82-F41C",
+  hash: "9a82f41cb8291f0034a78c187d95392ea814",
+  date: "27 Oct 2026",
+  time: "07:30 AM",
+  status: "Certified & Price Locked",
+};
+
 export default function AccountPage() {
   const [profile, setProfile] = useState<AccountProfile>(DEFAULT_PROFILE);
   const [saveStatus, setSaveStatus] = useState<string>("");
@@ -95,17 +138,33 @@ export default function AccountPage() {
   const [showTourModal, setShowTourModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedProgramId, setCopiedProgramId] = useState(false);
+  const [savedAgreements, setSavedAgreements] = useState<TravelAgreementRecord[]>([]);
+  const [copiedCertId, setCopiedCertId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load profile from localStorage on mount
+  // Load profile and agreements from localStorage on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("yatrasetu_account_profile");
-      if (saved) {
-        setProfile((prev) => ({ ...prev, ...JSON.parse(saved) }));
+      const savedProfile = localStorage.getItem("yatrasetu_account_profile");
+      if (savedProfile) {
+        setProfile((prev) => ({ ...prev, ...JSON.parse(savedProfile) }));
       }
     } catch {
-      // fallback to default
+      // fallback
+    }
+
+    try {
+      const savedAgr = localStorage.getItem("yatrasetu_travel_agreements");
+      if (savedAgr) {
+        const parsed = JSON.parse(savedAgr);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSavedAgreements(parsed);
+          return;
+        }
+      }
+      setSavedAgreements([INITIAL_SAMPLE_AGREEMENT]);
+    } catch {
+      setSavedAgreements([INITIAL_SAMPLE_AGREEMENT]);
     }
   }, []);
 
@@ -198,6 +257,24 @@ export default function AccountPage() {
     }
   };
 
+  const handleDeleteAgreement = (id: string) => {
+    setSavedAgreements((prev) => {
+      const updated = prev.filter((a) => a.id !== id);
+      try {
+        localStorage.setItem("yatrasetu_travel_agreements", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    setSaveStatus("Travel agreement removed.");
+    setTimeout(() => setSaveStatus(""), 2500);
+  };
+
+  const copyCertId = (tx: string) => {
+    navigator.clipboard.writeText(tx);
+    setCopiedCertId(tx);
+    setTimeout(() => setCopiedCertId(null), 2000);
+  };
+
   const copyProgramId = () => {
     navigator.clipboard.writeText("A7yU8i4YBUmnR5fZUxxC88ytFe59XkZGvqN1tj34VSzN");
     setCopiedProgramId(true);
@@ -279,252 +356,415 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* White Editorial Card Container matching Reference Image 3 */}
-        <div className="account-card-frame">
-          {/* Avatar Upload / Remove Row */}
-          <div className="account-avatar-section">
-            <div className="avatar-preview-wrapper">
-              {profile.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatarUrl}
-                  alt="Account Avatar"
-                  className="avatar-image-circle"
-                />
-              ) : (
-                <div className="avatar-placeholder-circle">
-                  <span className="avatar-initials">
-                    {profile.name
-                      ? profile.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()
-                      : "YS"}
-                  </span>
+        {/* ── 2-Column Responsive Dashboard Layout ── */}
+        <div className="account-dashboard-columns">
+          {/* Column 1: Account Profile Form (matching Reference Image 3) */}
+          <div className="account-column-profile">
+            <div className="account-card-frame">
+              {/* Avatar Upload / Remove Row */}
+              <div className="account-avatar-section">
+                <div className="avatar-preview-wrapper">
+                  {profile.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profile.avatarUrl}
+                      alt="Account Avatar"
+                      className="avatar-image-circle"
+                    />
+                  ) : (
+                    <div className="avatar-placeholder-circle">
+                      <span className="avatar-initials">
+                        {profile.name
+                          ? profile.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)
+                              .toUpperCase()
+                          : "YS"}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="avatar-actions-col">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                style={{ display: "none" }}
-              />
-              <button
-                type="button"
-                className="account-btn-upload"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload size={14} />
-                <span>Upload</span>
-              </button>
+                <div className="avatar-actions-col">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    type="button"
+                    className="account-btn-upload"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload size={14} />
+                    <span>Upload</span>
+                  </button>
 
-              <button
-                type="button"
-                className="account-btn-remove"
-                onClick={handleRemoveAvatar}
+                  <button
+                    type="button"
+                    className="account-btn-remove"
+                    onClick={handleRemoveAvatar}
+                  >
+                    <Trash2 size={14} />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form Grid matching Reference Image 3 */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+                className="account-form-grid"
               >
-                <Trash2 size={14} />
-                <span>Remove</span>
-              </button>
+                {/* Row 1: Name and Language */}
+                <div className="account-field-group">
+                  <label className="account-field-label" htmlFor="account-name">
+                    Name
+                  </label>
+                  <input
+                    id="account-name"
+                    name="name"
+                    type="text"
+                    className="account-field-input"
+                    value={profile.name}
+                    onChange={handleInputChange}
+                    placeholder="Can Saas"
+                  />
+                </div>
+
+                <div className="account-field-group">
+                  <label className="account-field-label" htmlFor="account-language">
+                    Language
+                  </label>
+                  <div className="account-select-wrapper">
+                    <select
+                      id="account-language"
+                      name="language"
+                      className="account-field-select"
+                      value={profile.language}
+                      onChange={handleInputChange}
+                    >
+                      {SUPPORTED_LANGUAGES.map((l) => (
+                        <option key={l.code} value={l.name}>
+                          {l.name} ({l.nativeName})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="select-chevron" />
+                  </div>
+                </div>
+
+                {/* Row 2: Date Format, Time Format, and Country */}
+                <div className="account-field-group-row">
+                  <div className="account-field-subgroup">
+                    <label className="account-field-label" htmlFor="account-date-format">
+                      Date Format
+                    </label>
+                    <div className="account-select-wrapper">
+                      <select
+                        id="account-date-format"
+                        name="dateFormat"
+                        className="account-field-select"
+                        value={profile.dateFormat}
+                        onChange={handleInputChange}
+                      >
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                      </select>
+                      <ChevronDown size={14} className="select-chevron" />
+                    </div>
+                  </div>
+
+                  <div className="account-field-subgroup">
+                    <label className="account-field-label" htmlFor="account-time-format">
+                      Time Format
+                    </label>
+                    <div className="account-select-wrapper">
+                      <select
+                        id="account-time-format"
+                        name="timeFormat"
+                        className="account-field-select"
+                        value={profile.timeFormat}
+                        onChange={handleInputChange}
+                      >
+                        <option value="24h">24h</option>
+                        <option value="12h">12h</option>
+                      </select>
+                      <ChevronDown size={14} className="select-chevron" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="account-field-group">
+                  <label className="account-field-label" htmlFor="account-country">
+                    Country
+                  </label>
+                  <div className="account-select-wrapper">
+                    <select
+                      id="account-country"
+                      name="country"
+                      className="account-field-select"
+                      value={profile.country}
+                      onChange={handleInputChange}
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="select-chevron" />
+                  </div>
+                </div>
+
+                {/* Row 3: Time Zone with Live Current Time & Welcome Message */}
+                <div className="account-field-group">
+                  <div className="field-label-with-time">
+                    <label className="account-field-label" htmlFor="account-time-zone">
+                      Time Zone
+                    </label>
+                    <span className="live-current-time-text">
+                      Current Time: {currentTimeStr || "22:37"}
+                    </span>
+                  </div>
+                  <div className="account-select-wrapper">
+                    <select
+                      id="account-time-zone"
+                      name="timeZone"
+                      className="account-field-select"
+                      value={profile.timeZone}
+                      onChange={handleInputChange}
+                    >
+                      {TIMEZONES.map((tz) => (
+                        <option key={tz.label} value={tz.label}>
+                          {tz.label}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="select-chevron" />
+                  </div>
+                </div>
+
+                <div className="account-field-group">
+                  <label className="account-field-label" htmlFor="account-welcome-msg">
+                    Welcome Message
+                  </label>
+                  <textarea
+                    id="account-welcome-msg"
+                    name="welcomeMessage"
+                    rows={2}
+                    className="account-field-textarea"
+                    value={profile.welcomeMessage}
+                    onChange={handleInputChange}
+                    placeholder="Welcome to my scheduling page. Please follow the instruction to add an event calendar"
+                  />
+                </div>
+
+                {/* Notification / Toast Message */}
+                {saveStatus && (
+                  <div className="account-toast-msg" role="status" aria-live="polite">
+                    <Check size={14} />
+                    <span>{saveStatus}</span>
+                  </div>
+                )}
+
+                {/* Bottom Button Row matching Reference Image 3 */}
+                <div className="account-form-bottom-row">
+                  <div className="bottom-left-actions">
+                    <button
+                      type="submit"
+                      className="account-btn-save-change"
+                    >
+                      Save Change
+                    </button>
+                    <button
+                      type="button"
+                      className="account-btn-cancel"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+
+                  <div className="bottom-right-actions">
+                    <button
+                      type="button"
+                      className="account-btn-delete-account"
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
 
-          {/* Form Grid matching Reference Image 3 */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSave();
-            }}
-            className="account-form-grid"
-          >
-            {/* Row 1: Name and Language */}
-            <div className="account-field-group">
-              <label className="account-field-label" htmlFor="account-name">
-                Name
-              </label>
-              <input
-                id="account-name"
-                name="name"
-                type="text"
-                className="account-field-input"
-                value={profile.name}
-                onChange={handleInputChange}
-                placeholder="Can Saas"
-              />
-            </div>
-
-            <div className="account-field-group">
-              <label className="account-field-label" htmlFor="account-language">
-                Language
-              </label>
-              <div className="account-select-wrapper">
-                <select
-                  id="account-language"
-                  name="language"
-                  className="account-field-select"
-                  value={profile.language}
-                  onChange={handleInputChange}
-                >
-                  {SUPPORTED_LANGUAGES.map((l) => (
-                    <option key={l.code} value={l.name}>
-                      {l.name} ({l.nativeName})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="select-chevron" />
-              </div>
-            </div>
-
-            {/* Row 2: Date Format, Time Format, and Country */}
-            <div className="account-field-group-row">
-              <div className="account-field-subgroup">
-                <label className="account-field-label" htmlFor="account-date-format">
-                  Date Format
-                </label>
-                <div className="account-select-wrapper">
-                  <select
-                    id="account-date-format"
-                    name="dateFormat"
-                    className="account-field-select"
-                    value={profile.dateFormat}
-                    onChange={handleInputChange}
-                  >
-                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                  </select>
-                  <ChevronDown size={14} className="select-chevron" />
+          {/* Column 2: Certified Travel Agreements & Assigned Agents (SEPARATE COLUMN) */}
+          <div className="account-column-agreements">
+            <div className="account-agreements-card">
+              <div className="agreements-card-header">
+                <div className="agreements-title-wrap">
+                  <div className="agreements-lock-badge">
+                    <Lock size={17} color="var(--color-ottone, #AD8958)" />
+                  </div>
+                  <div>
+                    <h2 className="agreements-column-title">Travel Agreements &amp; Assigned Agents</h2>
+                    <p className="agreements-column-sub">
+                      Certified travel agreements authenticated by Solana AI Concierges with tamper-proof price protection.
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="account-field-subgroup">
-                <label className="account-field-label" htmlFor="account-time-format">
-                  Time Format
-                </label>
-                <div className="account-select-wrapper">
-                  <select
-                    id="account-time-format"
-                    name="timeFormat"
-                    className="account-field-select"
-                    value={profile.timeFormat}
-                    onChange={handleInputChange}
-                  >
-                    <option value="24h">24h</option>
-                    <option value="12h">12h</option>
-                  </select>
-                  <ChevronDown size={14} className="select-chevron" />
-                </div>
-              </div>
-            </div>
-
-            <div className="account-field-group">
-              <label className="account-field-label" htmlFor="account-country">
-                Country
-              </label>
-              <div className="account-select-wrapper">
-                <select
-                  id="account-country"
-                  name="country"
-                  className="account-field-select"
-                  value={profile.country}
-                  onChange={handleInputChange}
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="select-chevron" />
-              </div>
-            </div>
-
-            {/* Row 3: Time Zone with Live Current Time & Welcome Message */}
-            <div className="account-field-group">
-              <div className="field-label-with-time">
-                <label className="account-field-label" htmlFor="account-time-zone">
-                  Time Zone
-                </label>
-                <span className="live-current-time-text">
-                  Current Time: {currentTimeStr || "22:37"}
+                <span className="agreements-active-badge">
+                  {savedAgreements.length} Certified
                 </span>
               </div>
-              <div className="account-select-wrapper">
-                <select
-                  id="account-time-zone"
-                  name="timeZone"
-                  className="account-field-select"
-                  value={profile.timeZone}
-                  onChange={handleInputChange}
-                >
-                  {TIMEZONES.map((tz) => (
-                    <option key={tz.label} value={tz.label}>
-                      {tz.label}
-                    </option>
+
+              {savedAgreements.length === 0 ? (
+                <div className="agreements-empty-state">
+                  <ShieldCheck size={38} color="var(--color-ottone, #AD8958)" style={{ margin: "0 auto 12px auto" }} />
+                  <h4 style={{ fontFamily: "var(--font-mollie)", fontSize: "1.15rem", margin: "0 0 6px 0" }}>No Travel Agreements Locked</h4>
+                  <p style={{ fontSize: "0.85rem", color: "var(--color-oliva)", lineHeight: 1.5, margin: "0 0 16px 0" }}>
+                    Select any destination on YatraSetu to authenticate an itinerary with verified local concierges and lock guaranteed fair prices.
+                  </p>
+                  <Link
+                    href="/"
+                    className="account-btn-save-change"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      textDecoration: "none",
+                      padding: "8px 20px",
+                      fontSize: "0.86rem",
+                    }}
+                  >
+                    <Compass size={14} />
+                    <span>Explore Destinations</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="agreements-list">
+                  {savedAgreements.map((agreement) => (
+                    <div key={agreement.id} className="agreement-record-card">
+                      {/* Top Header of Record */}
+                      <div className="agreement-card-top">
+                        <div className="agreement-dest-badge-col">
+                          <span className="agreement-city-pill">{agreement.cityName || "India Destination"}</span>
+                          <h3 className="agreement-record-title">{agreement.dest}</h3>
+                        </div>
+                        <div className="agreement-status-chip">
+                          <span className="pulsing-green-dot" />
+                          <span>Price Locked</span>
+                        </div>
+                      </div>
+
+                      {/* Assigned Concierge Agent Box */}
+                      <div className="agreement-agent-container">
+                        <div className="agreement-agent-avatar-circle">
+                          <span>{agreement.agentName ? agreement.agentName.slice(0, 2).toUpperCase() : "YS"}</span>
+                        </div>
+                        <div className="agreement-agent-details">
+                          <div className="agreement-agent-line-1">
+                            <span className="agreement-agent-display-name">{agreement.agentName}</span>
+                            <span className="agreement-seal-badge">
+                              <ShieldCheck size={11} />
+                              ★ {agreement.agentTrustScore || 99.4}% SEAL
+                            </span>
+                          </div>
+                          <div className="agreement-agent-line-2">
+                            <span>{agreement.agentRole || "Heritage Itineraries & Price Protection"}</span>
+                          </div>
+                          <div className="agreement-agent-line-3">
+                            <span className="pda-label">Identity PDA:</span>
+                            <code className="pda-val">
+                              {agreement.agentPda ? `${agreement.agentPda.slice(0, 6)}...${agreement.agentPda.slice(-4)}` : "1xEX...FeBP"}
+                            </code>
+                            <span className="pda-devnet-tag">Devnet</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price Lock & Transit Pass Grid */}
+                      <div className="agreement-guarantees-grid">
+                        <div className="guarantee-box">
+                          <span className="guarantee-lbl">GUARANTEED PRICE LOCK</span>
+                          <span className="guarantee-val price-green">{agreement.priceLocked}</span>
+                          <span className="guarantee-sub">Zero-surge fair rate cap</span>
+                        </div>
+                        <div className="guarantee-box">
+                          <span className="guarantee-lbl">VERIFIED TRANSIT PASS</span>
+                          <span className="guarantee-val">{agreement.transitPass}</span>
+                          <span className="guarantee-sub">Official commuter pass</span>
+                        </div>
+                      </div>
+
+                      {/* Certificate & Hash Bar */}
+                      <div className="agreement-cert-bar">
+                        <div className="cert-copy-group">
+                          <span className="cert-label">Certificate:</span>
+                          <code className="cert-code-text">{agreement.tx}</code>
+                          <button
+                            type="button"
+                            className="btn-cert-copy"
+                            onClick={() => copyCertId(agreement.tx)}
+                            title="Copy Certificate ID"
+                          >
+                            {copiedCertId === agreement.tx ? (
+                              <Check size={12} color="#2D5A43" />
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
+                        </div>
+                        <span className="cert-datetime-text">
+                          {agreement.date} · {agreement.time}
+                        </span>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="agreement-actions-bar">
+                        {agreement.tx && !agreement.tx.startsWith("CERT-") ? (
+                          <a
+                            href={`https://explorer.solana.com/tx/${agreement.tx}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-view-explorer"
+                          >
+                            <ExternalLink size={12} />
+                            <span>View on Solana Explorer</span>
+                          </a>
+                        ) : (
+                          <span className="cert-verified-label">
+                            <CheckCircle2 size={13} color="#2D5A43" />
+                            <span>Cryptographically Verified &amp; Sealed</span>
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn-remove-agreement"
+                          onClick={() => handleDeleteAgreement(agreement.id)}
+                          title="Remove this agreement"
+                        >
+                          <Trash2 size={13} />
+                          <span>Remove</span>
+                        </button>
+                      </div>
+                    </div>
                   ))}
-                </select>
-                <ChevronDown size={14} className="select-chevron" />
-              </div>
+                </div>
+              )}
             </div>
-
-            <div className="account-field-group">
-              <label className="account-field-label" htmlFor="account-welcome-msg">
-                Welcome Message
-              </label>
-              <textarea
-                id="account-welcome-msg"
-                name="welcomeMessage"
-                rows={2}
-                className="account-field-textarea"
-                value={profile.welcomeMessage}
-                onChange={handleInputChange}
-                placeholder="Welcome to my scheduling page. Please follow the instruction to add an event calendar"
-              />
-            </div>
-
-            {/* Notification / Toast Message */}
-            {saveStatus && (
-              <div className="account-toast-msg" role="status" aria-live="polite">
-                <Check size={14} />
-                <span>{saveStatus}</span>
-              </div>
-            )}
-
-            {/* Bottom Button Row matching Reference Image 3 */}
-            <div className="account-form-bottom-row">
-              <div className="bottom-left-actions">
-                <button
-                  type="submit"
-                  className="account-btn-save-change"
-                >
-                  Save Change
-                </button>
-                <button
-                  type="button"
-                  className="account-btn-cancel"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </button>
-              </div>
-
-              <div className="bottom-right-actions">
-                <button
-                  type="button"
-                  className="account-btn-delete-account"
-                  onClick={() => setShowDeleteModal(true)}
-                >
-                  Delete Account
-                </button>
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
 
         {/* ── Seamless Web3 & Solana Devnet Hub Integration ── */}
@@ -651,7 +891,7 @@ export default function AccountPage() {
           <div className="account-dialog-card" onClick={(e) => e.stopPropagation()}>
             <h3 className="dialog-title">Welcome to YatraSetu Account Hub</h3>
             <p className="dialog-sub">
-              Here you can configure your personalized travel preferences, view your connected Solana Devnet identity, inspect transit attestations, and sync offline itineraries.
+              Here you can configure your personalized travel preferences, inspect verified travel agreements authenticated by Solana concierges, view your connected Solana Devnet identity, and sync offline itineraries.
             </p>
             <div style={{ margin: "16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
               <div className="tour-feature-item">
@@ -661,6 +901,10 @@ export default function AccountPage() {
               <div className="tour-feature-item">
                 <Check size={16} color="#652733" />
                 <span>Multi-lingual support across 11 Indian and global languages</span>
+              </div>
+              <div className="tour-feature-item">
+                <Check size={16} color="#652733" />
+                <span>Tamper-proof travel agreements with assigned Solana Concierge agents</span>
               </div>
               <div className="tour-feature-item">
                 <Check size={16} color="#652733" />
