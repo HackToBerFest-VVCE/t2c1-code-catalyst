@@ -270,37 +270,9 @@ export function TouristAgentFeedbackCard({
       <div className="feedback-reviews-list">
         {(showAllReviews ? reviews : reviews.slice(0, compact ? 1 : 2)).map((rev) => (
           <div key={rev.id} className="tourist-review-card">
-            <div className="review-top-meta">
-              <div className="reviewer-info">
-                <span className="reviewer-name">{rev.author}</span>
-                {rev.authorLocation && (
-                  <span className="reviewer-location">
-                    <MapPin size={10} /> {rev.authorLocation}
-                  </span>
-                )}
-                {rev.verified && (
-                  <span className="verified-tourist-pill">
-                    <CheckCircle2 size={11} /> Verified Tourist
-                  </span>
-                )}
-              </div>
-              <div className="review-rating-tag">
-                <span className="review-score">★ {rev.rating.toFixed(1)}</span>
-                <span className="review-date">
-                  <Calendar size={10} /> {rev.date}
-                </span>
-              </div>
-            </div>
-
-            {rev.highlightTag && (
-              <div className="review-highlight-tag">
-                <ThumbsUp size={11} />
-                <span>{rev.highlightTag}</span>
-              </div>
-            )}
-
-            <p className="review-text">&ldquo;{rev.quote}&rdquo;</p>
-            {rev.trip && <div className="review-trip-tag">Trip: {rev.trip}</div>}
+            <p className="review-text" style={{ margin: 0, fontStyle: "italic", fontSize: "0.86rem", color: "#1E3331", lineHeight: 1.55 }}>
+              &ldquo;{rev.quote}&rdquo;
+            </p>
           </div>
         ))}
       </div>

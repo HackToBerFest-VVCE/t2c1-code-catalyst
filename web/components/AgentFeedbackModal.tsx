@@ -316,60 +316,9 @@ export function AgentFeedbackModal({
           }}
         >
           {activeTab === "reviews" ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              {/* Reviews Summary Banner */}
-              <div
-                style={{
-                  background: "linear-gradient(135deg, rgba(101, 39, 51, 0.06), rgba(173, 137, 88, 0.1))",
-                  border: "1px solid #E2D9CC",
-                  borderRadius: "14px",
-                  padding: "14px 18px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "12px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                    <span style={{ fontSize: "1.8rem", fontWeight: 800, color: "#652733" }}>
-                      {agentRating}
-                    </span>
-                    <span style={{ fontSize: "0.95rem", color: "#6B7280", fontWeight: 600 }}>/ 10</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#2D5A43", marginLeft: 4 }}>
-                      {agentRating >= 9.6 ? "★ Top Rated Concierge" : agentRating >= 9.0 ? "★ Highly Recommended" : agentRating >= 8.5 ? "★ Good Benchmark" : "★ Fair / Basic"}
-                    </span>
-                  </div>
-                  <p style={{ margin: "3px 0 0 0", fontSize: "0.75rem", color: "#6B7280" }}>
-                    Aggregated from verified Solana itinerary attestations &amp; traveler feedback
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("write")}
-                  style={{
-                    background: "#652733",
-                    color: "#FFFFFF",
-                    border: "none",
-                    borderRadius: "9999px",
-                    padding: "7px 16px",
-                    fontSize: "0.78rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 2px 8px rgba(101, 39, 51, 0.25)",
-                  }}
-                >
-                  <Star size={12} fill="#FFFFFF" />
-                  <span>Write Review</span>
-                </button>
-              </div>
-
-              {/* Reviews List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* Reviews List (Only the text review for all reviews) */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {reviewsList.map((rev) => (
                   <div
                     key={rev.id}
@@ -377,90 +326,21 @@ export function AgentFeedbackModal({
                       background: "#FFFFFF",
                       border: "1px solid #E2D9CC",
                       borderRadius: "14px",
-                      padding: "16px",
+                      padding: "16px 20px",
                       boxShadow: "0 2px 8px rgba(30, 51, 49, 0.04)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontWeight: 700, fontSize: "0.88rem", color: "#1E3331" }}>
-                            {rev.author}
-                          </span>
-                          <span style={{ fontSize: "0.72rem", color: "#6B7280" }}>
-                            · {rev.authorLocation}
-                          </span>
-                          {rev.verified && (
-                            <span
-                              style={{
-                                fontSize: "0.68rem",
-                                fontWeight: 700,
-                                color: "#2D5A43",
-                                background: "rgba(45, 90, 67, 0.1)",
-                                padding: "1px 6px",
-                                borderRadius: 6,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 3,
-                              }}
-                            >
-                              <CheckCircle2 size={10} /> Verified Trip
-                            </span>
-                          )}
-                        </div>
-                        <span style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>
-                          {rev.trip} · {rev.date}
-                        </span>
-                      </div>
-
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span
-                          style={{
-                            fontSize: "0.82rem",
-                            fontWeight: 800,
-                            color: rev.rating >= 9.0 ? "#652733" : rev.rating >= 8.0 ? "#AD8958" : "#854D0E",
-                            background: rev.rating >= 9.0 ? "rgba(101, 39, 51, 0.1)" : "rgba(173, 137, 88, 0.14)",
-                            border: `1px solid ${rev.rating >= 9.0 ? "rgba(101, 39, 51, 0.25)" : "rgba(173, 137, 88, 0.3)"}`,
-                            padding: "3px 8px",
-                            borderRadius: 8,
-                          }}
-                        >
-                          ★ {rev.rating.toFixed(1)} / 10
-                        </span>
-                      </div>
-                    </div>
-
                     <p
                       style={{
-                        margin: "4px 0",
-                        fontSize: "0.82rem",
-                        color: "#374151",
-                        lineHeight: 1.5,
+                        margin: 0,
+                        fontSize: "0.88rem",
+                        color: "#1E3331",
+                        lineHeight: 1.6,
                         fontStyle: "italic",
                       }}
                     >
                       &ldquo;{rev.quote}&rdquo;
                     </p>
-
-                    {rev.highlightTag && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                        <span
-                          style={{
-                            fontSize: "0.7rem",
-                            fontWeight: 600,
-                            color: rev.rating >= 9.0 ? "#2D5A43" : "#B45309",
-                            background: rev.rating >= 9.0 ? "rgba(45, 90, 67, 0.08)" : "rgba(245, 158, 11, 0.12)",
-                            padding: "2px 8px",
-                            borderRadius: 6,
-                          }}
-                        >
-                          {rev.highlightTag}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
