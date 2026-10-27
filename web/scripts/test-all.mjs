@@ -137,12 +137,13 @@ const singleTickets = 45;
 const singleTransit = 12;
 
 function calcSquadBudget(members) {
-  const rooms = Math.ceil(members / 2);
-  const hotel = (baseDailyRate * 0.58) * rooms;
-  const dining = (baseDailyRate * 0.42) * members;
-  const tickets = singleTickets * members;
-  const transit = singleTransit * members;
-  return Math.round(((hotel + dining) * days) + tickets + transit);
+  const dailyHotelPerPerson = (baseDailyRate * 0.58) / 2;
+  const dailyDiningPerPerson = baseDailyRate * 0.42;
+  const dailyPerPerson = dailyHotelPerPerson + dailyDiningPerPerson;
+  const squadSavings = members >= 6 ? 0.90 : members >= 4 ? 0.94 : members === 3 ? 0.97 : 1.0;
+  const totalTickets = singleTickets * members;
+  const totalTransit = singleTransit * members;
+  return Math.round((((dailyPerPerson * days * members) + totalTickets + totalTransit) * squadSavings));
 }
 
 const budget3Friends = calcSquadBudget(3);

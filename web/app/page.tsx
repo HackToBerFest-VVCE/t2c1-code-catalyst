@@ -1031,13 +1031,24 @@ export default function Home() {
     const transitUSD = (city.transit?.passPriceUSD || 4) * computedDays * members;
 
     // Daily hotel + food rate by selected tier:
-    // Stays & rooms: shared double/twin rooms = Math.ceil(members / 2)
+    // Accommodations & Dining: shared twin/double beds or group accommodation (proportional split per person)
     // Dining: per member
     const dailyRateUSD = tier === "budget" ? 35 : tier === "luxury" ? 240 : 95;
-    const roomsCount = Math.max(1, Math.ceil(members / 2));
-    const dailyHotelUSD = (dailyRateUSD * 0.58) * roomsCount;
-    const dailyDiningUSD = (dailyRateUSD * 0.42) * members;
-    const baseTotalUSD = ((dailyHotelUSD + dailyDiningUSD) * computedDays) + totalTicketsUSD + transitUSD;
+    const dailyHotelPerPersonUSD = (dailyRateUSD * 0.58) / 2;
+    const dailyDiningPerPersonUSD = dailyRateUSD * 0.42;
+    const dailyStayAndDiningTotalUSD = (dailyHotelPerPersonUSD + dailyDiningPerPersonUSD) * members;
+
+    // Squad volume discount for groups of friends traveling together (shared transport, guides & room splits):
+    // 2 friends: 0% discount
+    // 3 friends: 3% group savings
+    // 4-5 friends: 6% group savings
+    // 6+ friends: 10% group savings
+    const squadDiscount = (effectiveParty === "friends" && members >= 6) ? 0.90
+      : (effectiveParty === "friends" && members >= 4) ? 0.94
+      : (effectiveParty === "friends" && members === 3) ? 0.97
+      : 1.0;
+
+    const baseTotalUSD = (((dailyStayAndDiningTotalUSD * computedDays) + totalTicketsUSD + transitUSD) * squadDiscount);
 
     // AI Concierge Trust Score Discount / Municipal Benchmark Optimization:
     // Higher trust score = lower price. Subtle yet noticeable difference on every agent change.
@@ -3410,26 +3421,38 @@ export default function Home() {
                         flexWrap: "wrap",
                         gap: 16,
                         background: "var(--color-bg-card, #FAF7F2)",
-                        border: "1px solid var(--color-sabbia, #E2D9CC)",
-                        borderRadius: 14,
-                        padding: "16px 20px",
+                        border: "1.5px solid var(--color-sabbia, #E2D9CC)",
+                        borderRadius: 16,
+                        padding: "18px 22px",
                         marginBottom: 32,
-                        boxShadow: "0 2px 8px rgba(30, 51, 49, 0.05)",
+                        boxShadow: "0 4px 16px rgba(30, 51, 49, 0.06)",
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--color-notte, #1E3331)", display: "flex", alignItems: "center", gap: 8 }}>
-                          <Users size={17} color="var(--color-brunello, #652733)" />
-                          <span>Number of Friends Traveling: <strong style={{ color: "var(--color-brunello, #652733)", fontSize: 15 }}>{friendsCount}</strong></span>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-notte, #1E3331)", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <Users size={18} color="var(--color-brunello, #652733)" />
+                          <span>Number of Friends Traveling: <strong style={{ color: "var(--color-brunello, #652733)", fontSize: 16 }}>{friendsCount}</strong></span>
+                          {friendsCount >= 3 && (
+                            <span style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: "#2D5A43",
+                              background: "rgba(45, 90, 67, 0.12)",
+                              padding: "2px 8px",
+                              borderRadius: 10,
+                            }}>
+                              ✨ {friendsCount >= 6 ? "10% Group Savings" : friendsCount >= 4 ? "6% Group Savings" : "3% Group Savings"}
+                            </span>
+                          )}
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--color-oliva, #5E6660)", marginTop: 3 }}>
-                          Use <strong>+</strong> or <strong>−</strong> to add or remove members · Auto-scales tickets, transit passes &amp; shared rooms
+                        <div style={{ fontSize: 12, color: "var(--color-oliva, #5E6660)", marginTop: 4 }}>
+                          Use <strong>+</strong> or <strong>−</strong> to add or remove members · Total budget &amp; per-friend share scale proportionally
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
                         {/* Stepper Buttons */}
-                        <div style={{ display: "inline-flex", alignItems: "center", background: "#FFFFFF", border: "1px solid var(--color-sabbia, #E2D9CC)", borderRadius: 12, padding: "4px 8px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", background: "#FFFFFF", border: "1.5px solid var(--color-sabbia, #E2D9CC)", borderRadius: 12, padding: "4px 8px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
                           <button
                             type="button"
                             onClick={() => handleFriendsCountChange(friendsCount - 1)}
@@ -3437,8 +3460,8 @@ export default function Home() {
                             aria-label="Remove a member"
                             title="Remove a friend"
                             style={{
-                              width: 34,
-                              height: 34,
+                              width: 36,
+                              height: 36,
                               borderRadius: 8,
                               border: "none",
                               background: friendsCount <= 2 ? "rgba(0,0,0,0.04)" : "rgba(101, 39, 51, 0.08)",
@@ -3465,8 +3488,8 @@ export default function Home() {
                             aria-label="Add a member"
                             title="Add a friend"
                             style={{
-                              width: 34,
-                              height: 34,
+                              width: 36,
+                              height: 36,
                               borderRadius: 8,
                               border: "none",
                               background: friendsCount >= 20 ? "rgba(0,0,0,0.04)" : "var(--color-brunello, #652733)",
@@ -3483,11 +3506,26 @@ export default function Home() {
                           </button>
                         </div>
 
-                        {/* Split Price Display */}
-                        <div style={{ textAlign: "right", borderLeft: "1px solid var(--color-sabbia, #E2D9CC)", paddingLeft: 16 }}>
-                          <div style={{ fontSize: 11, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.06em" }}>Per Person Share</div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-brunello, #652733)" }}>
-                            ~{selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : ""}{Math.round(budgetAmount / friendsCount).toLocaleString()} {selectedCurrency}
+                        {/* Total Squad Price & Per-Person Split Display */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                          {/* Total Squad Budget */}
+                          <div style={{ textAlign: "right", borderLeft: "1.5px solid var(--color-sabbia, #E2D9CC)", paddingLeft: 16 }}>
+                            <div style={{ fontSize: 10.5, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>
+                              Total Squad Budget
+                            </div>
+                            <div style={{ fontSize: 17, fontWeight: 800, color: "var(--color-notte, #1E3331)", fontFamily: "var(--font-jost)" }}>
+                              {selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "GBP" ? "£" : selectedCurrency === "SOL" ? "◎ " : ""}{budgetAmount.toLocaleString()} {selectedCurrency}
+                            </div>
+                          </div>
+
+                          {/* Per-Friend Share */}
+                          <div style={{ textAlign: "right", borderLeft: "1.5px solid var(--color-sabbia, #E2D9CC)", paddingLeft: 16 }}>
+                            <div style={{ fontSize: 10.5, color: "var(--color-oliva)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>
+                              Per Friend Share
+                            </div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-brunello, #652733)", fontFamily: "var(--font-jost)" }}>
+                              ~{selectedCurrency === "INR" ? "₹" : selectedCurrency === "USD" ? "$" : selectedCurrency === "EUR" ? "€" : selectedCurrency === "GBP" ? "£" : selectedCurrency === "SOL" ? "◎ " : ""}{Math.round(budgetAmount / friendsCount).toLocaleString()} {selectedCurrency}
+                            </div>
                           </div>
                         </div>
                       </div>
