@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useCallback } from "react";
+import NextLink from "next/link";
 import dynamic from "next/dynamic";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
@@ -137,6 +138,50 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
         {/* Modal Body */}
         <div className="account-modal-body">
+          {/* Quick Direct Link to Dedicated Account Page */}
+          <div style={{
+            background: "rgba(37, 99, 235, 0.08)",
+            border: "1px solid rgba(37, 99, 235, 0.25)",
+            borderRadius: 14,
+            padding: "14px 18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 20,
+            flexWrap: "wrap",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Sparkles size={18} color="#2563eb" />
+              <div>
+                <div style={{ fontSize: "0.88rem", color: "var(--color-notte)", fontWeight: 700 }}>
+                  Looking for full Account Profile &amp; AI Agents Settings?
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--color-oliva)", marginTop: 2 }}>
+                  Edit your name, country, date/time format, welcome message, and view assigned concierges in separate columns.
+                </div>
+              </div>
+            </div>
+            <NextLink
+              href="/account"
+              onClick={onClose}
+              className="account-btn-save-change"
+              style={{
+                height: 36,
+                padding: "0 16px",
+                fontSize: "0.82rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span>Open Dedicated Account Page</span>
+              <ExternalLink size={13} />
+            </NextLink>
+          </div>
+
           {/* 1. Phantom / Solflare Wallet Section */}
           <div className="account-card account-card--wallet">
             <div className="account-card-header">

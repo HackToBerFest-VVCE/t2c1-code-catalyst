@@ -3812,7 +3812,67 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: PRICE                                                    */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      {activeTab === "price" && (
+      {activeTab === "price" && (() => {
+        const SERVICE_BENCHMARKS: Record<string, { min: number; max: number; benchmarkMin: number; benchmarkMax: number; step: number }> = {
+          "Auto-rickshaw": { min: 20, max: 1000, benchmarkMin: 30, benchmarkMax: 350, step: 10 },
+          "Taxi / Cab": { min: 100, max: 4000, benchmarkMin: 300, benchmarkMax: 1800, step: 50 },
+          "Hotel room (budget)": { min: 400, max: 5000, benchmarkMin: 700, benchmarkMax: 2000, step: 100 },
+          "Hotel room (mid-range)": { min: 1000, max: 15000, benchmarkMin: 2500, benchmarkMax: 6000, step: 250 },
+          "Restaurant meal": { min: 40, max: 2000, benchmarkMin: 80, benchmarkMax: 500, step: 20 },
+          "Tour guide (half-day)": { min: 200, max: 4000, benchmarkMin: 500, benchmarkMax: 1500, step: 50 },
+          "Entry ticket": { min: 20, max: 1500, benchmarkMin: 35, benchmarkMax: 250, step: 10 },
+        };
+
+        const curLimits = SERVICE_BENCHMARKS[priceService] || SERVICE_BENCHMARKS["Auto-rickshaw"];
+        const currentVal = parseFloat(priceQuote) || curLimits.benchmarkMin;
+        const pctPosition = Math.min(100, Math.max(0, ((currentVal - curLimits.min) / (curLimits.max - curLimits.min)) * 100));
+        const ratio = currentVal / curLimits.benchmarkMax;
+
+        let fairnessStatus = {
+          label: "Fair / Municipal Tariff",
+          color: "#2D5A43",
+          bg: "rgba(45, 90, 67, 0.1)",
+          border: "rgba(45, 90, 67, 0.3)",
+          icon: <CheckCircle2 size={15} color="#2D5A43" />,
+          tip: `Within official gazetted range (${selectedCurrency === "INR" ? "₹" : "$"}${curLimits.benchmarkMin} – ${selectedCurrency === "INR" ? "₹" : "$"}${curLimits.benchmarkMax})`,
+        };
+
+        if (ratio > 1.4) {
+          fairnessStatus = {
+            label: "High / Overpriced Warning",
+            color: "#991B1B",
+            bg: "rgba(153, 27, 27, 0.1)",
+            border: "rgba(153, 27, 27, 0.3)",
+            icon: <AlertTriangle size={15} color="#991B1B" />,
+            tip: `Quoted +${Math.round((ratio - 1) * 100)}% above standard tariff. Counter with ${selectedCurrency === "INR" ? "₹" : "$"}${curLimits.benchmarkMax}.`,
+          };
+        } else if (ratio > 1.15) {
+          fairnessStatus = {
+            label: "Slightly Elevated Rate",
+            color: "#D97706",
+            bg: "rgba(217, 119, 6, 0.1)",
+            border: "rgba(217, 119, 6, 0.3)",
+            icon: <AlertTriangle size={15} color="#D97706" />,
+            tip: `Around +${Math.round((ratio - 1) * 100)}% over standard rate. Acceptable for rain, luggage, or late night.`,
+          };
+        } else if (ratio >= 0.8) {
+          fairnessStatus = {
+            label: "Standard Market Benchmark",
+            color: "#AD8958",
+            bg: "rgba(173, 137, 88, 0.1)",
+            border: "rgba(173, 137, 88, 0.3)",
+            icon: <CheckCircle2 size={15} color="#AD8958" />,
+            tip: `Standard going market rate for ${priceCity || "this destination"}.`,
+          };
+        }
+
+        const activeTransitPassToTrack =
+          selectedTransitMode ||
+          generatedPlan?.transitPass ||
+          plannerCity?.transit?.recommendedPass ||
+          "DMRC Delhi Metro Tourist Smart Card";
+
+        return (
         <div className="page-section" style={{ paddingTop: "calc(var(--nav-h) + 48px)" }}>
           {plannerCity && (
             <div className="status-box status-yellow" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -3827,20 +3887,20 @@ export default function Home() {
           )}
           <div className="section-header">
             <div>
-              <div className="section-label">✦ Price Protection</div>
+              <div className="section-label">✦ Price Protection &amp; Anti-Overcharge Engine</div>
               <h2 className="section-title">Fair Price Checker</h2>
-              <p className="section-sub">Compare local quotes against verified reference rates to protect against overcharging</p>
+              <p className="section-sub">Compare local quotes against verified reference rates and track public transit smart cards to protect against overcharging</p>
             </div>
           </div>
           <div className="two-col-grid">
-            {/* Left Column: Fair Price Checker Form & Results */}
+            {/* Left Column: Fair Price Checker Form & Interactive Quote Bar */}
             <div className="feature-card">
               <div className="feature-card-icon">
-                <IndianRupee size={22} color="var(--primary-gold)" />
+                <IndianRupee size={22} color="var(--color-ottone)" />
               </div>
               <div className="feature-card-title">Check Price Fairness</div>
               <p className="feature-card-sub">
-                Enter your quoted rate to benchmark against official city tariffs and local market averages.
+                Adjust your quoted rate using the interactive price bar to benchmark against official city tariffs and municipal market averages in real time.
               </p>
 
               <form onSubmit={e => { e.preventDefault(); checkPrice(); }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -3869,7 +3929,7 @@ export default function Home() {
                     className="field-input"
                     value={priceCity}
                     onChange={e => { setPriceCity(e.target.value); setPriceValidationError(""); }}
-                    placeholder="e.g. Mysuru, Jaipur, Delhi, Goa"
+                    placeholder="e.g. Mysuru, Jaipur, Delhi, Goa, Bengaluru"
                   />
                 </div>
 
@@ -3894,6 +3954,129 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* ── Interactive Quotes Price Bar & Real-Time Stepper Controls ── */}
+                <div className="price-bar-container">
+                  <div className="price-bar-header">
+                    <span className="price-bar-label">Interactive Quote Slider</span>
+                    <div className="price-bar-value-badge">
+                      <span style={{ fontSize: "1rem", color: "var(--color-oliva)", fontWeight: 500 }}>
+                        {selectedCurrency === "INR" ? "₹" : "$"}
+                      </span>
+                      <span>{priceQuote || curLimits.benchmarkMin}</span>
+                      <span style={{ fontSize: "0.82rem", color: "var(--color-oliva)", fontWeight: 500 }}>
+                        {selectedCurrency}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="price-slider-row">
+                    <button
+                      type="button"
+                      className="btn-price-stepper"
+                      onClick={() => {
+                        const cur = parseFloat(priceQuote) || curLimits.benchmarkMin;
+                        const next = Math.max(curLimits.min, cur - curLimits.step);
+                        setPriceQuote(next.toString());
+                        setPriceValidationError("");
+                      }}
+                      title="Decrease quote"
+                      aria-label="Decrease price quote"
+                    >
+                      <Minus size={16} />
+                    </button>
+
+                    <input
+                      type="range"
+                      className="price-range-slider"
+                      min={curLimits.min}
+                      max={curLimits.max}
+                      step={curLimits.step}
+                      value={currentVal}
+                      onChange={(e) => {
+                        setPriceQuote(e.target.value);
+                        setPriceValidationError("");
+                      }}
+                      aria-label="Interactive price slider"
+                    />
+
+                    <button
+                      type="button"
+                      className="btn-price-stepper"
+                      onClick={() => {
+                        const cur = parseFloat(priceQuote) || curLimits.benchmarkMin;
+                        const next = Math.min(curLimits.max, cur + curLimits.step);
+                        setPriceQuote(next.toString());
+                        setPriceValidationError("");
+                      }}
+                      title="Increase quote"
+                      aria-label="Increase price quote"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+
+                  {/* Quick Preset Buttons */}
+                  <div className="price-presets-row">
+                    <span style={{ fontSize: "0.74rem", color: "var(--color-oliva)", fontWeight: 700, marginRight: 4 }}>
+                      QUICK ADJUST:
+                    </span>
+                    {[-50, 50, 100, 250, 500].map((delta) => (
+                      <button
+                        key={delta}
+                        type="button"
+                        className="price-preset-pill"
+                        onClick={() => {
+                          const cur = parseFloat(priceQuote) || curLimits.benchmarkMin;
+                          const next = Math.max(curLimits.min, Math.min(curLimits.max, cur + delta));
+                          setPriceQuote(next.toString());
+                          setPriceValidationError("");
+                        }}
+                      >
+                        {delta > 0 ? `+${selectedCurrency === "INR" ? "₹" : "$"}${delta}` : `-${selectedCurrency === "INR" ? "₹" : "$"}${Math.abs(delta)}`}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Real-Time Interactive Fairness Spectrum Bar */}
+                  <div className="price-spectrum-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "0.76rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-notte)" }}>
+                        Live Fairness Spectrum Meter
+                      </span>
+                      <div style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "3px 10px",
+                        borderRadius: 20,
+                        background: fairnessStatus.bg,
+                        border: `1px solid ${fairnessStatus.border}`,
+                        color: fairnessStatus.color,
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                      }}>
+                        {fairnessStatus.icon}
+                        <span>{fairnessStatus.label}</span>
+                      </div>
+                    </div>
+
+                    {/* Color Gradient Track with Moving Pin */}
+                    <div className="spectrum-track">
+                      <div className="spectrum-pin" style={{ left: `${pctPosition}%` }} />
+                    </div>
+
+                    <div className="spectrum-labels-row">
+                      <span>Fair ({selectedCurrency === "INR" ? "₹" : "$"}{curLimits.min})</span>
+                      <span>Benchmark (~{selectedCurrency === "INR" ? "₹" : "$"}{curLimits.benchmarkMax})</span>
+                      <span>Max ({selectedCurrency === "INR" ? "₹" : "$"}{curLimits.max})</span>
+                    </div>
+
+                    <div style={{ marginTop: 8, fontSize: "0.78rem", color: "var(--color-notte)", lineHeight: 1.4 }}>
+                      💡 <strong>Real-time Audit:</strong> {fairnessStatus.tip}
+                    </div>
+                  </div>
+                </div>
+
                 {priceValidationError && (
                   <div className="price-validation-msg" role="alert" aria-live="assertive">
                     <AlertCircle size={14} />
@@ -3909,12 +4092,12 @@ export default function Home() {
                   {priceLoading ? (
                     <>
                       <Loader2 size={15} className="animate-spin" />
-                      <span>Benchmarking Rate...</span>
+                      <span>Benchmarking Municipal Tariff...</span>
                     </>
                   ) : (
                     <>
                       <IndianRupee size={15} />
-                      <span>Check Price</span>
+                      <span>Check &amp; Audit Price</span>
                     </>
                   )}
                 </button>
@@ -3992,7 +4175,7 @@ export default function Home() {
             {/* Right Column: Reference Rate Guide */}
             <div className="feature-card">
               <div className="feature-card-icon">
-                <Receipt size={22} color="var(--primary-gold)" />
+                <Receipt size={22} color="var(--color-ottone)" />
               </div>
               <div className="feature-card-title">Reference Rate Guide</div>
               <p className="feature-card-sub">
@@ -4020,14 +4203,34 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="price-source-row" style={{ marginTop: 16, borderTop: "1px solid var(--border-color, #333333)", paddingTop: 12 }}>
+              <div className="price-source-row" style={{ marginTop: 16, borderTop: "1px solid var(--color-sabbia, #E2D9CC)", paddingTop: 12 }}>
                 <span className="source-label">Official Sources:</span>
                 <span className="source-value">Archaeological Survey of India (ASI), State RTA Gazette &amp; Tourism Department Tariffs (2025–2026).</span>
               </div>
             </div>
           </div>
+
+          {/* ── Transit & Mobility Smart Pass Verification (Live Transaction Tracker) ── */}
+          <div style={{ marginTop: 36 }}>
+            <div style={{ marginBottom: 20 }}>
+              <div className="section-label">✦ Municipal Transit Attestation</div>
+              <h3 style={{ fontFamily: "var(--font-mollie), Georgia, serif", fontSize: "1.85rem", color: "var(--color-notte)", margin: "4px 0", fontWeight: 500 }}>
+                Transit Pass Transaction Tracker &amp; Municipal Verification
+              </h3>
+              <p style={{ fontFamily: "var(--font-jost), sans-serif", fontSize: "0.92rem", color: "var(--color-oliva)", margin: 0 }}>
+                Live on-chain tracking for public mobility smart cards, contactless AFC gate milestone verification, and cryptographic settlement on Solana Devnet.
+              </p>
+            </div>
+
+            <TransitTracker
+              selectedPassName={activeTransitPassToTrack}
+              cityName={plannerCity?.name || priceCity}
+              selectedCurrency={selectedCurrency}
+            />
+          </div>
         </div>
-      )}
+      );
+    })()}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* TAB: SAFETY                                                   */}
