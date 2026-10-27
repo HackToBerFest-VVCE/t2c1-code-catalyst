@@ -38,6 +38,7 @@ import {
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../../lib/i18n";
 import { OfflineRemoteModal } from "../../components/OfflineRemoteModal";
 import { AgentFeedbackModal } from "../../components/AgentFeedbackModal";
+import { TouristAgentFeedbackCard } from "../../components/TouristAgentFeedbackCard";
 import {
   getAgentReviews,
   getTopAgentReview,
@@ -1293,33 +1294,17 @@ export default function AccountPage() {
                         </div>
                       </div>
 
-                      {/* Verified Traveler Review Snippet (Feedback Preview) */}
-                      {(() => {
-                        const topReview = getTopAgentReview(agreement.agentName);
-                        return (
-                          <div className="agreement-review-snippet">
-                            <div className="review-snippet-header">
-                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                <span className="review-author-rating">★ {topReview.rating.toFixed(1)} / 10</span>
-                                <span className="review-author-name">{topReview.author}</span>
-                                <span className="review-verified-badge">✓ Verified Review</span>
-                              </div>
-                              {topReview.highlightTag && (
-                                <span
-                                  style={{
-                                    fontSize: "0.68rem",
-                                    fontWeight: 700,
-                                    color: topReview.rating >= 9.0 ? "#2D5A43" : "#B45309",
-                                  }}
-                                >
-                                  {topReview.highlightTag}
-                                </span>
-                              )}
-                            </div>
-                            <p className="review-quote-text">&ldquo;{topReview.quote}&rdquo;</p>
-                          </div>
-                        );
-                      })()}
+                      {/* E-Commerce Product Style: Verified Tourist Feedback & Reviews */}
+                      <TouristAgentFeedbackCard
+                        agentName={agreement.agentName}
+                        agentDisplayName={agreement.agentName}
+                        agentRole={agreement.agentRole}
+                        agentRating={agreement.agentRating || getAgentRating(agreement.agentName)}
+                        agentTrustScore={agreement.agentTrustScore || 99.4}
+                        agentPda={agreement.agentPda}
+                        tripContext={agreement.dest}
+                        compact={true}
+                      />
 
                       {/* Price Lock & Transit Pass Grid */}
                       <div className="agreement-guarantees-grid">

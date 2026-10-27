@@ -56,6 +56,7 @@ import { SendEmailModal } from "../components/SendEmailModal";
 import { OfflineRemoteModal } from "../components/OfflineRemoteModal";
 import { ExperienceRatingWidget } from "../components/ExperienceRatingWidget";
 import { AgentFeedbackModal } from "../components/AgentFeedbackModal";
+import { TouristAgentFeedbackCard } from "../components/TouristAgentFeedbackCard";
 import {
   getAgentReviews,
   getTopAgentReview,
@@ -1478,33 +1479,19 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Verified Traveler Review Snippet (Feedback Preview) */}
-        {(() => {
-          const topRev = getTopAgentReview(activeAgent.displayName || activeAgent.name);
-          return (
-            <div className="agreement-review-snippet" style={{ marginBottom: 18 }}>
-              <div className="review-snippet-header">
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span className="review-author-rating">★ {topRev.rating.toFixed(1)} / 10</span>
-                  <span className="review-author-name">{topRev.author}</span>
-                  <span className="review-verified-badge">✓ Verified Review</span>
-                </div>
-                {topRev.highlightTag && (
-                  <span
-                    style={{
-                      fontSize: "0.68rem",
-                      fontWeight: 700,
-                      color: topRev.rating >= 9.0 ? "#2D5A43" : "#B45309",
-                    }}
-                  >
-                    {topRev.highlightTag}
-                  </span>
-                )}
-              </div>
-              <p className="review-quote-text">&ldquo;{topRev.quote}&rdquo;</p>
-            </div>
-          );
-        })()}
+        {/* E-Commerce Product Style: Verified Tourist Feedback & Reviews */}
+        <div style={{ marginBottom: 18 }}>
+          <TouristAgentFeedbackCard
+            agentName={activeAgent.name}
+            agentDisplayName={activeAgent.displayName || activeAgent.name}
+            agentRole={activeAgent.specialty}
+            agentRating={activeAgent.reputation?.rating ?? 9.8}
+            agentTrustScore={activeAgent.reputation?.trustScore ?? 99.8}
+            agentPda={activeAgent.identityPda}
+            tripContext={plannerCity ? `${plannerCity.name} Tailored (${generatedPlan?.numDays || 3}D)` : "Curated Cultural Itinerary"}
+            compact={true}
+          />
+        </div>
 
         {/* Guarantees Row: Price Lock + Transit Pass */}
         <div style={{
@@ -2619,35 +2606,16 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Live Traveler Review Preview for Selected Agent */}
-                      {(() => {
-                        const topRev = getTopAgentReview(selectedAgent?.displayName || selectedAgent?.name);
-                        const revCount = getAgentReviews(selectedAgent?.displayName || selectedAgent?.name).length;
-                        return (
-                          <div className="wizard-agent-review-preview">
-                            <span className="wizard-agent-review-preview-text" title={topRev.quote}>
-                              &ldquo;{topRev.quote}&rdquo; — {topRev.author} (★ {topRev.rating.toFixed(1)}/10)
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setIsAgentFeedbackModalOpen(true)}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                color: "#652733",
-                                fontWeight: 700,
-                                fontSize: "0.72rem",
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                                padding: "2px 4px",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              Reviews ({revCount})
-                            </button>
-                          </div>
-                        );
-                      })()}
+                      {/* E-Commerce Product Style: Verified Tourist Feedback & Reviews */}
+                      <TouristAgentFeedbackCard
+                        agentName={selectedAgent?.name || "touristmitra"}
+                        agentDisplayName={selectedAgent?.displayName || selectedAgent?.name || "Touristमित्र Heritage & Travel Concierge"}
+                        agentRole={selectedAgent?.specialty}
+                        agentRating={selectedAgent?.reputation?.rating ?? 9.8}
+                        agentTrustScore={selectedAgent?.reputation?.trustScore ?? 99.8}
+                        agentPda={selectedAgent?.identityPda}
+                        tripContext={plannerCity ? `${plannerCity.name} Cultural Tour` : "Verified Cultural Itinerary"}
+                      />
                     </div>
                   </div>
 
