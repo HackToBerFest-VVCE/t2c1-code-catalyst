@@ -266,28 +266,35 @@ img, video {
   transition: all 0.3s ease;
 }
 
-/* Signature Architectural Curved Bottom Edge (Q'in Saba Reference) */
+/* Signature Architectural Curved Bottom Edge (3D Sculpted Arch) */
 .nav-curve-wrapper {
   position: absolute;
-  bottom: -22px;
+  bottom: -28px;
   left: 0;
   width: 100%;
-  height: 24px;
+  height: 32px;
   pointer-events: none;
   z-index: 1001;
-  overflow: hidden;
+  overflow: visible;
+  filter: drop-shadow(0 4px 6px rgba(30, 51, 49, 0.07))
+          drop-shadow(0 10px 14px rgba(101, 39, 51, 0.09))
+          drop-shadow(0 20px 24px rgba(30, 51, 49, 0.05));
+  transition: all 0.3s ease;
 }
 
 .nav-curve-svg {
   display: block;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
 @media (max-width: 768px) {
   .nav-curve-wrapper {
-    bottom: -15px;
-    height: 16px;
+    bottom: -20px;
+    height: 22px;
+    filter: drop-shadow(0 3px 5px rgba(30, 51, 49, 0.08))
+            drop-shadow(0 8px 12px rgba(101, 39, 51, 0.08));
   }
 }
 

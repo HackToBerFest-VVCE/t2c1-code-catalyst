@@ -643,16 +643,76 @@ export default function AccountPage() {
           </div>
         </div>
 
+        {/* Signature Architectural Curved Bottom Edge (3D Sculpted Arch) */}
         <div className="nav-curve-wrapper" aria-hidden="true">
           <svg
             className="nav-curve-svg"
-            viewBox="0 0 1440 28"
+            viewBox="0 0 1440 32"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            <defs>
+              {/* 3D Convex Volume Gradient Shading */}
+              <linearGradient id="navCurve3DFillAcc" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="rgba(242, 237, 228, 0.98)" />
+                <stop offset="55%" stopColor="rgba(238, 231, 220, 0.98)" />
+                <stop offset="85%" stopColor="rgba(228, 218, 204, 0.98)" />
+                <stop offset="100%" stopColor="rgba(216, 203, 186, 0.98)" />
+              </linearGradient>
+
+              {/* 3D Beveled Rim Stroke Gradient */}
+              <linearGradient id="navCurve3DRimAcc" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(173, 137, 88, 0.30)" />
+                <stop offset="25%" stopColor="rgba(101, 39, 51, 0.45)" />
+                <stop offset="50%" stopColor="rgba(101, 39, 51, 0.75)" />
+                <stop offset="75%" stopColor="rgba(101, 39, 51, 0.45)" />
+                <stop offset="100%" stopColor="rgba(173, 137, 88, 0.30)" />
+              </linearGradient>
+
+              {/* Subtle Contact Blur Filter for 3D Ambient Crevice */}
+              <filter id="navCurveContactBlurAcc" x="-10%" y="-20%" width="120%" height="180%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" />
+              </filter>
+            </defs>
+
+            {/* Main 3D Volumetric Fill with Cylindrical Falloff */}
             <path
-              d="M0 0 L1440 0 L1440 1 C1060 26 380 26 0 1 Z"
-              fill="rgba(242, 237, 228, 0.98)"
+              d="M0 0 L1440 0 L1440 1.5 C1060 29.5 380 29.5 0 1.5 Z"
+              fill="url(#navCurve3DFillAcc)"
+            />
+
+            {/* 3D Ambient Contact Shadow right beneath the rim */}
+            <path
+              d="M0 3 C380 31 1060 31 1440 3"
+              stroke="rgba(30, 51, 49, 0.28)"
+              strokeWidth="3.5"
+              fill="none"
+              filter="url(#navCurveContactBlurAcc)"
+              opacity="0.65"
+            />
+
+            {/* Deep Architectural Underside Crevice Line */}
+            <path
+              d="M0 2.2 C380 30.2 1060 30.2 1440 2.2"
+              stroke="rgba(101, 39, 51, 0.35)"
+              strokeWidth="1.8"
+              fill="none"
+            />
+
+            {/* Core 3D Beveled Rim Lip */}
+            <path
+              d="M0 1.2 C380 29.2 1060 29.2 1440 1.2"
+              stroke="url(#navCurve3DRimAcc)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+
+            {/* Top Specular Edge Highlight catching illumination */}
+            <path
+              d="M0 0.5 C380 28.5 1060 28.5 1440 0.5"
+              stroke="rgba(255, 255, 255, 0.88)"
+              strokeWidth="1.2"
+              fill="none"
             />
           </svg>
         </div>
