@@ -5,7 +5,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   Sparkles,
-  UserPlus,
   Plus,
   Upload,
   Trash2,
@@ -419,7 +418,6 @@ export default function AccountPage() {
   const [profile, setProfile] = useState<AccountProfile>(DEFAULT_PROFILE);
   const [saveStatus, setSaveStatus] = useState<string>("");
   const [currentTimeStr, setCurrentTimeStr] = useState<string>("");
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [showTourModal, setShowTourModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedProgramId, setCopiedProgramId] = useState(false);
@@ -919,15 +917,6 @@ export default function AccountPage() {
             >
               <Sparkles size={16} className="sparkle-icon-pink" />
               <span>Take a look around</span>
-            </button>
-
-            <button
-              type="button"
-              className="account-btn-invite"
-              onClick={() => setShowInviteModal(true)}
-            >
-              <UserPlus size={15} />
-              <span>Invite user</span>
             </button>
 
             <Link href="/" className="account-btn-create">
@@ -1803,47 +1792,6 @@ export default function AccountPage() {
           </div>
         </div>
       </footer>
-
-      {/* ── Invite User Modal ── */}
-      {showInviteModal && (
-        <div className="account-modal-backdrop" onClick={() => setShowInviteModal(false)}>
-          <div className="account-dialog-card" onClick={(e) => e.stopPropagation()}>
-            <h3 className="dialog-title">Invite Travel Companion</h3>
-            <p className="dialog-sub">
-              Invite a fellow traveler or family member to co-manage itineraries and transit pass attestations.
-            </p>
-            <div style={{ margin: "18px 0" }}>
-              <label className="account-field-label">Companion Email Address</label>
-              <input
-                type="email"
-                className="account-field-input"
-                placeholder="companion@example.com"
-                autoFocus
-              />
-            </div>
-            <div className="dialog-actions-row">
-              <button
-                type="button"
-                className="account-btn-save-change"
-                onClick={() => {
-                  setShowInviteModal(false);
-                  setSaveStatus("Invitation sent successfully!");
-                  setTimeout(() => setSaveStatus(""), 3000);
-                }}
-              >
-                Send Invite
-              </button>
-              <button
-                type="button"
-                className="account-btn-cancel"
-                onClick={() => setShowInviteModal(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Tour Modal ── */}
       {showTourModal && (
