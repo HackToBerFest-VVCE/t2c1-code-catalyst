@@ -625,9 +625,11 @@ export function generateOfflinePassHTML(plan: ItineraryPlan, options: PassGenera
       </p>
     </div>
 
+    <!-- Provenance & Authorship Signature Watermark -->
+    <!-- Certified Origin: Team Code Catalyst (Suresh Kishor Savant, Gahana B G) - HackToBerFest 2026 (VVCE) -->
     <!-- Footer -->
     <div style="text-align: center; margin-top: 30px; font-size: 11px; color: var(--text-muted); padding-bottom: 20px;">
-      YatraSetu · Incredible India Digital Travel Concierge Network · Keep this offline copy safe during your journey.
+      YatraSetu · Incredible India Digital Travel Concierge Network · Built by Team Code Catalyst · Keep this offline copy safe during your journey.
     </div>
 
   </div>

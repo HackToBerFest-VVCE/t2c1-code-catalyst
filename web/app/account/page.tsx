@@ -2016,8 +2016,29 @@ export default function AccountPage() {
             <span className="editorial-footer-sep">·</span>
             <span className="editorial-footer-motto">Shubh Yatra (शुभ यात्रा)</span>
           </div>
-          <div className="editorial-footer-right">
-            © {new Date().getFullYear()} YatraSetu · Certified on Solana Devnet · All rights reserved.
+          <div className="editorial-footer-right" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <span>© {new Date().getFullYear()} YatraSetu · Certified on Solana Devnet · All rights reserved.</span>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-provenance-modal"))}
+              style={{
+                background: "rgba(101, 39, 51, 0.08)",
+                border: "1px solid rgba(101, 39, 51, 0.2)",
+                color: "#652733",
+                borderRadius: 9999,
+                padding: "2px 8px",
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                transition: "all 0.2s ease",
+              }}
+              title="Inspect Cryptographic Provenance & Creator Certificate (Team Code Catalyst)"
+            >
+              <span>🛡️ Provenance</span>
+            </button>
           </div>
         </div>
       </footer>
